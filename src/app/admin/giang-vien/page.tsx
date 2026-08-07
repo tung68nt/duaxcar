@@ -17,7 +17,10 @@ import {
     Image as ImageIcon
 } from "lucide-react";
 
+import { supabase } from "@/lib/supabase";
+
 interface Instructor {
+
     id: string;
     name: string;
     role: string;
@@ -140,30 +143,37 @@ export default function AdminInstructors() {
     ];
 
     useEffect(() => {
-        const localInstructors = localStorage.getItem("admin_instructors");
-        if (localInstructors) {
-            try {
-                const parsed = JSON.parse(localInstructors);
-                if (parsed.length < 3 || parsed.some((ins: any) => ins.imageAlign === undefined)) {
-                    setInstructors(defaultInstructors);
-                    localStorage.setItem("admin_instructors", JSON.stringify(defaultInstructors));
-                } else {
-                    setInstructors(parsed);
-                }
-            } catch (e) {
-                console.error("Error parsing instructors:", e);
+        const fetchInstructors = async () => {
+            const { data, error } = await supabase.from('instructors').select('*');
+            if (!error && data && data.length > 0) {
+                const formatted: Instructor[] = data.map((i: any) => ({
+                    id: i.id,
+                    name: i.name,
+                    role: i.role,
+                    title: i.title,
+                    image: i.image,
+                    bio: i.bio,
+                    fullBio: i.full_bio,
+                    achievements: i.achievements || [],
+                    courses: i.courses || [],
+                    quote: i.quote,
+                    experience: i.experience,
+                    visible: true,
+                    imageAlign: "top"
+                }));
+                setInstructors(formatted);
+            } else {
                 setInstructors(defaultInstructors);
             }
-        } else {
-            setInstructors(defaultInstructors);
-            localStorage.setItem("admin_instructors", JSON.stringify(defaultInstructors));
-        }
+        };
+        fetchInstructors();
 
         const savedMedia = localStorage.getItem("admin_media");
         if (savedMedia) {
             setUploadedMedia(JSON.parse(savedMedia));
         }
     }, []);
+
 
     useEffect(() => {
         let result = [...instructors];
@@ -215,12 +225,33 @@ export default function AdminInstructors() {
         setModalOpen(true);
     };
 
-    const handleFormSubmit = (e: React.FormEvent) => {
+    const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         // Filter empty elements out of arrays
         const filteredAchievements = formState.achievements.filter(a => a.trim() !== "");
         const filteredCourses = formState.courses.filter(c => c.trim() !== "");
+        let instId = editingInstructor ? editingInstructor.id : `ins-${Date.now()}`;
+
+        const payload = {
+            id: instId,
+            name: formState.name,
+            role: formState.role,
+            title: formState.title,
+            image: formState.image,
+            bio: formState.bio,
+            full_bio: formState.fullBio || null,
+            achievements: filteredAchievements,
+            courses: filteredCourses,
+            quote: formState.quote || null,
+            experience: formState.experience || null
+        };
+
+        const { error } = await supabase.from('instructors').upsert(payload);
+        if (error) {
+            alert("Lỗi khi lưu vào Supabase: " + error.message);
+            return;
+        }
 
         let updated: Instructor[] = [];
         if (editingInstructor) {
@@ -231,7 +262,7 @@ export default function AdminInstructors() {
             );
         } else {
             const newIns: Instructor = {
-                id: `ins-${Date.now()}`,
+                id: instId,
                 ...formState,
                 achievements: filteredAchievements,
                 courses: filteredCourses
@@ -244,13 +275,19 @@ export default function AdminInstructors() {
         setModalOpen(false);
     };
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (confirm("Bạn có chắc chắn muốn xóa giảng viên này khỏi danh sách?")) {
+            const { error } = await supabase.from('instructors').delete().eq('id', id);
+            if (error) {
+                alert("Lỗi khi xóa từ Supabase: " + error.message);
+                return;
+            }
             const updated = instructors.filter(ins => ins.id !== id);
             setInstructors(updated);
             localStorage.setItem("admin_instructors", JSON.stringify(updated));
         }
     };
+
 
     const toggleVisibility = (id: string) => {
         const updated = instructors.map(ins => 
