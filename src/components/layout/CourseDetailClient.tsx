@@ -14,6 +14,7 @@ import {
     Play,
     BookOpen,
     Lock,
+    Award,
 } from "lucide-react";
 import { CourseAccordion } from "@/components/ui/course-accordion";
 import { instructors, courseCategories } from "@/data/mock";
@@ -42,10 +43,8 @@ export default function CourseDetailClient({
     const [category, setCategory] = useState(initialCategory);
 
     useEffect(() => {
-        const localCourses = localStorage.getItem("admin_courses");
-        if (localCourses) {
-            const parsed: Course[] = JSON.parse(localCourses);
-            const found = parsed.find((c) => c.slug === slug);
+        const updateCourseData = (parsed: Course[]) => {
+            const found = parsed.find((c) => c.slug === slug || c.id === initialCourse.id);
             if (found) {
                 setCourse(found);
                 
@@ -56,15 +55,33 @@ export default function CourseDetailClient({
                 setRelatedCourses(filtered);
 
                 // Update instructor state
-                const foundInst = instructors.find((i) => i.id === found.instructorId);
+                const foundInst = instructors.find((i) => i.id === found.instructorId || i.name === found.instructor);
                 if (foundInst) setInstructor(foundInst);
 
                 // Update category state
                 const foundCat = courseCategories.find((c) => c.id === found.category);
                 if (foundCat) setCategory(foundCat);
             }
+        };
+
+        const localCourses = localStorage.getItem("admin_courses");
+        if (localCourses) {
+            try {
+                const parsed: Course[] = JSON.parse(localCourses);
+                updateCourseData(parsed);
+            } catch {}
         }
-    }, [slug]);
+
+        // Also fetch from live CMS API
+        fetch('/api/cms/courses')
+            .then(res => res.json())
+            .then(data => {
+                if (data.courses && Array.isArray(data.courses)) {
+                    updateCourseData(data.courses);
+                }
+            })
+            .catch(() => {});
+    }, [slug, initialCourse.id]);
 
     const isElearning = course.courseType === "elearning";
 
@@ -351,30 +368,44 @@ export default function CourseDetailClient({
                                         Về giảng viên
                                     </h2>
                                     <div className="card p-6">
-                                        <div className="flex flex-col sm:flex-row gap-6">
-                                            <div className="w-24 h-24 rounded-full bg-[var(--color-primary)]/20 flex items-center justify-center flex-shrink-0">
-                                                <ChefHat className="w-12 h-12 text-[var(--color-primary)]" />
+                                        <div className="flex flex-col sm:flex-row gap-6 items-start">
+                                            <div className="w-20 h-20 rounded-2xl bg-[var(--color-primary)]/10 border border-[var(--color-border)] overflow-hidden relative flex-shrink-0 flex items-center justify-center">
+                                                {instructor.image ? (
+                                                    <Image
+                                                        src={instructor.image}
+                                                        alt={instructor.name}
+                                                        fill
+                                                        className="object-cover object-top"
+                                                    />
+                                                ) : (
+                                                    <ChefHat className="w-10 h-10 text-[var(--color-primary)]" />
+                                                )}
                                             </div>
-                                            <div>
-                                                <h3 className="heading-4 text-[var(--color-text)] mb-1">
-                                                    {instructor.name}
-                                                </h3>
-                                                <p className="text-[var(--color-primary)] mb-3">
-                                                    {instructor.role}
-                                                </p>
-                                                <p className="text-[var(--color-text-secondary)] mb-4">
+                                            <div className="flex-1 space-y-3">
+                                                <div>
+                                                    <h3 className="heading-4 text-[var(--color-text)]">
+                                                        {instructor.name}
+                                                    </h3>
+                                                    <p className="text-xs font-semibold text-[var(--color-primary)]">
+                                                        {instructor.role} {instructor.title ? `• ${instructor.title}` : ''}
+                                                    </p>
+                                                </div>
+                                                <p className="text-small text-[var(--color-text-secondary)] leading-relaxed">
                                                     {instructor.bio}
                                                 </p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {instructor.achievements && instructor.achievements.slice(0, 3).map((a: string, i: number) => (
-                                                        <span
-                                                            key={i}
-                                                            className="text-xs px-2 py-1 bg-[var(--color-gray-800)] rounded-md text-[var(--color-text-muted)]"
-                                                        >
-                                                            {a}
-                                                        </span>
-                                                    ))}
-                                                </div>
+                                                {instructor.achievements && instructor.achievements.length > 0 && (
+                                                    <div className="flex flex-col gap-2 pt-1">
+                                                        {instructor.achievements.map((a: string, i: number) => (
+                                                            <div
+                                                                key={i}
+                                                                className="flex items-center gap-2.5 p-2.5 bg-[var(--color-background)] rounded-xl border border-[var(--color-border)] text-xs text-[var(--color-text)] font-medium"
+                                                            >
+                                                                <Award className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                                                                <span>{a}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

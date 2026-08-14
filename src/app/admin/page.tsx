@@ -35,39 +35,51 @@ export default function AdminDashboard() {
     const [recentRegistrations, setRecentRegistrations] = useState<Registration[]>([]);
 
     useEffect(() => {
-        // Initialize localStorage with mock data if not exists
-        if (!localStorage.getItem("admin_courses")) {
-            localStorage.setItem("admin_courses", JSON.stringify(courses));
-        }
-        if (!localStorage.getItem("admin_blogs")) {
-            localStorage.setItem("admin_blogs", JSON.stringify(blogPosts));
-        }
-        
-        const defaultRegs: Registration[] = [
-            { id: "reg-1", name: "Lê Minh Tuấn", phone: "0982345678", email: "minhtuan@gmail.com", courseName: "Phở Bò Truyền Thống", status: "pending", date: "2026-07-18" },
-            { id: "reg-2", name: "Nguyễn Thị Mai", phone: "0905123456", email: "mainguyen@gmail.com", courseName: "Bún Bò Huế", status: "contacted", date: "2026-07-17" },
-            { id: "reg-3", name: "Phan Anh Đức", phone: "0918765432", email: "anhduc@gmail.com", courseName: "Cơm Thố Xèo", status: "enrolled", date: "2026-07-15" },
-            { id: "reg-4", name: "Hoàng Thanh Hà", phone: "0973456789", email: "thanhha@gmail.com", courseName: "Lẩu Nướng Kinh Doanh", status: "pending", date: "2026-07-14" },
-            { id: "reg-5", name: "Đỗ Gia Bảo", phone: "0934567890", email: "giabao@gmail.com", courseName: "Phở Gà Ta", status: "cancelled", date: "2026-07-12" }
-        ];
+        const loadDashboardData = async () => {
+            let loadedCourses = courses;
+            let loadedBlogs = blogPosts;
+            let loadedRegs: Registration[] = [];
 
-        if (!localStorage.getItem("admin_registrations")) {
-            localStorage.setItem("admin_registrations", JSON.stringify(defaultRegs));
-        }
+            try {
+                const [cRes, bRes, rRes] = await Promise.all([
+                    fetch('/api/cms/courses'),
+                    fetch('/api/cms/blogs'),
+                    fetch('/api/cms/registrations')
+                ]);
+                if (cRes.ok) {
+                    const data = await cRes.json();
+                    if (data.courses) loadedCourses = data.courses;
+                }
+                if (bRes.ok) {
+                    const data = await bRes.json();
+                    if (data.blogs) loadedBlogs = data.blogs;
+                }
+                if (rRes.ok) {
+                    const data = await rRes.json();
+                    if (data.registrations) loadedRegs = data.registrations;
+                }
+            } catch (e) {
+                console.error("Dashboard fetch error:", e);
+            }
 
-        // Load data
-        const localCourses = JSON.parse(localStorage.getItem("admin_courses") || "[]");
-        const localBlogs = JSON.parse(localStorage.getItem("admin_blogs") || "[]");
-        const localRegs: Registration[] = JSON.parse(localStorage.getItem("admin_registrations") || "[]");
+            if (loadedRegs.length === 0) {
+                const localRegs = localStorage.getItem("admin_registrations");
+                if (localRegs) {
+                    try { loadedRegs = JSON.parse(localRegs); } catch {}
+                }
+            }
 
-        setStats({
-            totalCourses: localCourses.length,
-            totalBlogs: localBlogs.length,
-            totalRegistrations: localRegs.length,
-            pendingRegistrations: localRegs.filter(r => r.status === "pending").length
-        });
+            setStats({
+                totalCourses: loadedCourses.length,
+                totalBlogs: loadedBlogs.length,
+                totalRegistrations: loadedRegs.length,
+                pendingRegistrations: loadedRegs.filter(r => r.status === "pending").length
+            });
 
-        setRecentRegistrations(localRegs.slice(0, 5));
+            setRecentRegistrations(loadedRegs.slice(0, 5));
+        };
+
+        loadDashboardData();
     }, []);
 
     const getStatusBadge = (status: string) => {

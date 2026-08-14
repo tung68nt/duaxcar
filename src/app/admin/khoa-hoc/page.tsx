@@ -13,13 +13,14 @@ import {
     Save,
     Award,
     DollarSign,
-    Clock
+    Clock,
+    ArrowLeft
 } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 
 import { Course } from "@/lib/types";
-import { instructors, courseCategories } from "@/data/mock";
+import { courses as defaultMockCourses, instructors, courseCategories } from "@/data/mock";
 import { supabase } from "@/lib/supabase";
 
 
@@ -70,38 +71,34 @@ function AdminCoursesContent() {
     ];
 
     useEffect(() => {
-        // Fetch from Supabase
         const fetchCourses = async () => {
-            const { data, error } = await supabase.from('courses').select('*');
-            if (!error && data && data.length > 0) {
-                const formatted: Course[] = data.map((c: any) => ({
-                    id: c.id,
-                    slug: c.slug,
-                    name: c.name,
-                    category: c.category,
-                    courseType: c.course_type,
-                    description: c.description,
-                    shortDescription: c.short_description,
-                    price: Number(c.price),
-                    contactForPrice: c.contact_for_price,
-                    duration: c.duration,
-                    maxStudents: c.max_students,
-                    instructor: c.instructor,
-                    instructorId: c.instructor_id,
-                    image: c.image,
-                    highlights: c.highlights || [],
-                    curriculum: c.curriculum || [],
-                    featured: c.featured,
-                    totalLessons: c.total_lessons,
-                    totalDuration: c.total_duration,
-                    accessDuration: c.access_duration,
-                    onlineUrl: c.online_url
-                }));
-                setCourses(formatted);
-            } else {
-                const localCourses = localStorage.getItem("admin_courses");
-                if (localCourses) setCourses(JSON.parse(localCourses));
+            try {
+                const res = await fetch('/api/cms/courses');
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.courses && json.courses.length > 0) {
+                        setCourses(json.courses);
+                        localStorage.setItem("admin_courses", JSON.stringify(json.courses));
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error("Error fetching courses from API:", e);
             }
+
+            const localCourses = localStorage.getItem("admin_courses");
+            if (localCourses) {
+                try {
+                    const parsed = JSON.parse(localCourses);
+                    if (parsed.length > 0) {
+                        setCourses(parsed);
+                        return;
+                    }
+                } catch {}
+            }
+
+            setCourses(defaultMockCourses);
+            localStorage.setItem("admin_courses", JSON.stringify(defaultMockCourses));
         };
         fetchCourses();
 
@@ -293,43 +290,49 @@ function AdminCoursesContent() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        let courseId = editingCourse ? editingCourse.id : `course-${Date.now()}`;
+        const courseId = editingCourse ? editingCourse.id : `course-${Date.now()}`;
         
-        const payload = {
+        const courseData: Course = {
             id: courseId,
             slug: formState.slug,
             name: formState.name,
             category: formState.category,
-            course_type: formState.courseType,
+            courseType: formState.courseType,
             description: formState.description,
-            short_description: formState.shortDescription,
+            shortDescription: formState.shortDescription,
             price: formState.price,
-            contact_for_price: formState.contactForPrice || false,
+            contactForPrice: formState.contactForPrice || false,
             duration: formState.duration,
-            max_students: formState.maxStudents || null,
+            maxStudents: formState.maxStudents || 8,
             instructor: formState.instructor,
-            instructor_id: formState.instructorId,
+            instructorId: formState.instructorId,
             image: formState.image,
             highlights: formState.highlights || [],
             curriculum: formState.curriculum || [],
             featured: formState.featured || false,
-            total_lessons: formState.totalLessons || null,
-            total_duration: formState.totalDuration || null,
-            access_duration: formState.accessDuration || null,
-            online_url: formState.onlineUrl || null
+            totalLessons: formState.totalLessons || 10,
+            totalDuration: formState.totalDuration || "14 giờ",
+            accessDuration: formState.accessDuration || "Trọn đời",
+            onlineUrl: formState.onlineUrl || ""
         };
 
-        const { error } = await supabase.from('courses').upsert(payload);
-        if (error) {
-            alert("Lỗi khi lưu vào Supabase: " + error.message);
-            return;
+        // 1. Save to server persistent API
+        try {
+            await fetch('/api/cms/courses', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ course: courseData })
+            });
+        } catch (err) {
+            console.warn("Could not save to /api/cms/courses:", err);
         }
 
+        // 2. Update local state and localStorage
         let updatedCourses: Course[] = [];
         if (editingCourse) {
-            updatedCourses = courses.map(c => c.id === editingCourse.id ? { ...c, ...formState } : c);
+            updatedCourses = courses.map(c => c.id === editingCourse.id ? courseData : c);
         } else {
-            updatedCourses = [{ id: courseId, ...formState }, ...courses];
+            updatedCourses = [courseData, ...courses];
         }
 
         setCourses(updatedCourses);
@@ -340,11 +343,12 @@ function AdminCoursesContent() {
     // Delete Course
     const handleDelete = async (id: string) => {
         if (confirm("Bạn có chắc chắn muốn xóa khóa học này?")) {
-            const { error } = await supabase.from('courses').delete().eq('id', id);
-            if (error) {
-                alert("Lỗi khi xóa từ Supabase: " + error.message);
-                return;
+            try {
+                await fetch(`/api/cms/courses?id=${id}`, { method: 'DELETE' });
+            } catch (err) {
+                console.warn("Could not delete via API:", err);
             }
+
             const updated = courses.filter(c => c.id !== id);
             setCourses(updated);
             localStorage.setItem("admin_courses", JSON.stringify(updated));
@@ -358,6 +362,378 @@ function AdminCoursesContent() {
             currency: "VND"
         }).format(value);
     };
+
+    if (modalOpen) {
+        return (
+            <div className="space-y-6 animate-fadeIn pb-12">
+                {/* Editor Header */}
+                <div className="flex items-center justify-between bg-[var(--color-surface)] p-6 border border-[var(--color-border)] rounded-2xl">
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setModalOpen(false)}
+                            className="p-2 rounded-xl bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                        </button>
+                        <div>
+                            <h2 className="heading-3 text-[var(--color-text)]">
+                                {editingCourse ? `Chỉnh sửa khóa học: ${editingCourse.name}` : "Thêm khóa học mới"}
+                            </h2>
+                            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                                Cập nhật thông tin chi tiết khóa học, học phí & chương trình đào tạo.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setModalOpen(false)}
+                            className="btn btn-secondary btn-sm"
+                        >
+                            Hủy bỏ
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const form = document.getElementById("course-form") as HTMLFormElement;
+                                if (form) form.requestSubmit();
+                            }}
+                            className="btn btn-primary btn-sm flex items-center gap-1.5"
+                        >
+                            <Save className="w-4 h-4" />
+                            <span>Lưu khóa học</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Main Form Container */}
+                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-6">
+                    <form id="course-form" onSubmit={handleSubmit} className="space-y-6">
+                        {/* General */}
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="sm:col-span-2 lg:col-span-1">
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Tên khóa học</label>
+                                <input
+                                    type="text"
+                                    value={formState.name}
+                                    onChange={(e) => handleTitleChange(e.target.value)}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    placeholder="Ví dụ: Phở Bò Kinh Doanh..."
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Đường dẫn tĩnh (Slug)</label>
+                                <input
+                                    type="text"
+                                    value={formState.slug}
+                                    onChange={(e) => setFormState({ ...formState, slug: e.target.value })}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    placeholder="tu-dong-sinh-tu-ten"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Ảnh đại diện (Image URL)</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={formState.image}
+                                        onChange={(e) => setFormState({ ...formState, image: e.target.value })}
+                                        className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                        placeholder="https://..."
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setMediaModalOpen(true)}
+                                        className="px-4 py-2 bg-[var(--color-surface-light)] border border-[var(--color-border)] text-xs font-semibold rounded-xl text-[var(--color-text)] hover:bg-[var(--color-primary)] hover:text-white flex-shrink-0"
+                                    >
+                                        Chọn ảnh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Category, Type & Price */}
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Danh mục</label>
+                                <select
+                                    value={formState.category}
+                                    onChange={(e) => setFormState({ ...formState, category: e.target.value as any })}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                >
+                                    {courseCategories.map((cat) => (
+                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Hình thức học</label>
+                                <select
+                                    value={formState.courseType}
+                                    onChange={(e) => setFormState({ ...formState, courseType: e.target.value as "onsite" | "elearning" })}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                >
+                                    <option value="onsite">Trực tiếp tại trung tâm</option>
+                                    <option value="elearning">Khoa học Online</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Học phí (VNĐ)</label>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        value={formState.price}
+                                        onChange={(e) => setFormState({ ...formState, price: Number(e.target.value) })}
+                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none pr-8"
+                                        placeholder="5.000.000"
+                                        required
+                                    />
+                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-small font-bold text-[var(--color-text-muted)]">
+                                        đ
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 sm:pt-4">
+                                <label className="flex items-center gap-2 text-xs font-semibold text-[var(--color-text)] cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={formState.contactForPrice}
+                                        onChange={(e) => setFormState({ ...formState, contactForPrice: e.target.checked })}
+                                        className="w-4 h-4 rounded text-[var(--color-primary)] border-[var(--color-border)] focus:ring-[var(--color-primary)] bg-[var(--color-background)]"
+                                    />
+                                    <span className="text-amber-500">Hiển thị "Liên hệ tư vấn" (Ẩn giá tiền)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* Conditional Time & Limits */}
+                        <div className="p-4 border border-[var(--color-border)] rounded-2xl">
+                            <span className="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider block mb-3">
+                                Thông tin lớp {formState.courseType === "onsite" ? "Học trực tiếp" : "Học E-learning"}
+                            </span>
+                            
+                            {formState.courseType === "onsite" ? (
+                                <div className="grid sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Thời lượng học</label>
+                                        <input
+                                            type="text"
+                                            value={formState.duration}
+                                            onChange={(e) => setFormState({ ...formState, duration: e.target.value })}
+                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                            placeholder="Ví dụ: 2 ngày (14 giờ)"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Sĩ số tối đa (Học viên/Lớp)</label>
+                                        <input
+                                            type="number"
+                                            value={formState.maxStudents || 8}
+                                            onChange={(e) => setFormState({ ...formState, maxStudents: Number(e.target.value) })}
+                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div>
+                                        <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Số lượng bài giảng (video)</label>
+                                        <input
+                                            type="number"
+                                            value={formState.totalLessons || 10}
+                                            onChange={(e) => setFormState({ ...formState, totalLessons: Number(e.target.value) })}
+                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Thời lượng (Giờ học)</label>
+                                        <input
+                                            type="text"
+                                            value={formState.totalDuration || "14 giờ"}
+                                            onChange={(e) => setFormState({ ...formState, totalDuration: e.target.value })}
+                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Thời hạn truy cập</label>
+                                        <input
+                                            type="text"
+                                            value={formState.accessDuration || "Trọn đời"}
+                                            onChange={(e) => setFormState({ ...formState, accessDuration: e.target.value })}
+                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Đường dẫn E-learning portal</label>
+                                        <input
+                                            type="text"
+                                            value={formState.onlineUrl || ""}
+                                            onChange={(e) => setFormState({ ...formState, onlineUrl: e.target.value })}
+                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                            placeholder="https://academy.duaxcar.com/..."
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Descriptions */}
+                        <div>
+                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Mô tả ngắn</label>
+                            <textarea
+                                value={formState.shortDescription}
+                                onChange={(e) => setFormState({ ...formState, shortDescription: e.target.value })}
+                                rows={2}
+                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none resize-none"
+                                placeholder="Tóm tắt ngắn gọn nội dung hiển thị ngoài danh mục khóa học..."
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Mô tả chi tiết</label>
+                            <textarea
+                                value={formState.description}
+                                onChange={(e) => setFormState({ ...formState, description: e.target.value })}
+                                rows={4}
+                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                placeholder="Giới thiệu đầy đủ chi tiết về khóa học..."
+                                required
+                            />
+                        </div>
+
+                        {/* Dynamic Highlights List */}
+                        <div className="p-4 border border-[var(--color-border)] rounded-2xl space-y-3">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider">
+                                    Điểm nổi bật của khóa học
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={addHighlight}
+                                    className="text-xs text-[var(--color-primary)] hover:underline flex items-center gap-1"
+                                >
+                                    <Plus className="w-3.5 h-3.5" /> Thêm điểm nổi bật
+                                </button>
+                            </div>
+                            <div className="space-y-2">
+                                {formState.highlights.map((hl, index) => (
+                                    <div key={index} className="flex gap-2 items-center">
+                                        <input
+                                            type="text"
+                                            value={hl}
+                                            onChange={(e) => updateHighlight(index, e.target.value)}
+                                            className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                            placeholder={`Điểm nổi bật #${index + 1}`}
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeHighlight(index)}
+                                            className="p-2 text-[var(--color-text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ))}
+                                {formState.highlights.length === 0 && (
+                                    <p className="text-xs text-[var(--color-text-muted)] text-center py-2">Chưa thêm điểm nổi bật nào.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Dynamic Curriculum Chapters List */}
+                        <div className="p-4 border border-[var(--color-border)] rounded-2xl space-y-3">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider">
+                                    Chương trình học chi tiết (Syllabus)
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={addChapter}
+                                    className="text-xs text-[var(--color-primary)] hover:underline flex items-center gap-1"
+                                >
+                                    <Plus className="w-3.5 h-3.5" /> Thêm chương mới
+                                </button>
+                            </div>
+                            <div className="space-y-4">
+                                {formState.curriculum && formState.curriculum.map((chap, index) => (
+                                    <div key={index} className="p-4 bg-[var(--color-surface-light)]/30 border border-[var(--color-border)] rounded-xl space-y-3 relative">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs font-bold text-[var(--color-text)]">Chương #{index + 1}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeChapter(index)}
+                                                className="p-1.5 text-[var(--color-text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-3">
+                                            <div>
+                                                <label className="text-[10px] font-semibold text-[var(--color-text-muted)] block mb-1">Tiêu đề chương</label>
+                                                <input
+                                                    type="text"
+                                                    value={chap.title}
+                                                    onChange={(e) => updateChapter(index, "title", e.target.value)}
+                                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                                    placeholder="Chương 1: Giới thiệu..."
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] font-semibold text-[var(--color-text-muted)] block mb-1">Mô tả bài học</label>
+                                                <textarea
+                                                    value={chap.description}
+                                                    onChange={(e) => updateChapter(index, "description", e.target.value)}
+                                                    rows={2}
+                                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none resize-y"
+                                                    placeholder="Tìm hiểu nguồn gốc nguyên liệu và cách chọn..."
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                                {(!formState.curriculum || formState.curriculum.length === 0) && (
+                                    <p className="text-xs text-[var(--color-text-muted)] text-center py-2">Chưa thêm chương nào.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Submit */}
+                        <div className="flex justify-end gap-3 border-t border-[var(--color-border)] pt-5">
+                            <button
+                                type="button"
+                                onClick={() => setModalOpen(false)}
+                                className="btn btn-secondary btn-sm"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                type="submit"
+                                className="btn btn-primary btn-sm flex items-center gap-1.5"
+                            >
+                                <Save className="w-4 h-4" />
+                                <span>Lưu khóa học</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8">
@@ -502,373 +878,6 @@ function AdminCoursesContent() {
                     </table>
                 </div>
             </div>
-
-            {/* Modal Editor Form */}
-            {modalOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col animate-fadeIn">
-                        <div className="p-6 border-b border-[var(--color-border)] flex items-center justify-between sticky top-0 bg-[var(--color-surface)] z-10">
-                            <h3 className="font-heading font-semibold text-[var(--color-text)] text-base">
-                                {editingCourse ? "Chỉnh sửa thông tin khóa học" : "Thêm khóa học mới"}
-                            </h3>
-                            <button 
-                                onClick={() => setModalOpen(false)}
-                                className="p-1 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)]"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleSubmit} className="p-6 space-y-6 flex-1">
-                            {/* General */}
-                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <div className="sm:col-span-2 lg:col-span-1">
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Tên khóa học</label>
-                                    <input
-                                        type="text"
-                                        value={formState.name}
-                                        onChange={(e) => handleTitleChange(e.target.value)}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                        placeholder="Ví dụ: Phở Bò Kinh Doanh..."
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Đường dẫn tĩnh (Slug)</label>
-                                    <input
-                                        type="text"
-                                        value={formState.slug}
-                                        onChange={(e) => setFormState({ ...formState, slug: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                        placeholder="tu-dong-sinh-tu-ten"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Ảnh đại diện (Image URL)</label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={formState.image}
-                                            onChange={(e) => setFormState({ ...formState, image: e.target.value })}
-                                            className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                            placeholder="/images/courses/pho-bo.jpg"
-                                            required
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setMediaModalOpen(true)}
-                                            className="px-4 py-2.5 bg-[var(--color-surface-light)] border border-[var(--color-border)] text-xs font-semibold rounded-xl text-[var(--color-text)] hover:bg-[var(--color-primary)] hover:text-white hover:border-[var(--color-primary)] transition-all flex-shrink-0"
-                                        >
-                                            Chọn ảnh
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Categorization & Metadata */}
-                            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Danh mục</label>
-                                    <select
-                                        value={formState.category}
-                                        onChange={(e) => setFormState({ ...formState, category: e.target.value as any })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                    >
-                                        {courseCategories.map((cat) => (
-                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Loại hình học</label>
-                                    <select
-                                        value={formState.courseType}
-                                        onChange={(e) => setFormState({ ...formState, courseType: e.target.value as "onsite" | "elearning" })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                    >
-                                        <option value="onsite">Học trực tiếp</option>
-                                        <option value="elearning">Học E-learning</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Giảng viên giảng dạy</label>
-                                    <select
-                                        value={formState.instructorId}
-                                        onChange={(e) => handleInstructorChange(e.target.value)}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                    >
-                                        {instructors.map((inst) => (
-                                            <option key={inst.id} value={inst.id}>{inst.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="flex items-center gap-2 pt-6">
-                                    <label className="flex items-center gap-2 text-xs font-semibold text-[var(--color-text)] cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={formState.featured}
-                                            onChange={(e) => setFormState({ ...formState, featured: e.target.checked })}
-                                            className="w-4 h-4 rounded text-[var(--color-primary)] border-[var(--color-border)] focus:ring-[var(--color-primary)] bg-[var(--color-background)]"
-                                        />
-                                        <span>Khóa học nổi bật</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            {/* Tuition Fee settings */}
-                            <div className="p-4 bg-[var(--color-surface-light)]/40 border border-[var(--color-border)] rounded-2xl flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-                                <div className="w-full sm:w-1/2">
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Học phí công khai (VND)</label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            value={formatInputPrice(formState.price)}
-                                            onChange={(e) => handlePriceInputChange(e.target.value)}
-                                            disabled={formState.contactForPrice}
-                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl pl-4 pr-10 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none disabled:opacity-50 font-semibold"
-                                            placeholder="5.000.000"
-                                            required
-                                        />
-                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-small font-bold text-[var(--color-text-muted)]">
-                                            đ
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2 sm:pt-4">
-                                    <label className="flex items-center gap-2 text-xs font-semibold text-[var(--color-text)] cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={formState.contactForPrice}
-                                            onChange={(e) => setFormState({ ...formState, contactForPrice: e.target.checked })}
-                                            className="w-4 h-4 rounded text-[var(--color-primary)] border-[var(--color-border)] focus:ring-[var(--color-primary)] bg-[var(--color-background)]"
-                                        />
-                                        <span className="text-amber-500">Hiển thị "Liên hệ tư vấn" (Ẩn giá tiền)</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            {/* Conditional Time & Limits */}
-                            <div className="p-4 border border-[var(--color-border)] rounded-2xl">
-                                <span className="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider block mb-3">
-                                    Thông tin lớp {formState.courseType === "onsite" ? "Học trực tiếp" : "Học E-learning"}
-                                </span>
-                                
-                                {formState.courseType === "onsite" ? (
-                                    <div className="grid sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Thời lượng học</label>
-                                            <input
-                                                type="text"
-                                                value={formState.duration}
-                                                onChange={(e) => setFormState({ ...formState, duration: e.target.value })}
-                                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                                placeholder="Ví dụ: 2 ngày (14 giờ)"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Sĩ số tối đa (Học viên/Lớp)</label>
-                                            <input
-                                                type="number"
-                                                value={formState.maxStudents || 8}
-                                                onChange={(e) => setFormState({ ...formState, maxStudents: Number(e.target.value) })}
-                                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                        <div>
-                                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Số lượng bài giảng (video)</label>
-                                            <input
-                                                type="number"
-                                                value={formState.totalLessons || 10}
-                                                onChange={(e) => setFormState({ ...formState, totalLessons: Number(e.target.value) })}
-                                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Thời lượng (Giờ học)</label>
-                                            <input
-                                                type="text"
-                                                value={formState.totalDuration || "14 giờ"}
-                                                onChange={(e) => setFormState({ ...formState, totalDuration: e.target.value })}
-                                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Thời hạn truy cập</label>
-                                            <input
-                                                type="text"
-                                                value={formState.accessDuration || "Trọn đời"}
-                                                onChange={(e) => setFormState({ ...formState, accessDuration: e.target.value })}
-                                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Đường dẫn E-learning portal</label>
-                                            <input
-                                                type="text"
-                                                value={formState.onlineUrl || ""}
-                                                onChange={(e) => setFormState({ ...formState, onlineUrl: e.target.value })}
-                                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                                placeholder="https://academy.duaxcar.com/..."
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Descriptions */}
-                            <div>
-                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Mô tả ngắn</label>
-                                <textarea
-                                    value={formState.shortDescription}
-                                    onChange={(e) => setFormState({ ...formState, shortDescription: e.target.value })}
-                                    rows={2}
-                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none resize-none"
-                                    placeholder="Tóm tắt ngắn gọn nội dung hiển thị ngoài danh mục khóa học..."
-                                    required
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Mô tả chi tiết</label>
-                                <textarea
-                                    value={formState.description}
-                                    onChange={(e) => setFormState({ ...formState, description: e.target.value })}
-                                    rows={4}
-                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                    placeholder="Giới thiệu đầy đủ chi tiết về khóa học..."
-                                    required
-                                />
-                            </div>
-
-                            {/* Dynamic Highlights List */}
-                            <div className="p-4 border border-[var(--color-border)] rounded-2xl space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider">
-                                        Điểm nổi bật của khóa học
-                                    </span>
-                                    <button
-                                        type="button"
-                                        onClick={addHighlight}
-                                        className="text-xs text-[var(--color-primary)] hover:underline flex items-center gap-1"
-                                    >
-                                        <Plus className="w-3.5 h-3.5" /> Thêm điểm nổi bật
-                                    </button>
-                                </div>
-                                <div className="space-y-2">
-                                    {formState.highlights.map((hl, index) => (
-                                        <div key={index} className="flex gap-2 items-center">
-                                            <input
-                                                type="text"
-                                                value={hl}
-                                                onChange={(e) => updateHighlight(index, e.target.value)}
-                                                className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                                placeholder={`Điểm nổi bật #${index + 1}`}
-                                                required
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => removeHighlight(index)}
-                                                className="p-2 text-[var(--color-text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    ))}
-                                    {formState.highlights.length === 0 && (
-                                        <p className="text-xs text-[var(--color-text-muted)] text-center py-2">Chưa thêm điểm nổi bật nào.</p>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Dynamic Curriculum Chapters List */}
-                            <div className="p-4 border border-[var(--color-border)] rounded-2xl space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider">
-                                        Chương trình học chi tiết (Syllabus)
-                                    </span>
-                                    <button
-                                        type="button"
-                                        onClick={addChapter}
-                                        className="text-xs text-[var(--color-primary)] hover:underline flex items-center gap-1"
-                                    >
-                                        <Plus className="w-3.5 h-3.5" /> Thêm chương mới
-                                    </button>
-                                </div>
-                                <div className="space-y-4">
-                                    {formState.curriculum && formState.curriculum.map((chap, index) => (
-                                        <div key={index} className="p-4 bg-[var(--color-surface-light)]/30 border border-[var(--color-border)] rounded-xl space-y-3 relative">
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs font-bold text-[var(--color-text)]">Chương #{index + 1}</span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeChapter(index)}
-                                                    className="p-1.5 text-[var(--color-text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                                                >
-                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                </button>
-                                            </div>
-                                            <div className="grid grid-cols-1 gap-3">
-                                                <div>
-                                                    <label className="text-[10px] font-semibold text-[var(--color-text-muted)] block mb-1">Tiêu đề chương</label>
-                                                    <input
-                                                        type="text"
-                                                        value={chap.title}
-                                                        onChange={(e) => updateChapter(index, "title", e.target.value)}
-                                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                                        placeholder="Chương 1: Giới thiệu..."
-                                                        required
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="text-[10px] font-semibold text-[var(--color-text-muted)] block mb-1">Mô tả bài học</label>
-                                                    <textarea
-                                                        value={chap.description}
-                                                        onChange={(e) => updateChapter(index, "description", e.target.value)}
-                                                        rows={2}
-                                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none resize-y"
-                                                        placeholder="Tìm hiểu nguồn gốc nguyên liệu và cách chọn..."
-                                                        required
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    {(!formState.curriculum || formState.curriculum.length === 0) && (
-                                        <p className="text-xs text-[var(--color-text-muted)] text-center py-2">Chưa thêm chương nào.</p>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Submit */}
-                            <div className="flex justify-end gap-3 border-t border-[var(--color-border)] pt-5">
-                                <button
-                                    type="button"
-                                    onClick={() => setModalOpen(false)}
-                                    className="btn btn-secondary btn-sm"
-                                >
-                                    Hủy
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary btn-sm flex items-center gap-1.5"
-                                >
-                                    <Save className="w-4 h-4" />
-                                    <span>Lưu khóa học</span>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
 
             {/* Media Manager Modal */}
             {mediaModalOpen && (

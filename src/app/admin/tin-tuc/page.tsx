@@ -13,9 +13,12 @@ import {
     Save,
     Calendar,
     User,
-    Tag
+    Tag,
+    ArrowLeft
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { blogPosts as defaultMockBlogs } from "@/data/mock";
+import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
 
 interface BlogPost {
     id: string;
@@ -55,10 +58,36 @@ export default function AdminBlogsCMS() {
     });
 
     useEffect(() => {
-        const localPosts = localStorage.getItem("admin_blogs");
-        if (localPosts) {
-            setPosts(JSON.parse(localPosts));
-        }
+        const fetchBlogs = async () => {
+            try {
+                const res = await fetch('/api/cms/blogs');
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.blogs && json.blogs.length > 0) {
+                        setPosts(json.blogs);
+                        localStorage.setItem("admin_blogs", JSON.stringify(json.blogs));
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error("Error fetching blogs from API:", e);
+            }
+
+            const localPosts = localStorage.getItem("admin_blogs");
+            if (localPosts) {
+                try {
+                    const parsed = JSON.parse(localPosts);
+                    if (parsed.length > 0) {
+                        setPosts(parsed);
+                        return;
+                    }
+                } catch {}
+            }
+
+            setPosts(defaultMockBlogs);
+            localStorage.setItem("admin_blogs", JSON.stringify(defaultMockBlogs));
+        };
+        fetchBlogs();
     }, []);
 
     useEffect(() => {
@@ -128,23 +157,32 @@ export default function AdminBlogsCMS() {
     };
 
     // Handle Form Submit (Add / Edit)
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
+        const postId = editingPost ? editingPost.id : `post-${Date.now()}`;
+        const newPost: BlogPost = {
+            id: postId,
+            ...formState
+        };
+
+        try {
+            await fetch('/api/cms/blogs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ post: newPost })
+            });
+        } catch (err) {
+            console.warn("Could not save to /api/cms/blogs:", err);
+        }
+
         let updatedPosts: BlogPost[] = [];
-        
         if (editingPost) {
-            // Edit mode
             updatedPosts = posts.map(p => p.id === editingPost.id 
-                ? { ...p, ...formState } 
+                ? newPost 
                 : p
             );
         } else {
-            // Add mode
-            const newPost: BlogPost = {
-                id: `post-${Date.now()}`,
-                ...formState
-            };
             updatedPosts = [newPost, ...posts];
         }
 
@@ -154,13 +192,174 @@ export default function AdminBlogsCMS() {
     };
 
     // Delete Blog Post
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
+            try {
+                await fetch(`/api/cms/blogs?id=${id}`, { method: 'DELETE' });
+            } catch (err) {
+                console.warn("Could not delete via API:", err);
+            }
+
             const updated = posts.filter(p => p.id !== id);
             setPosts(updated);
             localStorage.setItem("admin_blogs", JSON.stringify(updated));
         }
     };
+
+    if (modalOpen) {
+        return (
+            <div className="space-y-6 animate-fadeIn pb-12">
+                {/* Editor Header */}
+                <div className="flex items-center justify-between bg-[var(--color-surface)] p-6 border border-[var(--color-border)] rounded-2xl">
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setModalOpen(false)}
+                            className="p-2 rounded-xl bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                        </button>
+                        <div>
+                            <h2 className="heading-3 text-[var(--color-text)]">
+                                {editingPost ? `Chỉnh sửa bài viết: ${editingPost.title}` : "Đăng bài viết mới"}
+                            </h2>
+                            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                                Biên soạn bài viết, định dạng HTML & tối ưu thông tin SEO.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setModalOpen(false)}
+                            className="btn btn-secondary btn-sm"
+                        >
+                            Hủy bỏ
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const form = document.getElementById("blog-form") as HTMLFormElement;
+                                if (form) form.requestSubmit();
+                            }}
+                            className="btn btn-primary btn-sm flex items-center gap-1.5"
+                        >
+                            <Save className="w-4 h-4" />
+                            <span>Lưu bài viết</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Main Form Container */}
+                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-6">
+                    <form id="blog-form" onSubmit={handleSubmit} className="space-y-6">
+                        {/* General */}
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Tiêu đề bài viết</label>
+                                <input
+                                    type="text"
+                                    value={formState.title}
+                                    onChange={(e) => handleTitleChange(e.target.value)}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    placeholder="Ví dụ: Cách nấu phở bò ngon..."
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Đường dẫn tĩnh (Slug)</label>
+                                <input
+                                    type="text"
+                                    value={formState.slug}
+                                    onChange={(e) => setFormState({ ...formState, slug: e.target.value })}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    placeholder="tu-dong-sinh-tu-tieu-de"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid sm:grid-cols-3 gap-4">
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Danh mục</label>
+                                <select
+                                    value={formState.category}
+                                    onChange={(e) => setFormState({ ...formState, category: e.target.value })}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                >
+                                    <option value="Công thức">Công thức</option>
+                                    <option value="Kinh nghiệm">Kinh nghiệm</option>
+                                    <option value="Tin tức">Tin tức</option>
+                                    <option value="Sự kiện">Sự kiện</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Tác giả</label>
+                                <input
+                                    type="text"
+                                    value={formState.author}
+                                    onChange={(e) => setFormState({ ...formState, author: e.target.value })}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Thời gian đọc</label>
+                                <input
+                                    type="text"
+                                    value={formState.readTime}
+                                    onChange={(e) => setFormState({ ...formState, readTime: e.target.value })}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Excerpt */}
+                        <div>
+                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Mô tả ngắn bài viết (SEO Description)</label>
+                            <AutoResizeTextarea
+                                value={formState.excerpt}
+                                onChange={(e) => setFormState({ ...formState, excerpt: e.target.value })}
+                                placeholder="Tóm tắt ngắn gọn nội dung hiển thị ở danh sách bài viết và meta description..."
+                                required
+                            />
+                        </div>
+
+                        {/* Main HTML Content */}
+                        <div>
+                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Nội dung bài viết (HTML / Editor)</label>
+                            <AutoResizeTextarea
+                                value={formState.content}
+                                onChange={(e) => setFormState({ ...formState, content: e.target.value })}
+                                className="font-mono"
+                                placeholder="<h3>Tiêu đề đoạn</h3> <p>Nội dung đoạn...</p>"
+                                required
+                            />
+                        </div>
+
+                        {/* Submit */}
+                        <div className="flex justify-end gap-3 border-t border-[var(--color-border)] pt-5">
+                            <button
+                                type="button"
+                                onClick={() => setModalOpen(false)}
+                                className="btn btn-secondary btn-sm"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                type="submit"
+                                className="btn btn-primary btn-sm flex items-center gap-1.5"
+                            >
+                                <Save className="w-4 h-4" />
+                                <span>Lưu bài viết</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8">
@@ -266,133 +465,6 @@ export default function AdminBlogsCMS() {
                     </table>
                 </div>
             </div>
-
-            {/* Modal Editor Form */}
-            {modalOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
-                        <div className="p-6 border-b border-[var(--color-border)] flex items-center justify-between sticky top-0 bg-[var(--color-surface)] z-10">
-                            <h3 className="font-heading font-semibold text-[var(--color-text)] text-base">
-                                {editingPost ? "Chỉnh sửa bài viết" : "Đăng bài viết mới"}
-                            </h3>
-                            <button 
-                                onClick={() => setModalOpen(false)}
-                                className="p-1 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)]"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleSubmit} className="p-6 space-y-6 flex-1">
-                            {/* General */}
-                            <div className="grid sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Tiêu đề bài viết</label>
-                                    <input
-                                        type="text"
-                                        value={formState.title}
-                                        onChange={(e) => handleTitleChange(e.target.value)}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                        placeholder="Ví dụ: Cách nấu phở bò ngon..."
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Đường dẫn tĩnh (Slug)</label>
-                                    <input
-                                        type="text"
-                                        value={formState.slug}
-                                        onChange={(e) => setFormState({ ...formState, slug: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                        placeholder="tu-dong-sinh-tu-tieu-de"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid sm:grid-cols-3 gap-4">
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Danh mục</label>
-                                    <select
-                                        value={formState.category}
-                                        onChange={(e) => setFormState({ ...formState, category: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                    >
-                                        <option value="Công thức">Công thức</option>
-                                        <option value="Kinh nghiệm">Kinh nghiệm</option>
-                                        <option value="Tin tức">Tin tức</option>
-                                        <option value="Sự kiện">Sự kiện</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Tác giả</label>
-                                    <input
-                                        type="text"
-                                        value={formState.author}
-                                        onChange={(e) => setFormState({ ...formState, author: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Thời gian đọc</label>
-                                    <input
-                                        type="text"
-                                        value={formState.readTime}
-                                        onChange={(e) => setFormState({ ...formState, readTime: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Excerpt */}
-                            <div>
-                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Mô tả ngắn bài viết (SEO Description)</label>
-                                <textarea
-                                    value={formState.excerpt}
-                                    onChange={(e) => setFormState({ ...formState, excerpt: e.target.value })}
-                                    rows={2}
-                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none resize-none"
-                                    placeholder="Tóm tắt ngắn gọn nội dung hiển thị ở danh sách bài viết và meta description..."
-                                    required
-                                />
-                            </div>
-
-                            {/* Main HTML Content */}
-                            <div>
-                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Nội dung bài viết (HTML / Editor)</label>
-                                <textarea
-                                    value={formState.content}
-                                    onChange={(e) => setFormState({ ...formState, content: e.target.value })}
-                                    rows={10}
-                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] font-mono focus:border-[var(--color-primary)] focus:outline-none"
-                                    placeholder="<h3>Tiêu đề đoạn</h3> <p>Nội dung đoạn...</p>"
-                                    required
-                                />
-                            </div>
-
-                            {/* Submit */}
-                            <div className="flex justify-end gap-3 border-t border-[var(--color-border)] pt-5">
-                                <button
-                                    type="button"
-                                    onClick={() => setModalOpen(false)}
-                                    className="btn btn-secondary btn-sm"
-                                >
-                                    Hủy
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary btn-sm flex items-center gap-1.5"
-                                >
-                                    <Save className="w-4 h-4" />
-                                    <span>Lưu bài viết</span>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

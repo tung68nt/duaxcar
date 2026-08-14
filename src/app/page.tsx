@@ -404,7 +404,7 @@ export default async function HomePage() {
                                 className="card card-glow overflow-hidden group relative"
                             >
                                 {/* Avatar */}
-                                <div className="relative h-[480px] overflow-hidden pt-8 px-8 pb-0 flex items-end justify-center" style={{ backgroundColor: "#ffffff" }}>
+                                <div className="relative h-[380px] overflow-hidden pt-6 px-6 pb-0 flex items-end justify-center" style={{ backgroundColor: "#ffffff" }}>
                                     <div className="relative w-full h-full">
                                         <Image
                                             src={instructor.image}
@@ -416,18 +416,18 @@ export default async function HomePage() {
                                     </div>
 
                                     {/* Experience Badge */}
-                                    <div className="absolute bottom-4 right-4 bg-[var(--color-primary)] text-white font-bold text-xs py-1 px-2.5 rounded-full shadow-lg shadow-[var(--color-primary)]/30 border-2 border-[var(--color-surface)] z-20 flex items-center gap-1">
+                                    <div className="absolute bottom-3 right-3 bg-[var(--color-primary)] text-white font-bold text-xs py-1 px-2.5 rounded-full shadow-lg shadow-[var(--color-primary)]/30 border-2 border-[var(--color-surface)] z-20 flex items-center gap-1">
                                         <Award className="w-3.5 h-3.5 fill-current" />
                                         <span>{instructor.experience} kinh nghiệm</span>
                                     </div>
                                 </div>
 
-                                {/* Seamless gradient overlay placed OUTSIDE and overlapping the boundary by 20px */}
+                                {/* Seamless gradient overlay placed OUTSIDE and overlapping the boundary */}
                                 <div
                                     className="absolute inset-x-0 pointer-events-none z-10"
                                     style={{
-                                        top: "320px",
-                                        height: "180px",
+                                        top: "260px",
+                                        height: "130px",
                                         background: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, var(--color-surface) 90%, var(--color-surface) 100%)",
                                     }}
                                 />

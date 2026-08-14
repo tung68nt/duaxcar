@@ -245,13 +245,13 @@ body {
 }
 
 .section {
-    padding-top: var(--space-20);
-    padding-bottom: var(--space-20);
+    padding-top: var(--space-12);
+    padding-bottom: var(--space-12);
 }
 
 .section-sm {
-    padding-top: var(--space-12);
-    padding-bottom: var(--space-12);
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
 }
 
 /* ============================================

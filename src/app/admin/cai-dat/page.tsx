@@ -104,15 +104,32 @@ export default function AdminSettings() {
     ];
 
     useEffect(() => {
-        const localSettings = localStorage.getItem("admin_settings");
-        if (localSettings) {
+        const fetchSettings = async () => {
             try {
-                const parsed = JSON.parse(localSettings);
-                setConfig(prev => ({ ...prev, ...parsed }));
+                const res = await fetch('/api/cms/settings');
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.settings) {
+                        setConfig(prev => ({ ...prev, ...json.settings }));
+                        localStorage.setItem("admin_settings", JSON.stringify(json.settings));
+                        return;
+                    }
+                }
             } catch (e) {
-                console.error("Error parsing stored config:", e);
+                console.error("Error fetching settings:", e);
             }
-        }
+
+            const localSettings = localStorage.getItem("admin_settings");
+            if (localSettings) {
+                try {
+                    const parsed = JSON.parse(localSettings);
+                    setConfig(prev => ({ ...prev, ...parsed }));
+                } catch (e) {
+                    console.error("Error parsing stored config:", e);
+                }
+            }
+        };
+        fetchSettings();
         
         const savedMedia = localStorage.getItem("admin_media");
         if (savedMedia) {
@@ -179,11 +196,22 @@ export default function AdminSettings() {
         setConfig(prev => ({ ...prev, heroBanners: updatedBanners }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        try {
+            await fetch('/api/cms/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ settings: config })
+            });
+        } catch (err) {
+            console.warn("Could not save settings via API:", err);
+        }
+
         localStorage.setItem("admin_settings", JSON.stringify(config));
         setSaved(true);
-        window.dispatchEvent(new Event("storage")); // Trigger local hydration
+        window.dispatchEvent(new Event("storage"));
         setTimeout(() => setSaved(false), 3000);
     };
 

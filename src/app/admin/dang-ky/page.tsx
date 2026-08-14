@@ -33,10 +33,29 @@ export default function AdminRegistrations() {
     const [statusFilter, setStatusFilter] = useState<string>("all");
 
     useEffect(() => {
-        const localRegs = localStorage.getItem("admin_registrations");
-        if (localRegs) {
-            setRegistrations(JSON.parse(localRegs));
-        }
+        const fetchRegs = async () => {
+            try {
+                const res = await fetch('/api/cms/registrations');
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.registrations && json.registrations.length > 0) {
+                        setRegistrations(json.registrations);
+                        localStorage.setItem("admin_registrations", JSON.stringify(json.registrations));
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error("Error fetching registrations:", e);
+            }
+
+            const localRegs = localStorage.getItem("admin_registrations");
+            if (localRegs) {
+                try {
+                    setRegistrations(JSON.parse(localRegs));
+                } catch {}
+            }
+        };
+        fetchRegs();
     }, []);
 
     useEffect(() => {
@@ -62,15 +81,31 @@ export default function AdminRegistrations() {
     }, [registrations, searchTerm, statusFilter]);
 
     // Update Status
-    const updateStatus = (id: string, newStatus: "pending" | "contacted" | "enrolled" | "cancelled") => {
-        const updated = registrations.map(r => r.id === id ? { ...r, status: newStatus } : r);
+    const updateStatus = async (id: string, newStatus: "pending" | "contacted" | "enrolled" | "cancelled") => {
+        const found = registrations.find(r => r.id === id);
+        if (!found) return;
+
+        const updatedItem = { ...found, status: newStatus };
+        try {
+            await fetch('/api/cms/registrations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ registration: updatedItem })
+            });
+        } catch {}
+
+        const updated = registrations.map(r => r.id === id ? updatedItem : r);
         setRegistrations(updated);
         localStorage.setItem("admin_registrations", JSON.stringify(updated));
     };
 
     // Delete Registration
-    const deleteRegistration = (id: string) => {
+    const deleteRegistration = async (id: string) => {
         if (confirm("Bạn có chắc chắn muốn xóa đơn đăng ký này?")) {
+            try {
+                await fetch(`/api/cms/registrations?id=${id}`, { method: 'DELETE' });
+            } catch {}
+
             const updated = registrations.filter(r => r.id !== id);
             setRegistrations(updated);
             localStorage.setItem("admin_registrations", JSON.stringify(updated));

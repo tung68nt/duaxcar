@@ -14,8 +14,10 @@ import {
     Award,
     BookOpen,
     Quote,
-    Image as ImageIcon
+    Image as ImageIcon,
+    ArrowLeft
 } from "lucide-react";
+import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
 
 import { supabase } from "@/lib/supabase";
 
@@ -144,27 +146,33 @@ export default function AdminInstructors() {
 
     useEffect(() => {
         const fetchInstructors = async () => {
-            const { data, error } = await supabase.from('instructors').select('*');
-            if (!error && data && data.length > 0) {
-                const formatted: Instructor[] = data.map((i: any) => ({
-                    id: i.id,
-                    name: i.name,
-                    role: i.role,
-                    title: i.title,
-                    image: i.image,
-                    bio: i.bio,
-                    fullBio: i.full_bio,
-                    achievements: i.achievements || [],
-                    courses: i.courses || [],
-                    quote: i.quote,
-                    experience: i.experience,
-                    visible: true,
-                    imageAlign: "top"
-                }));
-                setInstructors(formatted);
-            } else {
-                setInstructors(defaultInstructors);
+            try {
+                const res = await fetch('/api/cms/instructors');
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.instructors && json.instructors.length > 0) {
+                        setInstructors(json.instructors);
+                        localStorage.setItem("admin_instructors", JSON.stringify(json.instructors));
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error("Error fetching instructors from API:", e);
             }
+
+            const local = localStorage.getItem("admin_instructors");
+            if (local) {
+                try {
+                    const parsed = JSON.parse(local);
+                    if (parsed.length > 0) {
+                        setInstructors(parsed);
+                        return;
+                    }
+                } catch {}
+            }
+
+            setInstructors(defaultInstructors);
+            localStorage.setItem("admin_instructors", JSON.stringify(defaultInstructors));
         };
         fetchInstructors();
 
@@ -231,70 +239,41 @@ export default function AdminInstructors() {
         // Filter empty elements out of arrays
         const filteredAchievements = formState.achievements.filter(a => a.trim() !== "");
         const filteredCourses = formState.courses.filter(c => c.trim() !== "");
-        let instId = editingInstructor ? editingInstructor.id : `ins-${Date.now()}`;
+        const instId = editingInstructor ? editingInstructor.id : `ins-${Date.now()}`;
 
-        const payload = {
+        const newIns: Instructor = {
             id: instId,
-            name: formState.name,
-            role: formState.role,
-            title: formState.title,
-            image: formState.image,
-            bio: formState.bio,
-            full_bio: formState.fullBio || null,
+            ...formState,
             achievements: filteredAchievements,
-            courses: filteredCourses,
-            quote: formState.quote || null,
-            experience: formState.experience || null
+            courses: filteredCourses
         };
 
-        const { error } = await supabase.from('instructors').upsert(payload);
-        if (error) {
-            alert("Lỗi khi lưu vào Supabase: " + error.message);
-            return;
+        // 1. Save to server API
+        try {
+            await fetch('/api/cms/instructors', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ instructor: newIns })
+            });
+        } catch (err) {
+            console.warn("Could not save to /api/cms/instructors:", err);
         }
 
+        // 2. Update local state and localStorage
         let updated: Instructor[] = [];
         if (editingInstructor) {
             updated = instructors.map(ins => 
                 ins.id === editingInstructor.id 
-                    ? { ...ins, ...formState, achievements: filteredAchievements, courses: filteredCourses } 
+                    ? newIns 
                     : ins
             );
         } else {
-            const newIns: Instructor = {
-                id: instId,
-                ...formState,
-                achievements: filteredAchievements,
-                courses: filteredCourses
-            };
             updated = [...instructors, newIns];
         }
 
         setInstructors(updated);
         localStorage.setItem("admin_instructors", JSON.stringify(updated));
         setModalOpen(false);
-    };
-
-    const handleDelete = async (id: string) => {
-        if (confirm("Bạn có chắc chắn muốn xóa giảng viên này khỏi danh sách?")) {
-            const { error } = await supabase.from('instructors').delete().eq('id', id);
-            if (error) {
-                alert("Lỗi khi xóa từ Supabase: " + error.message);
-                return;
-            }
-            const updated = instructors.filter(ins => ins.id !== id);
-            setInstructors(updated);
-            localStorage.setItem("admin_instructors", JSON.stringify(updated));
-        }
-    };
-
-
-    const toggleVisibility = (id: string) => {
-        const updated = instructors.map(ins => 
-            ins.id === id ? { ...ins, visible: ins.visible === false ? true : false } : ins
-        );
-        setInstructors(updated);
-        localStorage.setItem("admin_instructors", JSON.stringify(updated));
     };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -304,15 +283,320 @@ export default function AdminInstructors() {
             reader.onloadend = () => {
                 const base64String = reader.result as string;
                 setFormState(prev => ({ ...prev, image: base64String }));
-                setMediaModalOpen(false);
                 
                 const updatedMedia = [base64String, ...uploadedMedia.filter(m => m !== base64String)].slice(0, 12);
                 setUploadedMedia(updatedMedia);
                 localStorage.setItem("admin_media", JSON.stringify(updatedMedia));
+                setMediaModalOpen(false);
             };
             reader.readAsDataURL(file);
         }
     };
+
+    const toggleVisibility = async (id: string) => {
+        const found = instructors.find(i => i.id === id);
+        if (!found) return;
+
+        const updatedItem = { ...found, visible: !(found.visible !== false) };
+        try {
+            await fetch('/api/cms/instructors', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ instructor: updatedItem })
+            });
+        } catch {}
+
+        const updated = instructors.map(i => i.id === id ? updatedItem : i);
+        setInstructors(updated);
+        localStorage.setItem("admin_instructors", JSON.stringify(updated));
+    };
+
+    const handleDelete = async (id: string) => {
+        if (confirm("Bạn có chắc chắn muốn xóa giảng viên này?")) {
+            try {
+                await fetch(`/api/cms/instructors?id=${id}`, { method: 'DELETE' });
+            } catch (err) {
+                console.warn("Could not delete via API:", err);
+            }
+
+            const updated = instructors.filter(i => i.id !== id);
+            setInstructors(updated);
+            localStorage.setItem("admin_instructors", JSON.stringify(updated));
+        }
+    };
+
+    if (modalOpen) {
+        return (
+            <div className="space-y-6 animate-fadeIn pb-12">
+                {/* Editor Header */}
+                <div className="flex items-center justify-between bg-[var(--color-surface)] p-6 border border-[var(--color-border)] rounded-2xl">
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setModalOpen(false)}
+                            className="p-2 rounded-xl bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                        </button>
+                        <div>
+                            <h2 className="heading-3 text-[var(--color-text)]">
+                                {editingInstructor ? `Chỉnh sửa hồ sơ: ${editingInstructor.name}` : "Thêm giảng viên mới"}
+                            </h2>
+                            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                                Cập nhật tiểu sử, thành tựu, khóa dạy & ảnh đại diện giảng viên.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setModalOpen(false)}
+                            className="btn btn-secondary btn-sm"
+                        >
+                            Hủy bỏ
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const form = document.getElementById("instructor-form") as HTMLFormElement;
+                                if (form) form.requestSubmit();
+                            }}
+                            className="btn btn-primary btn-sm flex items-center gap-1.5"
+                        >
+                            <Save className="w-4 h-4" />
+                            <span>Lưu giảng viên</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Main Form Container */}
+                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-6">
+                    <form id="instructor-form" onSubmit={handleFormSubmit} className="space-y-6">
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Họ và tên giảng viên</label>
+                                <input
+                                    type="text"
+                                    value={formState.name}
+                                    onChange={(e) => setFormState({ ...formState, name: e.target.value })}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    placeholder="Ví dụ: Nguyễn Hữu Thọ"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Vai trò hiển thị (Role Tag)</label>
+                                <input
+                                    type="text"
+                                    value={formState.role}
+                                    onChange={(e) => setFormState({ ...formState, role: e.target.value })}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    placeholder="Ví dụ: Giảng viên Món Việt"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Danh hiệu / Học vị (Title Line)</label>
+                                <input
+                                    type="text"
+                                    value={formState.title}
+                                    onChange={(e) => setFormState({ ...formState, title: e.target.value })}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    placeholder="Ví dụ: Đồng sáng lập Duaxcar Kitchen"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Kinh nghiệm làm việc</label>
+                                <input
+                                    type="text"
+                                    value={formState.experience}
+                                    onChange={(e) => setFormState({ ...formState, experience: e.target.value })}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    placeholder="Ví dụ: 10+ NĂM hoặc Hơn 15 năm"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid sm:grid-cols-3 gap-4">
+                            <div className="sm:col-span-2">
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Ảnh đại diện (Avatar URL)</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={formState.image}
+                                        onChange={(e) => setFormState({ ...formState, image: e.target.value })}
+                                        className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setMediaModalOpen(true)}
+                                        className="px-4 py-2 bg-[var(--color-surface-light)] border border-[var(--color-border)] text-xs font-semibold rounded-xl text-[var(--color-text)] hover:bg-[var(--color-primary)] hover:text-white flex-shrink-0"
+                                    >
+                                        Chọn ảnh
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="sm:col-span-1">
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Căn vị trí ảnh (Lấy nét mặt)</label>
+                                <select
+                                    value={formState.imageAlign || "top"}
+                                    onChange={(e) => setFormState({ ...formState, imageAlign: e.target.value as any })}
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                >
+                                    <option value="top">Căn trên (Ưu tiên lấy mặt)</option>
+                                    <option value="center">Căn giữa (Mặc định)</option>
+                                    <option value="bottom">Căn dưới</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Châm ngôn (Quote)</label>
+                            <input
+                                type="text"
+                                value={formState.quote}
+                                onChange={(e) => setFormState({ ...formState, quote: e.target.value })}
+                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                placeholder="Mùi phở đã ở trong máu..."
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Tóm tắt ngắn (Bio)</label>
+                            <AutoResizeTextarea
+                                value={formState.bio}
+                                onChange={(e) => setFormState({ ...formState, bio: e.target.value })}
+                                placeholder="Nghệ nhân ẩm thực..."
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Tiểu sử chi tiết (Full Bio)</label>
+                            <AutoResizeTextarea
+                                value={formState.fullBio || ""}
+                                onChange={(e) => setFormState({ ...formState, fullBio: e.target.value })}
+                                placeholder="Nhập tiểu sử đầy đủ, xuống dòng bằng phím Enter để tách đoạn..."
+                            />
+                        </div>
+
+                        {/* Achievements array input */}
+                        <div>
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)]">Thành tựu & Kinh nghiệm nổi bật</label>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormState({ ...formState, achievements: [...formState.achievements, ""] })}
+                                    className="text-xs text-[var(--color-primary)] hover:underline flex items-center gap-1 font-semibold"
+                                >
+                                    <Plus className="w-3.5 h-3.5" /> Thêm dòng
+                                </button>
+                            </div>
+                            <div className="space-y-2">
+                                {formState.achievements.map((item, index) => (
+                                    <div key={index} className="flex items-center gap-2">
+                                        <input
+                                            type="text"
+                                            value={item}
+                                            onChange={(e) => {
+                                                const updated = [...formState.achievements];
+                                                updated[index] = e.target.value;
+                                                setFormState({ ...formState, achievements: updated });
+                                            }}
+                                            className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                            placeholder={`Dòng thành tựu ${index + 1}`}
+                                        />
+                                        {formState.achievements.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormState({ ...formState, achievements: formState.achievements.filter((_, i) => i !== index) })}
+                                                className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Courses array input */}
+                        <div>
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)]">Khóa học / Lớp học phụ trách</label>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormState({ ...formState, courses: [...formState.courses, ""] })}
+                                    className="text-xs text-[var(--color-primary)] hover:underline flex items-center gap-1 font-semibold"
+                                >
+                                    <Plus className="w-3.5 h-3.5" /> Thêm dòng
+                                </button>
+                            </div>
+                            <div className="space-y-2">
+                                {formState.courses.map((item, index) => (
+                                    <div key={index} className="flex items-center gap-2">
+                                        <input
+                                            type="text"
+                                            value={item}
+                                            onChange={(e) => {
+                                                const updated = [...formState.courses];
+                                                updated[index] = e.target.value;
+                                                setFormState({ ...formState, courses: updated });
+                                            }}
+                                            className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                            placeholder={`Khóa học ${index + 1}`}
+                                        />
+                                        {formState.courses.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormState({ ...formState, courses: formState.courses.filter((_, i) => i !== index) })}
+                                                className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-2">
+                            <label className="flex items-center gap-2 text-xs font-semibold text-[var(--color-text)] cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={formState.visible !== false}
+                                    onChange={(e) => setFormState({ ...formState, visible: e.target.checked })}
+                                    className="w-4 h-4 rounded text-[var(--color-primary)] border-[var(--color-border)] focus:ring-[var(--color-primary)] bg-[var(--color-background)]"
+                                />
+                                <span>Hiển thị công khai giảng viên này trên trang giới thiệu</span>
+                            </label>
+                        </div>
+
+                        {/* Submit */}
+                        <div className="flex justify-end gap-3 border-t border-[var(--color-border)] pt-4 mt-2">
+                            <button
+                                type="button"
+                                onClick={() => setModalOpen(false)}
+                                className="btn btn-secondary btn-sm"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                type="submit"
+                                className="btn btn-primary btn-sm flex items-center gap-1.5"
+                            >
+                                <Save className="w-4 h-4" />
+                                <span>Lưu lại</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 w-full">
@@ -441,251 +725,6 @@ export default function AdminInstructors() {
                     </div>
                 ))}
             </div>
-
-            {/* Create/Edit Modal */}
-            {modalOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[2rem] w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col animate-fadeIn">
-                        <div className="p-6 border-b border-[var(--color-border)] flex items-center justify-between sticky top-0 bg-[var(--color-surface)] z-10">
-                            <h3 className="font-heading font-semibold text-[var(--color-text)] text-base">
-                                {editingInstructor ? "Chỉnh sửa hồ sơ giảng viên" : "Thêm giảng viên mới"}
-                            </h3>
-                            <button 
-                                onClick={() => setModalOpen(false)}
-                                className="p-1 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)]"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleFormSubmit} className="p-6 space-y-6">
-                            <div className="grid sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Họ và tên giảng viên</label>
-                                    <input
-                                        type="text"
-                                        value={formState.name}
-                                        onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                        placeholder="Ví dụ: Nguyễn Hữu Thọ"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Vai trò hiển thị (Role Tag)</label>
-                                    <input
-                                        type="text"
-                                        value={formState.role}
-                                        onChange={(e) => setFormState({ ...formState, role: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                        placeholder="Ví dụ: Giảng viên Món Việt"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Danh hiệu / Học vị (Title Line)</label>
-                                    <input
-                                        type="text"
-                                        value={formState.title}
-                                        onChange={(e) => setFormState({ ...formState, title: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                        placeholder="Ví dụ: Đồng sáng lập Duaxcar Kitchen"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Kinh nghiệm làm việc</label>
-                                    <input
-                                        type="text"
-                                        value={formState.experience}
-                                        onChange={(e) => setFormState({ ...formState, experience: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                        placeholder="Ví dụ: 10+ NĂM hoặc Hơn 15 năm"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid sm:grid-cols-3 gap-4">
-                                <div className="sm:col-span-2">
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Ảnh đại diện (Avatar URL)</label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={formState.image}
-                                            onChange={(e) => setFormState({ ...formState, image: e.target.value })}
-                                            className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                            required
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setMediaModalOpen(true)}
-                                            className="px-4 py-2 bg-[var(--color-surface-light)] border border-[var(--color-border)] text-xs font-semibold rounded-xl text-[var(--color-text)] hover:bg-[var(--color-primary)] hover:text-white flex-shrink-0"
-                                        >
-                                            Chọn ảnh
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="sm:col-span-1">
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Căn vị trí ảnh (Lấy nét mặt)</label>
-                                    <select
-                                        value={formState.imageAlign || "top"}
-                                        onChange={(e) => setFormState({ ...formState, imageAlign: e.target.value as any })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                    >
-                                        <option value="top">Căn trên (Ưu tiên lấy mặt)</option>
-                                        <option value="center">Căn giữa (Mặc định)</option>
-                                        <option value="bottom">Căn dưới</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Châm ngôn (Quote)</label>
-                                <input
-                                    type="text"
-                                    value={formState.quote}
-                                    onChange={(e) => setFormState({ ...formState, quote: e.target.value })}
-                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                    placeholder="Mùi phở đã ở trong máu..."
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Tóm tắt ngắn (Bio)</label>
-                                <textarea
-                                    value={formState.bio}
-                                    onChange={(e) => setFormState({ ...formState, bio: e.target.value })}
-                                    rows={2}
-                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                    placeholder="Nghệ nhân ẩm thực..."
-                                    required
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Tiểu sử chi tiết (Full Bio)</label>
-                                <textarea
-                                    value={formState.fullBio}
-                                    onChange={(e) => setFormState({ ...formState, fullBio: e.target.value })}
-                                    rows={5}
-                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                    placeholder="Nhập tiểu sử đầy đủ, xuống dòng bằng phím Enter để tách đoạn..."
-                                />
-                            </div>
-
-                            {/* Achievements array input */}
-                            <div>
-                                <div className="flex items-center justify-between mb-2">
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)]">Thành tựu & Kinh nghiệm nổi bật</label>
-                                    <button
-                                        type="button"
-                                        onClick={() => setFormState({ ...formState, achievements: [...formState.achievements, ""] })}
-                                        className="text-xs text-[var(--color-primary)] hover:underline flex items-center gap-1 font-semibold"
-                                    >
-                                        <Plus className="w-3.5 h-3.5" /> Thêm dòng
-                                    </button>
-                                </div>
-                                <div className="space-y-2">
-                                    {formState.achievements.map((item, index) => (
-                                        <div key={index} className="flex items-center gap-2">
-                                            <input
-                                                type="text"
-                                                value={item}
-                                                onChange={(e) => {
-                                                    const updated = [...formState.achievements];
-                                                    updated[index] = e.target.value;
-                                                    setFormState({ ...formState, achievements: updated });
-                                                }}
-                                                className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                                placeholder={`Dòng thành tựu ${index + 1}`}
-                                            />
-                                            {formState.achievements.length > 1 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setFormState({ ...formState, achievements: formState.achievements.filter((_, i) => i !== index) })}
-                                                    className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl"
-                                                >
-                                                    <X className="w-4 h-4" />
-                                                </button>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Courses array input */}
-                            <div>
-                                <div className="flex items-center justify-between mb-2">
-                                    <label className="text-xs font-semibold text-[var(--color-text-secondary)]">Khóa học / Lớp học phụ trách</label>
-                                    <button
-                                        type="button"
-                                        onClick={() => setFormState({ ...formState, courses: [...formState.courses, ""] })}
-                                        className="text-xs text-[var(--color-primary)] hover:underline flex items-center gap-1 font-semibold"
-                                    >
-                                        <Plus className="w-3.5 h-3.5" /> Thêm dòng
-                                    </button>
-                                </div>
-                                <div className="space-y-2">
-                                    {formState.courses.map((item, index) => (
-                                        <div key={index} className="flex items-center gap-2">
-                                            <input
-                                                type="text"
-                                                value={item}
-                                                onChange={(e) => {
-                                                    const updated = [...formState.courses];
-                                                    updated[index] = e.target.value;
-                                                    setFormState({ ...formState, courses: updated });
-                                                }}
-                                                className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                                placeholder={`Khóa học ${index + 1}`}
-                                            />
-                                            {formState.courses.length > 1 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setFormState({ ...formState, courses: formState.courses.filter((_, i) => i !== index) })}
-                                                    className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl"
-                                                >
-                                                    <X className="w-4 h-4" />
-                                                </button>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-2 pt-2">
-                                <label className="flex items-center gap-2 text-xs font-semibold text-[var(--color-text)] cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={formState.visible !== false}
-                                        onChange={(e) => setFormState({ ...formState, visible: e.target.checked })}
-                                        className="w-4 h-4 rounded text-[var(--color-primary)] border-[var(--color-border)] focus:ring-[var(--color-primary)] bg-[var(--color-background)]"
-                                    />
-                                    <span>Hiển thị công khai giảng viên này trên trang giới thiệu</span>
-                                </label>
-                            </div>
-
-                            <div className="flex justify-end gap-3 border-t border-[var(--color-border)] pt-4 mt-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setModalOpen(false)}
-                                    className="btn btn-secondary btn-sm"
-                                >
-                                    Hủy
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary btn-sm flex items-center gap-1.5"
-                                >
-                                    <Save className="w-4 h-4" />
-                                    <span>Lưu lại</span>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
 
             {/* Avatar Media Dialog */}
             {mediaModalOpen && (
