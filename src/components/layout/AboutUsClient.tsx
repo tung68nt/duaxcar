@@ -389,8 +389,14 @@ export default function AboutUsClient({ initialStats, initialInstructors }: Abou
                         <div className="grid lg:grid-cols-12 gap-8 items-start animate-fadeIn">
                             {/* Left: Non-cropped Portrait Card */}
                             <div className="lg:col-span-5 flex flex-col items-center">
-                                <div className="w-full max-w-sm rounded-3xl overflow-hidden bg-white/95 border border-[var(--color-border)] shadow-xl relative pt-6 px-6 pb-2 flex flex-col items-center justify-end">
-                                    <div className="relative w-full aspect-[4/5] flex items-end justify-center">
+                                <div 
+                                    className="w-full max-w-sm rounded-3xl overflow-hidden border border-[var(--color-border)] shadow-xl relative pt-6 px-6 pb-0 flex flex-col items-center justify-end"
+                                    style={{ backgroundColor: "#ffffff" }}
+                                >
+                                    <div 
+                                        className="relative w-full aspect-[4/5] flex items-end justify-center"
+                                        style={{ backgroundColor: "#ffffff" }}
+                                    >
                                         <Image
                                             src={activeInstructor.image}
                                             alt={activeInstructor.name}
@@ -400,8 +406,6 @@ export default function AboutUsClient({ initialStats, initialInstructors }: Abou
                                             sizes="(max-width: 768px) 100vw, 400px"
                                         />
                                     </div>
-                                    {/* Bottom soft shadow gradient */}
-                                    <div className="absolute inset-x-0 bottom-0 h-16 pointer-events-none bg-gradient-to-t from-white via-white/80 to-transparent" />
                                 </div>
 
                                 {/* Experience Badge - Pinned Cleanly Without Cutoff */}
