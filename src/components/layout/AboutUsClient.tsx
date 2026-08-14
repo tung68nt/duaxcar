@@ -99,6 +99,7 @@ export default function AboutUsClient({ initialStats, initialInstructors }: Abou
             .then(data => {
                 if (data.instructors && Array.isArray(data.instructors) && data.instructors.length > 0) {
                     setInstructors(data.instructors);
+                    localStorage.setItem("admin_instructors", JSON.stringify(data.instructors));
                 }
             })
             .catch(() => {});
