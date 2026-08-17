@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { navigation } from "@/data/mock";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,24 @@ type NavItem = {
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handleMouseEnter = (label: string) => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+        setOpenDropdown(label);
+    };
+
+    const handleMouseLeave = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+            setOpenDropdown(null);
+        }, 220);
+    };
 
     return (
         <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--color-background)]/80 backdrop-blur-xl border-b border-[var(--color-border)] shadow-sm">
@@ -39,56 +57,66 @@ export default function Header() {
                         {(navigation as NavItem[]).map((item) => (
                             <div
                                 key={item.href}
-                                className="relative group h-full flex items-center"
-                                onMouseEnter={() => item.children && setOpenDropdown(item.label)}
-                                onMouseLeave={() => item.children && setOpenDropdown(null)}
+                                className="relative group h-full flex items-center py-2"
+                                onMouseEnter={() => item.children && handleMouseEnter(item.label)}
+                                onMouseLeave={() => item.children && handleMouseLeave()}
                             >
                                 {item.children ? (
                                     <>
                                         <Link
                                             href={item.href}
-                                            className="px-3.5 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface)] rounded-lg transition-all flex items-center gap-1.5"
+                                            className={cn(
+                                                "px-3.5 py-2 text-sm font-medium rounded-lg transition-all flex items-center gap-1.5",
+                                                openDropdown === item.label
+                                                    ? "text-[var(--color-text)] bg-[var(--color-surface)]"
+                                                    : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface)]"
+                                            )}
                                             onClick={() => setOpenDropdown(null)}
                                         >
                                             <span>{item.label}</span>
                                             <ChevronDown className={cn(
-                                                "w-4 h-4 transition-transform duration-200 group-hover:rotate-180",
+                                                "w-4 h-4 transition-transform duration-200",
                                                 openDropdown === item.label && "rotate-180"
                                             )} />
                                         </Link>
-                                        {/* Dropdown with hover bridge */}
+                                        
+                                        {/* Dropdown with seamless hover container bridge */}
                                         <div
                                             className={cn(
-                                                "absolute top-full left-0 mt-1.5 w-64 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-xl overflow-hidden transition-all duration-200 z-50 py-1.5 before:absolute before:-top-3 before:left-0 before:right-0 before:h-3 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:pointer-events-auto",
+                                                "absolute top-full left-0 pt-2 w-64 transition-all duration-200 z-50",
                                                 openDropdown === item.label
                                                     ? "opacity-100 visible translate-y-0 pointer-events-auto"
                                                     : "opacity-0 invisible -translate-y-2 pointer-events-none"
                                             )}
+                                            onMouseEnter={() => handleMouseEnter(item.label)}
+                                            onMouseLeave={() => handleMouseLeave()}
                                         >
-                                            {item.children.map((child) => {
-                                                const isExternal = child.href.startsWith("http");
-                                                return isExternal ? (
-                                                    <a
-                                                        key={child.href}
-                                                        href={child.href}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="block px-4 py-2.5 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-hover,rgba(255,255,255,0.05))] transition-colors"
-                                                        onClick={() => setOpenDropdown(null)}
-                                                    >
-                                                        {child.label}
-                                                    </a>
-                                                ) : (
-                                                    <Link
-                                                        key={child.href}
-                                                        href={child.href}
-                                                        className="block px-4 py-2.5 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-hover,rgba(255,255,255,0.05))] transition-colors"
-                                                        onClick={() => setOpenDropdown(null)}
-                                                    >
-                                                        {child.label}
-                                                    </Link>
-                                                );
-                                            })}
+                                            <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-2xl overflow-hidden py-1.5 backdrop-blur-xl">
+                                                {item.children.map((child) => {
+                                                    const isExternal = child.href.startsWith("http");
+                                                    return isExternal ? (
+                                                        <a
+                                                            key={child.href}
+                                                            href={child.href}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="block px-4 py-2.5 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-hover,rgba(255,255,255,0.05))] transition-colors"
+                                                            onClick={() => setOpenDropdown(null)}
+                                                        >
+                                                            {child.label}
+                                                        </a>
+                                                    ) : (
+                                                        <Link
+                                                            key={child.href}
+                                                            href={child.href}
+                                                            className="block px-4 py-2.5 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-hover,rgba(255,255,255,0.05))] transition-colors"
+                                                            onClick={() => setOpenDropdown(null)}
+                                                        >
+                                                            {child.label}
+                                                        </Link>
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
                                     </>
                                 ) : (
@@ -216,7 +244,7 @@ export default function Header() {
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             onClick={() => setIsMenuOpen(false)}
-                                            className="px-4 py-2.5 text-base font-medium text-[var(--color-text)] hover:text-[var(--color-primary)] transition-all block"
+                                            className="block px-4 py-2.5 text-base font-medium text-[var(--color-text)] hover:text-[var(--color-primary)] transition-all"
                                         >
                                             {item.label}
                                         </a>
@@ -224,7 +252,7 @@ export default function Header() {
                                         <Link
                                             href={item.href}
                                             onClick={() => setIsMenuOpen(false)}
-                                            className="px-4 py-2.5 text-base font-medium text-[var(--color-text)] hover:text-[var(--color-primary)] transition-all block"
+                                            className="block px-4 py-2.5 text-base font-medium text-[var(--color-text)] hover:text-[var(--color-primary)] transition-all"
                                         >
                                             {item.label}
                                         </Link>
@@ -232,13 +260,6 @@ export default function Header() {
                                 )}
                             </div>
                         ))}
-                        <Link
-                            href="/lien-he"
-                            onClick={() => setIsMenuOpen(false)}
-                            className="btn btn-primary mt-3 text-center"
-                        >
-                            Đăng ký ngay
-                        </Link>
                     </nav>
                 </div>
             </div>
