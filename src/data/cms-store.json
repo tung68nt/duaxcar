@@ -668,6 +668,20 @@
   ],
   "blogs": [
     {
+      "id": "test-api-save",
+      "slug": "test-api-save",
+      "title": "Test Bài Viết Mới CMS",
+      "excerpt": "Tóm tắt bài viết test",
+      "content": "<p>Nội dung bài viết test</p>",
+      "image": "/images/courses/pho-bo.jpg",
+      "author": "Nguyễn Hữu Thọ",
+      "authorImage": "/images/instructors/nguyen-huu-tho-v3.jpg",
+      "date": "2026-08-17",
+      "category": "Công thức",
+      "readTime": "5 phút",
+      "featured": false
+    },
+    {
       "id": "1",
       "slug": "bi-quyet-nau-pho-ngon-tai-nha",
       "title": "Bí quyết nấu phở bò ngon tại nhà chuẩn vị Hà Nội",

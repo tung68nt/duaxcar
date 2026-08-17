@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Accordion } from "@/components/ui/accordion";
 import { ArrowRight, MessageCircle, Phone, Mail } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
     title: "Câu hỏi thường gặp | DuaxCar Kitchen",
     description: "Giải đáp các thắc mắc về khóa học, hình thức thanh toán và quy trình học tại DuaxCar Kitchen.",

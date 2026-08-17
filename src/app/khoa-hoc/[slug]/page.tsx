@@ -19,6 +19,8 @@ import { Metadata } from "next";
 import CategoryIcon from "@/components/category-icon";
 import CourseRegistrationForm from "@/components/layout/course-registration-form";
 
+export const dynamic = "force-dynamic";
+
 type Props = {
     params: Promise<{ slug: string }>;
 };

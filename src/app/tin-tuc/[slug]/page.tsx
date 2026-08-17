@@ -8,6 +8,8 @@ import { formatDate } from "@/lib/utils";
 import { TableOfContents } from "@/components/blog/table-of-contents";
 import { Metadata } from 'next';
 
+export const dynamic = "force-dynamic";
+
 // Generate static params for all blog posts
 export async function generateStaticParams() {
     const liveBlogs = await getSupabaseBlogPosts();

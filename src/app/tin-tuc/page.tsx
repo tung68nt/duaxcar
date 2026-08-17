@@ -6,6 +6,8 @@ import { getSupabaseBlogPosts } from "@/lib/cms";
 import { formatDate } from "@/lib/utils";
 import { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
     title: "Tin tức",
     description:

@@ -19,6 +19,8 @@ import { stats, instructors as mockInstructors } from "@/data/mock";
 import { getSupabaseInstructors } from "@/lib/cms";
 import { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
     title: "Về DuaxCar - Giới thiệu & Đội ngũ giảng viên",
     description:
