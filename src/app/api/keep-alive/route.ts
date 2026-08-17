@@ -9,8 +9,8 @@ export async function GET() {
 
         // Query a lightweight record to generate activity in Supabase
         const { data, error } = await supabase
-            .from("settings")
-            .select("key")
+            .from("courses")
+            .select("id")
             .limit(1);
 
         if (error) {
