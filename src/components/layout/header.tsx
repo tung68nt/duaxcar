@@ -45,20 +45,24 @@ export default function Header() {
                             >
                                 {item.children ? (
                                     <>
-                                        <button
-                                            className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface)] rounded-lg transition-all flex items-center gap-1"
-                                            onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
+                                        <Link
+                                            href={item.href}
+                                            className="px-3.5 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface)] rounded-lg transition-all flex items-center gap-1.5"
+                                            onClick={() => setOpenDropdown(null)}
                                         >
-                                            {item.label}
-                                            <ChevronDown className="w-4 h-4" />
-                                        </button>
-                                        {/* Dropdown */}
+                                            <span>{item.label}</span>
+                                            <ChevronDown className={cn(
+                                                "w-4 h-4 transition-transform duration-200 group-hover:rotate-180",
+                                                openDropdown === item.label && "rotate-180"
+                                            )} />
+                                        </Link>
+                                        {/* Dropdown with hover bridge */}
                                         <div
                                             className={cn(
-                                                "absolute top-full left-0 mt-2 w-64 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-xl overflow-hidden transition-all duration-200",
+                                                "absolute top-full left-0 mt-1.5 w-64 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-xl overflow-hidden transition-all duration-200 z-50 py-1.5 before:absolute before:-top-3 before:left-0 before:right-0 before:h-3 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:pointer-events-auto",
                                                 openDropdown === item.label
-                                                    ? "opacity-100 visible translate-y-0"
-                                                    : "opacity-0 invisible -translate-y-2"
+                                                    ? "opacity-100 visible translate-y-0 pointer-events-auto"
+                                                    : "opacity-0 invisible -translate-y-2 pointer-events-none"
                                             )}
                                         >
                                             {item.children.map((child) => {
@@ -69,7 +73,7 @@ export default function Header() {
                                                         href={child.href}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="block px-4 py-3 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-gray-700)] transition-colors"
+                                                        className="block px-4 py-2.5 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-hover,rgba(255,255,255,0.05))] transition-colors"
                                                         onClick={() => setOpenDropdown(null)}
                                                     >
                                                         {child.label}
@@ -78,7 +82,7 @@ export default function Header() {
                                                     <Link
                                                         key={child.href}
                                                         href={child.href}
-                                                        className="block px-4 py-3 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-gray-700)] transition-colors"
+                                                        className="block px-4 py-2.5 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface-hover,rgba(255,255,255,0.05))] transition-colors"
                                                         onClick={() => setOpenDropdown(null)}
                                                     >
                                                         {child.label}
@@ -93,14 +97,14 @@ export default function Header() {
                                             href={item.href}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface)] rounded-lg transition-all"
+                                            className="px-3.5 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface)] rounded-lg transition-all"
                                         >
                                             {item.label}
                                         </a>
                                     ) : (
                                         <Link
                                             href={item.href}
-                                            className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface)] rounded-lg transition-all"
+                                            className="px-3.5 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface)] rounded-lg transition-all"
                                         >
                                             {item.label}
                                         </Link>
@@ -139,34 +143,44 @@ export default function Header() {
                 <div
                     className={cn(
                         "lg:hidden overflow-hidden transition-all duration-300",
-                        isMenuOpen ? "max-h-[500px] pb-4" : "max-h-0"
+                        isMenuOpen ? "max-h-[600px] pb-4" : "max-h-0"
                     )}
                 >
                     <nav className="flex flex-col gap-1 pt-2">
                         {(navigation as NavItem[]).map((item) => (
-                            <div key={item.href}>
+                            <div key={item.href} className="border-b border-[var(--color-border)]/40 last:border-none pb-1">
                                 {item.children ? (
                                     <>
-                                        <button
-                                            onClick={() =>
-                                                setOpenDropdown(
-                                                    openDropdown === item.label ? null : item.label
-                                                )
-                                            }
-                                            className="w-full px-4 py-3 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface)] rounded-lg transition-all flex items-center justify-between"
-                                        >
-                                            {item.label}
-                                            <ChevronDown
-                                                className={cn(
-                                                    "w-5 h-5 transition-transform",
-                                                    openDropdown === item.label && "rotate-180"
-                                                )}
-                                            />
-                                        </button>
+                                        <div className="flex items-center justify-between">
+                                            <Link
+                                                href={item.href}
+                                                onClick={() => setIsMenuOpen(false)}
+                                                className="flex-1 px-4 py-2.5 text-base font-medium text-[var(--color-text)] hover:text-[var(--color-primary)] transition-all"
+                                            >
+                                                {item.label}
+                                            </Link>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setOpenDropdown(
+                                                        openDropdown === item.label ? null : item.label
+                                                    )
+                                                }
+                                                className="p-2.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+                                                aria-label={`Toggle ${item.label} dropdown`}
+                                            >
+                                                <ChevronDown
+                                                    className={cn(
+                                                        "w-5 h-5 transition-transform duration-200",
+                                                        openDropdown === item.label && "rotate-180"
+                                                    )}
+                                                />
+                                            </button>
+                                        </div>
                                         <div
                                             className={cn(
-                                                "overflow-hidden transition-all duration-200",
-                                                openDropdown === item.label ? "max-h-40" : "max-h-0"
+                                                "overflow-hidden transition-all duration-300 pl-4 bg-[var(--color-surface)]/40 rounded-lg mx-2",
+                                                openDropdown === item.label ? "max-h-96 py-1 opacity-100" : "max-h-0 opacity-0 py-0"
                                             )}
                                         >
                                             {item.children.map((child) => {
@@ -178,7 +192,7 @@ export default function Header() {
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         onClick={() => setIsMenuOpen(false)}
-                                                        className="block px-8 py-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
+                                                        className="block px-4 py-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)]"
                                                     >
                                                         {child.label}
                                                     </a>
@@ -187,7 +201,7 @@ export default function Header() {
                                                         key={child.href}
                                                         href={child.href}
                                                         onClick={() => setIsMenuOpen(false)}
-                                                        className="block px-8 py-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
+                                                        className="block px-4 py-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)]"
                                                     >
                                                         {child.label}
                                                     </Link>
@@ -202,7 +216,7 @@ export default function Header() {
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             onClick={() => setIsMenuOpen(false)}
-                                            className="px-4 py-3 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface)] rounded-lg transition-all block"
+                                            className="px-4 py-2.5 text-base font-medium text-[var(--color-text)] hover:text-[var(--color-primary)] transition-all block"
                                         >
                                             {item.label}
                                         </a>
@@ -210,7 +224,7 @@ export default function Header() {
                                         <Link
                                             href={item.href}
                                             onClick={() => setIsMenuOpen(false)}
-                                            className="px-4 py-3 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface)] rounded-lg transition-all block"
+                                            className="px-4 py-2.5 text-base font-medium text-[var(--color-text)] hover:text-[var(--color-primary)] transition-all block"
                                         >
                                             {item.label}
                                         </Link>
@@ -221,7 +235,7 @@ export default function Header() {
                         <Link
                             href="/lien-he"
                             onClick={() => setIsMenuOpen(false)}
-                            className="btn btn-primary mt-2"
+                            className="btn btn-primary mt-3 text-center"
                         >
                             Đăng ký ngay
                         </Link>

@@ -6,6 +6,8 @@ import { getSupabaseCourses } from "@/lib/cms";
 import { Metadata } from "next";
 import CategoryIcon from "@/components/category-icon";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
     title: "Khóa học",
     description:
