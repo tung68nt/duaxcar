@@ -22,88 +22,69 @@ import {
 interface AboutUsClientProps {
     initialStats: any[];
     initialInstructors: any[];
+    initialSettings?: any;
 }
 
-export default function AboutUsClient({ initialStats, initialInstructors }: AboutUsClientProps) {
+export default function AboutUsClient({ initialStats, initialInstructors, initialSettings }: AboutUsClientProps) {
     const [aboutContent, setAboutContent] = useState({
-        aboutHeroTitle: "DuaxCar Kitchen - Nơi đam mê trở thành nghề nghiệp",
-        aboutHeroSubtitle: "Chúng tôi không chỉ dạy nấu ăn - chúng tôi truyền lửa, truyền văn hóa và tư duy làm nghề bền vững.",
-        aboutStoryTitle: "Từ đam mê đến sứ mệnh",
-        aboutStoryContent: "DuaxCar Kitchen được sinh ra từ một mong muốn đơn giản: Giúp những ai yêu thích ẩm thực Việt có thể biến đam mê thành nghề nghiệp bền vững.\n\nChúng tôi hiểu rằng để một quán ăn thành công, không chỉ cần món ăn ngon mà còn cần tư duy kinh doanh đúng đắn. Vì vậy, ngoài việc dạy kỹ thuật nấu nướng, chúng tôi còn chia sẻ kinh nghiệm vận hành, quản lý chi phí và xây dựng thương hiệu.\n\nVới đội ngũ giảng viên là những nghệ nhân ẩm thực được vinh danh, DuaxCar Kitchen tự hào là địa chỉ tin cậy cho những ai muốn khởi nghiệp trong lĩnh vực F&B.",
-        aboutStoryImage: "/images/about/mission-v6.jpg",
-        aboutVision: "Trở thành trung tâm đào tạo ẩm thực Việt hàng đầu, nơi mỗi học viên không chỉ học được công thức mà còn được trang bị đầy đủ kiến thức và kỹ năng để thành công trong ngành F&B.",
-        aboutMission: "Gìn giữ và phát triển ẩm thực Việt thông qua việc đào tạo thế hệ đầu bếp mới. Giúp học viên hiểu sâu về văn hóa ẩm thực, nắm vững kỹ thuật và có tư duy kinh doanh bền vững."
+        aboutHeroTitle: initialSettings?.aboutHeroTitle || "DuaxCar Kitchen - Nơi đam mê trở thành nghề nghiệp",
+        aboutHeroSubtitle: initialSettings?.aboutHeroSubtitle || "Chúng tôi không chỉ dạy nấu ăn - chúng tôi truyền lửa, truyền văn hóa và tư duy làm nghề bền vững.",
+        aboutStoryTitle: initialSettings?.aboutStoryTitle || "Từ đam mê đến sứ mệnh",
+        aboutStoryContent: initialSettings?.aboutStoryContent || "DuaxCar Kitchen được sinh ra từ một mong muốn đơn giản: Giúp những ai yêu thích ẩm thực Việt có thể biến đam mê thành nghề nghiệp bền vững.\n\nChúng tôi hiểu rằng để một quán ăn thành công, không chỉ cần món ăn ngon mà còn cần tư duy kinh doanh đúng đắn. Vì vậy, ngoài việc dạy kỹ thuật nấu nướng, chúng tôi còn chia sẻ kinh nghiệm vận hành, quản lý chi phí và xây dựng thương hiệu.\n\nVới đội ngũ giảng viên là những nghệ nhân ẩm thực được vinh danh, DuaxCar Kitchen tự hào là địa chỉ tin cậy cho những ai muốn khởi nghiệp trong lĩnh vực F&B.",
+        aboutStoryImage: initialSettings?.aboutStoryImage || "/images/about/mission-v6.jpg",
+        aboutVision: initialSettings?.aboutVision || "Trở thành trung tâm đào tạo ẩm thực Việt hàng đầu, nơi mỗi học viên không chỉ học được công thức mà còn được trang bị đầy đủ kiến thức và kỹ năng để thành công trong ngành F&B.",
+        aboutMission: initialSettings?.aboutMission || "Gìn giữ và phát triển ẩm thực Việt thông qua việc đào tạo thế hệ đầu bếp mới. Giúp học viên hiểu sâu về văn hóa ẩm thực, nắm vững kỹ thuật và có tư duy kinh doanh bền vững."
     });
 
     const [instructors, setInstructors] = useState<any[]>(initialInstructors);
     const [activeInstructorId, setActiveInstructorId] = useState<string>(initialInstructors[0]?.id || "nguyen-huu-tho");
 
     useEffect(() => {
-        const localSettings = localStorage.getItem("admin_settings");
-        if (localSettings) {
-            try {
-                const parsed = JSON.parse(localSettings);
-                setAboutContent(prev => ({
-                    ...prev,
-                    aboutHeroTitle: parsed.aboutHeroTitle || prev.aboutHeroTitle,
-                    aboutHeroSubtitle: parsed.aboutHeroSubtitle || prev.aboutHeroSubtitle,
-                    aboutStoryTitle: parsed.aboutStoryTitle || prev.aboutStoryTitle,
-                    aboutStoryContent: parsed.aboutStoryContent || prev.aboutStoryContent,
-                    aboutStoryImage: parsed.aboutStoryImage || prev.aboutStoryImage,
-                    aboutVision: parsed.aboutVision || prev.aboutVision,
-                    aboutMission: parsed.aboutMission || prev.aboutMission
-                }));
-            } catch (e) {
-                console.error("Error parsing settings:", e);
-            }
-        }
-
-        const localInstructors = localStorage.getItem("admin_instructors");
-        if (localInstructors) {
-            try {
-                const parsed = JSON.parse(localInstructors);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    setInstructors(parsed);
-                    if (!parsed.some(i => i.id === activeInstructorId)) {
-                        setActiveInstructorId(parsed[0].id);
-                    }
-                }
-            } catch (e) {
-                console.error("Error parsing instructors:", e);
-            }
+        if (initialSettings) {
+            setAboutContent(prev => ({
+                ...prev,
+                aboutHeroTitle: initialSettings.aboutHeroTitle || prev.aboutHeroTitle,
+                aboutHeroSubtitle: initialSettings.aboutHeroSubtitle || prev.aboutHeroSubtitle,
+                aboutStoryTitle: initialSettings.aboutStoryTitle || prev.aboutStoryTitle,
+                aboutStoryContent: initialSettings.aboutStoryContent || prev.aboutStoryContent,
+                aboutStoryImage: initialSettings.aboutStoryImage || prev.aboutStoryImage,
+                aboutVision: initialSettings.aboutVision || prev.aboutVision,
+                aboutMission: initialSettings.aboutMission || prev.aboutMission
+            }));
         } else {
-            localStorage.setItem("admin_instructors", JSON.stringify(initialInstructors));
+            // Live fetch from API
+            fetch('/api/cms/settings')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.settings) {
+                        setAboutContent(prev => ({
+                            ...prev,
+                            aboutHeroTitle: data.settings.aboutHeroTitle || prev.aboutHeroTitle,
+                            aboutHeroSubtitle: data.settings.aboutHeroSubtitle || prev.aboutHeroSubtitle,
+                            aboutStoryTitle: data.settings.aboutStoryTitle || prev.aboutStoryTitle,
+                            aboutStoryContent: data.settings.aboutStoryContent || prev.aboutStoryContent,
+                            aboutStoryImage: data.settings.aboutStoryImage || prev.aboutStoryImage,
+                            aboutVision: data.settings.aboutVision || prev.aboutVision,
+                            aboutMission: data.settings.aboutMission || prev.aboutMission
+                        }));
+                    }
+                })
+                .catch(() => {});
         }
 
-        // Live fetch settings and instructors from API
-        fetch('/api/cms/settings')
-            .then(res => res.json())
-            .then(data => {
-                if (data.settings) {
-                    setAboutContent(prev => ({
-                        ...prev,
-                        aboutHeroTitle: data.settings.aboutHeroTitle || prev.aboutHeroTitle,
-                        aboutHeroSubtitle: data.settings.aboutHeroSubtitle || prev.aboutHeroSubtitle,
-                        aboutStoryTitle: data.settings.aboutStoryTitle || prev.aboutStoryTitle,
-                        aboutStoryContent: data.settings.aboutStoryContent || prev.aboutStoryContent,
-                        aboutStoryImage: data.settings.aboutStoryImage || prev.aboutStoryImage,
-                        aboutVision: data.settings.aboutVision || prev.aboutVision,
-                        aboutMission: data.settings.aboutMission || prev.aboutMission
-                    }));
-                }
-            })
-            .catch(() => {});
-
+        // Live fetch instructors
         fetch('/api/cms/instructors')
             .then(res => res.json())
             .then(data => {
                 if (data.instructors && Array.isArray(data.instructors) && data.instructors.length > 0) {
                     setInstructors(data.instructors);
-                    localStorage.setItem("admin_instructors", JSON.stringify(data.instructors));
+                    if (!data.instructors.some((i: any) => i.id === activeInstructorId)) {
+                        setActiveInstructorId(data.instructors[0].id);
+                    }
                 }
             })
             .catch(() => {});
-    }, [initialInstructors]);
+    }, [initialSettings, initialInstructors]);
 
     const activeInstructor = instructors.find(i => i.id === activeInstructorId) || instructors[0];
 

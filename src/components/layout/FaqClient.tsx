@@ -13,8 +13,13 @@ interface FAQItem {
     visible: boolean;
 }
 
-export default function FaqClient() {
-    const [faqs, setFaqs] = useState<FAQItem[]>([
+interface FaqClientProps {
+    initialFaqs?: FAQItem[];
+}
+
+export default function FaqClient({ initialFaqs }: FaqClientProps) {
+    const [faqs, setFaqs] = useState<FAQItem[]>(
+        initialFaqs && initialFaqs.length > 0 ? initialFaqs : [
         {
             id: "faq-1",
             category: "Về khóa học",
@@ -81,15 +86,21 @@ export default function FaqClient() {
     ]);
 
     useEffect(() => {
-        const storedFaqs = localStorage.getItem("admin_faqs");
-        if (storedFaqs) {
-            try {
-                setFaqs(JSON.parse(storedFaqs));
-            } catch (e) {
-                console.error("Error parsing FAQs storage:", e);
-            }
+        if (initialFaqs && initialFaqs.length > 0) {
+            setFaqs(initialFaqs);
+            return;
         }
-    }, []);
+
+        // Live fetch from API
+        fetch('/api/cms/faq')
+            .then(res => res.json())
+            .then(data => {
+                if (data.faqs && Array.isArray(data.faqs) && data.faqs.length > 0) {
+                    setFaqs(data.faqs);
+                }
+            })
+            .catch(() => {});
+    }, [initialFaqs]);
 
     // Group FAQs by category
     const categoriesMap = Array.from(new Set(faqs.map(f => f.category)));

@@ -21,7 +21,8 @@ import {
 import {
     getSupabaseCourses,
     getSupabaseInstructors,
-    getSupabaseTestimonials
+    getSupabaseTestimonials,
+    getSupabaseSettings
 } from "@/lib/cms";
 import CategoryIcon from "@/components/category-icon";
 import HeroCarousel from "@/components/layout/hero-carousel";
@@ -38,13 +39,15 @@ export default async function HomePage() {
     const liveTestimonials = await getSupabaseTestimonials();
     const testimonials = liveTestimonials.length > 0 ? liveTestimonials : mockTestimonials;
 
-    const featuredCourses = courses.filter((c) => c.featured).slice(0, 4);
+    const liveSettings = await getSupabaseSettings();
+    const banners = liveSettings?.heroBanners && liveSettings.heroBanners.length > 0 ? liveSettings.heroBanners : undefined;
 
+    const featuredCourses = courses.filter((c) => c.featured).slice(0, 4);
 
     return (
         <>
             {/* Hero Section */}
-            <HeroCarousel />
+            <HeroCarousel initialBanners={banners} />
             {/* Temporarily Hidden Original Hero Section
             <section className="relative min-h-[90vh] flex items-center overflow-hidden pb-24 pt-24">
                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-gray-900)] via-[var(--color-gray-800)] to-[var(--color-gray-900)]" />

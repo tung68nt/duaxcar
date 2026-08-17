@@ -1,23 +1,7 @@
-import Link from "next/link";
-import Image from "next/image";
-import {
-    ChefHat,
-    Target,
-    Eye,
-    Award,
-    Users,
-    TrendingUp,
-    Heart,
-    CheckCircle,
-    Calendar,
-    Quote,
-    BookOpen,
-    ArrowRight,
-    HeartHandshake,
-} from "lucide-react";
 import { stats, instructors as mockInstructors } from "@/data/mock";
-import { getSupabaseInstructors } from "@/lib/cms";
+import { getSupabaseInstructors, getSupabaseSettings } from "@/lib/cms";
 import { Metadata } from "next";
+import AboutUsClient from "@/components/layout/AboutUsClient";
 
 export const dynamic = "force-dynamic";
 
@@ -27,17 +11,16 @@ export const metadata: Metadata = {
         "Tìm hiểu về DuaxCar Kitchen - Trung tâm đào tạo ẩm thực chuyên biệt với đội ngũ nghệ nhân ẩm thực hàng đầu.",
 };
 
-import AboutUsClient from "@/components/layout/AboutUsClient";
-
 export default async function AboutUsAndTeamPage() {
     const liveInstructors = await getSupabaseInstructors();
     const instructors = liveInstructors.length > 0 ? liveInstructors : mockInstructors;
+    const settings = await getSupabaseSettings();
 
     return (
         <AboutUsClient 
             initialStats={stats}
             initialInstructors={instructors}
+            initialSettings={settings || undefined}
         />
     );
 }
-

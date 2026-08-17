@@ -6,8 +6,7 @@ import { getLocalDB, SiteSettings, FAQItem } from "@/lib/db";
 
 export async function getSupabaseCourses(): Promise<Course[]> {
     try {
-        // Attempt Supabase with timeout/safe check
-        const { data, error } = await supabase.from('courses').select('*');
+        const { data, error } = await supabase.from('courses').select('*').order('created_at', { ascending: false });
         if (!error && data && data.length > 0) {
             return data.map((c) => ({
                 id: c.id,
@@ -33,8 +32,8 @@ export async function getSupabaseCourses(): Promise<Course[]> {
                 onlineUrl: c.online_url
             }));
         }
-    } catch {
-        // Fallback to local DB
+    } catch (e) {
+        console.warn("Supabase fetch courses failed, fallback to local DB:", e);
     }
 
     try {
@@ -65,7 +64,9 @@ export async function getSupabaseInstructors(): Promise<Instructor[]> {
                 experience: i.experience
             }));
         }
-    } catch {}
+    } catch (e) {
+        console.warn("Supabase fetch instructors failed, fallback to local DB:", e);
+    }
 
     try {
         const db = getLocalDB();
@@ -79,7 +80,7 @@ export async function getSupabaseInstructors(): Promise<Instructor[]> {
 
 export async function getSupabaseBlogPosts(): Promise<BlogPost[]> {
     try {
-        const { data, error } = await supabase.from('blog_posts').select('*');
+        const { data, error } = await supabase.from('blog_posts').select('*').order('date', { ascending: false });
         if (!error && data && data.length > 0) {
             return data.map((b) => ({
                 id: b.id,
@@ -96,7 +97,9 @@ export async function getSupabaseBlogPosts(): Promise<BlogPost[]> {
                 featured: b.featured
             }));
         }
-    } catch {}
+    } catch (e) {
+        console.warn("Supabase fetch blog posts failed, fallback to local DB:", e);
+    }
 
     try {
         const db = getLocalDB();
@@ -122,7 +125,9 @@ export async function getSupabaseTestimonials(): Promise<Testimonial[]> {
                 course: t.course
             }));
         }
-    } catch {}
+    } catch (e) {
+        console.warn("Supabase fetch testimonials failed, fallback to local DB:", e);
+    }
 
     try {
         const db = getLocalDB();
@@ -135,6 +140,13 @@ export async function getSupabaseTestimonials(): Promise<Testimonial[]> {
 }
 
 export async function getSupabaseFaqs(): Promise<FAQItem[]> {
+    try {
+        const { data, error } = await supabase.from('site_settings').select('data').eq('id', 'default_faqs').single();
+        if (!error && data && Array.isArray(data.data) && data.data.length > 0) {
+            return data.data;
+        }
+    } catch {}
+
     try {
         const db = getLocalDB();
         return db.faqs;
@@ -149,7 +161,9 @@ export async function getSupabaseSettings(): Promise<SiteSettings | null> {
         if (!error && data && data.data) {
             return data.data;
         }
-    } catch {}
+    } catch (e) {
+        console.warn("Supabase fetch site_settings failed, fallback to local DB:", e);
+    }
 
     try {
         const db = getLocalDB();

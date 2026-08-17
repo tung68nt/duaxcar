@@ -1,8 +1,6 @@
 import React from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { Accordion } from "@/components/ui/accordion";
-import { ArrowRight, MessageCircle, Phone, Mail } from "lucide-react";
+import FaqClient from "@/components/layout/FaqClient";
+import { getSupabaseFaqs } from "@/lib/cms";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +9,9 @@ export const metadata = {
     description: "Giải đáp các thắc mắc về khóa học, hình thức thanh toán và quy trình học tại DuaxCar Kitchen.",
 };
 
-import FaqClient from "@/components/layout/FaqClient";
-
-export default function FaqPage() {
+export default async function FaqPage() {
+    const liveFaqs = await getSupabaseFaqs();
     return (
-        <FaqClient />
+        <FaqClient initialFaqs={liveFaqs.length > 0 ? liveFaqs : undefined} />
     );
 }
