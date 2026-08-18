@@ -547,10 +547,10 @@ export default function AdminMediaLibrary() {
                                 
                                 {/* Hover Overlay for Full View */}
                                 {!isMultiSelectMode && (
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200 z-10">
-                                        <div className="p-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/25 text-white flex items-center gap-1.5 text-xs font-semibold">
-                                            <Eye className="w-4 h-4" />
-                                            <span>Xem Full & Zoom</span>
+                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200 z-10">
+                                        <div className="px-3.5 py-2 rounded-2xl bg-neutral-900/95 border border-white/30 text-white flex items-center gap-2 text-xs font-bold shadow-2xl backdrop-blur-md hover:scale-105 transition-transform">
+                                            <Eye className="w-4 h-4 text-orange-400" />
+                                            <span className="text-white drop-shadow">Xem Full & Zoom</span>
                                         </div>
                                     </div>
                                 )}

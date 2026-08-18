@@ -343,9 +343,9 @@ export function MediaPickerModal({
                                                             setPreviewIndex(idx);
                                                         }}
                                                         title="Xem to toàn màn hình"
-                                                        className="absolute top-2 left-2 p-1.5 rounded-lg bg-black/60 text-white opacity-0 group-hover:opacity-100 transition z-10 hover:bg-[var(--color-primary)]"
+                                                        className="absolute top-2 left-2 p-2 rounded-xl bg-black/85 text-white border border-white/30 opacity-0 group-hover:opacity-100 transition z-10 hover:bg-orange-600 hover:border-orange-500 shadow-xl cursor-pointer"
                                                     >
-                                                        <Eye className="w-3.5 h-3.5" />
+                                                        <Eye className="w-3.5 h-3.5 text-white" />
                                                     </button>
                                                 </div>
 
