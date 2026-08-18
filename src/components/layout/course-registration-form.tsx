@@ -88,6 +88,11 @@ export default function CourseRegistrationForm({ courseName }: Props) {
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Honeypot field for anti-spam bots */}
+                            <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
+                                <input type="text" name="_hp_company" tabIndex={-1} autoComplete="off" />
+                            </div>
+
                             {errorMessage && (
                                 <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
                                     {errorMessage}
