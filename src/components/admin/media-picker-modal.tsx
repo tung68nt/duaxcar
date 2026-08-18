@@ -207,12 +207,12 @@ export function MediaPickerModal({
 
     return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
+            <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
                 
                 {/* Modal Header */}
                 <div className="px-6 py-4 border-b border-[var(--color-border)] flex items-center justify-between bg-[var(--color-surface)]">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-orange-500/10 text-[var(--color-primary)]">
+                        <div className="p-2 rounded-lg bg-orange-500/10 text-[var(--color-primary)]">
                             <ImageIcon className="w-5 h-5" />
                         </div>
                         <div>
@@ -226,19 +226,19 @@ export function MediaPickerModal({
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-xl text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] hover:text-[var(--color-text)] transition"
+                        className="p-1.5 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] hover:text-[var(--color-text)] transition"
                     >
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
                 {/* Tabs & Search Bar */}
-                <div className="px-6 py-3 border-b border-[var(--color-border)] bg-[var(--color-background)]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="px-6 py-2.5 border-b border-[var(--color-border)] bg-[var(--color-background)]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     {/* Navigation Tabs */}
-                    <div className="flex items-center gap-1 bg-[var(--color-surface)] p-1 rounded-xl border border-[var(--color-border)]">
+                    <div className="flex items-center gap-1 bg-[var(--color-surface)] p-1 rounded-lg border border-[var(--color-border)]">
                         <button
                             onClick={() => setActiveTab("library")}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                            className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition ${
                                 activeTab === "library"
                                     ? "bg-[var(--color-primary)] text-white shadow-sm"
                                     : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
@@ -249,7 +249,7 @@ export function MediaPickerModal({
                         </button>
                         <button
                             onClick={() => setActiveTab("upload")}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                            className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition ${
                                 activeTab === "upload"
                                     ? "bg-[var(--color-primary)] text-white shadow-sm"
                                     : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
@@ -260,7 +260,7 @@ export function MediaPickerModal({
                         </button>
                         <button
                             onClick={() => setActiveTab("stock")}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                            className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition ${
                                 activeTab === "stock"
                                     ? "bg-[var(--color-primary)] text-white shadow-sm"
                                     : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
@@ -280,7 +280,7 @@ export function MediaPickerModal({
                                 placeholder="Tìm kiếm tập tin..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl pl-9 pr-3 py-1.5 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg pl-9 pr-3 py-1.5 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                             />
                         </div>
                     )}
@@ -309,7 +309,7 @@ export function MediaPickerModal({
                                                     setSelectedItemUrl(item.url);
                                                     setCurrentSelectedItem(item);
                                                 }}
-                                                className={`group relative rounded-2xl border overflow-hidden cursor-pointer flex flex-col justify-between transition-all ${
+                                                className={`group relative rounded-xl border overflow-hidden cursor-pointer flex flex-col justify-between transition-all ${
                                                     isSelected
                                                         ? "border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/40 shadow-md bg-[var(--color-primary)]/5"
                                                         : "border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-primary)]/50"
@@ -343,7 +343,7 @@ export function MediaPickerModal({
                                                             setPreviewIndex(idx);
                                                         }}
                                                         title="Xem to toàn màn hình"
-                                                        className="absolute top-2 left-2 p-2 rounded-xl bg-black/85 text-white border border-white/30 opacity-0 group-hover:opacity-100 transition z-10 hover:bg-orange-600 hover:border-orange-500 shadow-xl cursor-pointer"
+                                                        className="absolute top-2 left-2 p-1.5 rounded-lg bg-black/85 text-white border border-white/30 opacity-0 group-hover:opacity-100 transition z-10 hover:bg-orange-600 hover:border-orange-500 shadow-xl cursor-pointer"
                                                     >
                                                         <Eye className="w-3.5 h-3.5 text-white" />
                                                     </button>
@@ -371,12 +371,12 @@ export function MediaPickerModal({
 
                     {/* TAB 2: UPLOAD & AUTO COMPRESSION */}
                     {activeTab === "upload" && (
-                        <div className="max-w-xl mx-auto space-y-6 py-4">
+                        <div className="max-w-xl mx-auto space-y-5 py-3">
                             {/* Drag & Drop Area */}
                             <label 
                                 onDragOver={(e) => e.preventDefault()}
                                 onDrop={handleFileUpload}
-                                className={`border-2 border-dashed rounded-3xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
+                                className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
                                     isUploading 
                                         ? "border-[var(--color-primary)] bg-[var(--color-primary)]/5 opacity-70"
                                         : "border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-background)]/50"
@@ -390,8 +390,8 @@ export function MediaPickerModal({
                                     className="hidden"
                                 />
 
-                                <div className="p-4 rounded-2xl bg-orange-500/10 text-[var(--color-primary)] mb-3">
-                                    <UploadCloud className="w-8 h-8" />
+                                <div className="p-3 rounded-lg bg-orange-500/10 text-[var(--color-primary)] mb-2.5">
+                                    <UploadCloud className="w-7 h-7" />
                                 </div>
                                 <h4 className="font-heading font-bold text-sm text-[var(--color-text)]">
                                     {isUploading ? "Đang xử lý & nén ảnh WebP..." : "Kéo thả ảnh vào đây hoặc bấm để chọn"}
@@ -402,7 +402,7 @@ export function MediaPickerModal({
                             </label>
 
                             {/* Compression Options */}
-                            <div className="bg-[var(--color-background)] p-4 rounded-2xl border border-[var(--color-border)] space-y-3">
+                            <div className="bg-[var(--color-background)] p-3.5 rounded-lg border border-[var(--color-border)] space-y-2.5">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Sparkles className="w-4 h-4 text-orange-500" />
@@ -410,7 +410,7 @@ export function MediaPickerModal({
                                             Chế độ nén & tối ưu ảnh WebP
                                         </span>
                                     </div>
-                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-bold">
+                                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 font-bold">
                                         Tự động kích hoạt
                                     </span>
                                 </div>
@@ -419,51 +419,51 @@ export function MediaPickerModal({
                                     <button
                                         type="button"
                                         onClick={() => setCompressionQuality(0.82)}
-                                        className={`p-2.5 rounded-xl border text-left transition ${
+                                        className={`p-2.5 rounded-lg border text-left transition ${
                                             compressionQuality === 0.82
                                                 ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold"
                                                 : "border-[var(--color-border)] text-[var(--color-text-secondary)]"
                                         }`}
                                     >
-                                        <div className="text-xs">Chuẩn tối ưu (Khuyên dùng)</div>
+                                        <div className="text-xs font-semibold">Chuẩn tối ưu (Khuyên dùng)</div>
                                         <div className="text-[10px] text-[var(--color-text-muted)]">WebP 82% - Siêu nhẹ</div>
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setCompressionQuality(0.92)}
-                                        className={`p-2.5 rounded-xl border text-left transition ${
+                                        className={`p-2.5 rounded-lg border text-left transition ${
                                             compressionQuality === 0.92
                                                 ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold"
                                                 : "border-[var(--color-border)] text-[var(--color-text-secondary)]"
                                         }`}
                                     >
-                                        <div className="text-xs">Chất lượng cao HD</div>
+                                        <div className="text-xs font-semibold">Chất lượng cao HD</div>
                                         <div className="text-[10px] text-[var(--color-text-muted)]">WebP 92% - Cực nét</div>
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setCompressionQuality(0.72)}
-                                        className={`p-2.5 rounded-xl border text-left transition ${
+                                        className={`p-2.5 rounded-lg border text-left transition ${
                                             compressionQuality === 0.72
                                                 ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold"
                                                 : "border-[var(--color-border)] text-[var(--color-text-secondary)]"
                                         }`}
                                     >
-                                        <div className="text-xs">Tối đa tốc độ</div>
+                                        <div className="text-xs font-semibold">Tối đa tốc độ</div>
                                         <div className="text-[10px] text-[var(--color-text-muted)]">WebP 72% - Siêu nhanh</div>
                                     </button>
                                 </div>
 
                                 {/* Last Compression Report */}
                                 {lastCompressedInfo && (
-                                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-between text-xs">
+                                    <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-between text-xs">
                                         <div className="flex items-center gap-2">
                                             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                                             <span>
                                                 Đã nén từ <b>{lastCompressedInfo.orig}</b> xuống <b>{lastCompressedInfo.comp}</b>
                                             </span>
                                         </div>
-                                        <span className="font-bold bg-emerald-500/20 px-2 py-0.5 rounded-full text-[10px]">
+                                        <span className="font-bold bg-emerald-500/20 px-2 py-0.5 rounded-md text-[10px]">
                                             Tiết kiệm {lastCompressedInfo.ratio}% dung lượng
                                         </span>
                                     </div>
@@ -491,7 +491,7 @@ export function MediaPickerModal({
                                                 uploadedAt: "Kho ảnh mẫu"
                                             });
                                         }}
-                                        className={`group relative rounded-2xl border overflow-hidden cursor-pointer flex flex-col justify-between transition-all ${
+                                        className={`group relative rounded-xl border overflow-hidden cursor-pointer flex flex-col justify-between transition-all ${
                                             isSelected
                                                 ? "border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/40 shadow-md bg-[var(--color-primary)]/5"
                                                 : "border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-primary)]/50"
@@ -526,7 +526,7 @@ export function MediaPickerModal({
                 </div>
 
                 {/* Modal Footer */}
-                <div className="px-6 py-4 border-t border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-between gap-4">
+                <div className="px-6 py-3.5 border-t border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
                         {selectedItemUrl ? (
                             <div className="flex items-center gap-2 min-w-0">
@@ -534,7 +534,7 @@ export function MediaPickerModal({
                                 <img
                                     src={selectedItemUrl}
                                     alt="Selected preview"
-                                    className="w-10 h-10 rounded-xl object-cover border border-[var(--color-border)] flex-shrink-0"
+                                    className="w-9 h-9 rounded-lg object-cover border border-[var(--color-border)] flex-shrink-0"
                                 />
                                 <div className="min-w-0">
                                     <span className="text-xs font-semibold text-[var(--color-text)] block truncate">
@@ -556,7 +556,7 @@ export function MediaPickerModal({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="btn btn-secondary btn-sm px-4"
+                            className="btn btn-secondary btn-sm px-4 rounded-lg"
                         >
                             Hủy bỏ
                         </button>
@@ -564,7 +564,7 @@ export function MediaPickerModal({
                             type="button"
                             onClick={handleConfirmSelection}
                             disabled={!selectedItemUrl}
-                            className="btn btn-primary btn-sm px-5 flex items-center gap-1.5 shadow-md shadow-[var(--color-primary)]/20 disabled:opacity-40 disabled:pointer-events-none"
+                            className="btn btn-primary btn-sm px-4 rounded-lg flex items-center gap-1.5 shadow-md shadow-[var(--color-primary)]/20 disabled:opacity-40 disabled:pointer-events-none"
                         >
                             <Check className="w-4 h-4" />
                             <span>Xác nhận chọn</span>

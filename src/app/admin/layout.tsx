@@ -83,9 +83,9 @@ export default function AdminLayout({
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-small transition-all duration-200 group ${
+                                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-small transition-all duration-200 group ${
                                     isActive
-                                        ? "bg-[var(--color-primary)] text-white shadow-lg shadow-[var(--color-primary)]/20"
+                                        ? "bg-[var(--color-primary)] text-white shadow-md shadow-[var(--color-primary)]/20"
                                         : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] hover:text-[var(--color-text)]"
                                 }`}
                             >

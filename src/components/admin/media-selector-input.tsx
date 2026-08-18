@@ -76,11 +76,11 @@ export function MediaSelectorInput({
                 <p className="text-[11px] text-[var(--color-text-muted)]">{description}</p>
             )}
 
-            <div className="flex flex-col sm:flex-row items-start gap-4 p-3 bg-[var(--color-background)] rounded-2xl border border-[var(--color-border)]">
+            <div className="flex flex-col sm:flex-row items-start gap-3.5 p-3 bg-[var(--color-background)] rounded-xl border border-[var(--color-border)]">
                 {/* Thumbnail Preview Area */}
                 <div 
                     onClick={() => hasImage ? setLightboxOpen(true) : setPickerOpen(true)}
-                    className={`${aspectClasses} relative rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden flex items-center justify-center cursor-pointer group flex-shrink-0 hover:border-[var(--color-primary)] transition shadow-sm`}
+                    className={`${aspectClasses} relative rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden flex items-center justify-center cursor-pointer group flex-shrink-0 hover:border-[var(--color-primary)] transition shadow-sm`}
                 >
                     {hasImage ? (
                         <>
@@ -91,8 +91,8 @@ export function MediaSelectorInput({
                                 className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                             />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition duration-200">
-                                <div className="p-1.5 rounded-full bg-white/20 backdrop-blur-sm text-white">
-                                    <Eye className="w-4 h-4" />
+                                <div className="p-1.5 rounded-lg bg-black/80 border border-white/20 text-white">
+                                    <Eye className="w-4 h-4 text-orange-400" />
                                 </div>
                             </div>
                         </>
@@ -110,7 +110,7 @@ export function MediaSelectorInput({
                         <button
                             type="button"
                             onClick={() => setPickerOpen(true)}
-                            className="btn btn-primary btn-sm px-3.5 py-1.5 text-xs flex items-center gap-1.5 shadow-sm"
+                            className="btn btn-primary btn-sm px-3 py-1.5 text-xs flex items-center gap-1.5 shadow-sm rounded-lg"
                         >
                             <ImageIcon className="w-3.5 h-3.5" />
                             <span>{hasImage ? "Đổi ảnh từ Thư viện" : "Chọn từ Thư viện Media"}</span>
@@ -121,7 +121,7 @@ export function MediaSelectorInput({
                                 <button
                                     type="button"
                                     onClick={() => setLightboxOpen(true)}
-                                    className="p-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] text-xs flex items-center gap-1 px-2.5 transition"
+                                    className="p-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] text-xs flex items-center gap-1 px-2.5 transition"
                                     title="Xem kích thước lớn & phóng to"
                                 >
                                     <Eye className="w-3.5 h-3.5" />
@@ -130,7 +130,7 @@ export function MediaSelectorInput({
                                 <button
                                     type="button"
                                     onClick={() => onChange("")}
-                                    className="p-1.5 rounded-xl border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white text-xs flex items-center gap-1 px-2.5 transition"
+                                    className="p-1.5 rounded-lg border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white text-xs flex items-center gap-1 px-2.5 transition"
                                     title="Xóa ảnh"
                                 >
                                     <X className="w-3.5 h-3.5" />
@@ -148,7 +148,7 @@ export function MediaSelectorInput({
                                 value={value}
                                 onChange={(e) => onChange(e.target.value)}
                                 placeholder={placeholder}
-                                className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl pl-3 pr-3 py-1.5 text-xs font-mono text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg pl-3 pr-3 py-1.5 text-xs font-mono text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                             />
                         </div>
                     )}

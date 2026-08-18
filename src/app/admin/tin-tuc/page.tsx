@@ -214,12 +214,12 @@ export default function AdminBlogsCMS() {
         return (
             <div className="space-y-6 animate-fadeIn pb-12">
                 {/* Editor Header */}
-                <div className="flex items-center justify-between bg-[var(--color-surface)] p-6 border border-[var(--color-border)] rounded-2xl">
+                <div className="flex items-center justify-between bg-[var(--color-surface)] p-5 border border-[var(--color-border)] rounded-xl">
                     <div className="flex items-center gap-3">
                         <button
                             type="button"
                             onClick={() => setModalOpen(false)}
-                            className="p-2 rounded-xl bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
+                            className="p-2 rounded-lg bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
                         >
                             <ArrowLeft className="w-5 h-5" />
                         </button>
@@ -255,7 +255,7 @@ export default function AdminBlogsCMS() {
                 </div>
 
                 {/* Main Form Container */}
-                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-6">
+                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-6">
                     <form id="blog-form" onSubmit={handleSubmit} className="space-y-6">
                         {/* General */}
                         <div className="grid sm:grid-cols-2 gap-4">
@@ -265,7 +265,7 @@ export default function AdminBlogsCMS() {
                                     type="text"
                                     value={formState.title}
                                     onChange={(e) => handleTitleChange(e.target.value)}
-                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                     placeholder="Ví dụ: Cách nấu phở bò ngon..."
                                     required
                                 />
@@ -276,7 +276,7 @@ export default function AdminBlogsCMS() {
                                     type="text"
                                     value={formState.slug}
                                     onChange={(e) => setFormState({ ...formState, slug: e.target.value })}
-                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                     placeholder="tu-dong-sinh-tu-tieu-de"
                                     required
                                 />
@@ -289,7 +289,7 @@ export default function AdminBlogsCMS() {
                                 <select
                                     value={formState.category}
                                     onChange={(e) => setFormState({ ...formState, category: e.target.value })}
-                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                 >
                                     <option value="Công thức">Công thức</option>
                                     <option value="Kinh nghiệm">Kinh nghiệm</option>
@@ -303,7 +303,7 @@ export default function AdminBlogsCMS() {
                                     type="text"
                                     value={formState.author}
                                     onChange={(e) => setFormState({ ...formState, author: e.target.value })}
-                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                     required
                                 />
                             </div>
@@ -313,7 +313,7 @@ export default function AdminBlogsCMS() {
                                     type="text"
                                     value={formState.readTime}
                                     onChange={(e) => setFormState({ ...formState, readTime: e.target.value })}
-                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                     required
                                 />
                             </div>
@@ -358,7 +358,7 @@ export default function AdminBlogsCMS() {
                                 <button
                                     type="button"
                                     onClick={() => setInsertImageModalOpen(true)}
-                                    className="text-xs font-bold text-[var(--color-primary)] hover:underline flex items-center gap-1.5 bg-[var(--color-primary)]/10 px-3 py-1 rounded-xl"
+                                    className="text-xs font-bold text-[var(--color-primary)] hover:underline flex items-center gap-1.5 bg-[var(--color-primary)]/10 px-3 py-1 rounded-lg"
                                 >
                                     <ImageIcon className="w-3.5 h-3.5" />
                                     <span>Chèn ảnh từ Thư viện Media</span>
@@ -421,7 +421,7 @@ export default function AdminBlogsCMS() {
             </div>
 
             {/* Toolbar search */}
-            <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl">
+            <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
                 <div className="relative w-full max-w-md">
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
                     <input
@@ -429,13 +429,13 @@ export default function AdminBlogsCMS() {
                         placeholder="Tìm kiếm bài viết theo tiêu đề..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl pl-10 pr-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg pl-10 pr-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                     />
                 </div>
             </div>
 
             {/* Blogs Table Card */}
-            <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl">
+            <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
                 <div className="overflow-x-auto -mx-6">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -464,7 +464,7 @@ export default function AdminBlogsCMS() {
                                                     <img
                                                         src={post.image}
                                                         alt={post.title}
-                                                        className="w-14 h-10 rounded-xl object-cover border border-[var(--color-border)] flex-shrink-0"
+                                                        className="w-14 h-10 rounded-lg object-cover border border-[var(--color-border)] flex-shrink-0"
                                                     />
                                                 )}
                                                 <div className="min-w-0">

@@ -625,18 +625,18 @@ export default function AdminInstructors() {
             </div>
 
             {/* Grid List */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {filteredInstructors.map((ins) => (
                     <div 
                         key={ins.id}
-                        className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-3xl relative group shadow-sm flex flex-col justify-between"
+                        className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl relative group shadow-sm flex flex-col justify-between"
                     >
                         <div>
                             {/* Visibility status */}
                             <button
                                 type="button"
                                 onClick={() => toggleVisibility(ins.id)}
-                                className={`absolute top-4 right-4 p-1.5 rounded-xl border transition-all ${
+                                className={`absolute top-4 right-4 p-1.5 rounded-lg border transition-all ${
                                     ins.visible !== false
                                         ? "bg-green-500/10 border-green-500/20 text-green-500 hover:bg-green-500/20"
                                         : "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20"
@@ -647,8 +647,8 @@ export default function AdminInstructors() {
                             </button>
 
                             {/* Avatar & Profile */}
-                            <div className="flex items-center gap-4 mb-6">
-                                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-[var(--color-surface-light)] relative border border-[var(--color-border)] flex-shrink-0">
+                            <div className="flex items-center gap-3.5 mb-5">
+                                <div className="w-14 h-14 rounded-lg overflow-hidden bg-[var(--color-surface-light)] relative border border-[var(--color-border)] flex-shrink-0">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={ins.image}

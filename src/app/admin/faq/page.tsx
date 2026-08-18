@@ -411,7 +411,7 @@ export default function AdminFAQ() {
                                     <td className="px-6 py-4 text-center align-top">
                                         <button
                                             onClick={() => toggleVisibility(faq.id)}
-                                            className={`p-1.5 rounded-xl border transition-all ${
+                                            className={`p-1.5 rounded-lg border transition-all ${
                                                 faq.visible
                                                     ? "bg-green-500/10 border-green-500/20 text-green-500"
                                                     : "bg-red-500/10 border-red-500/20 text-red-500"
@@ -425,7 +425,7 @@ export default function AdminFAQ() {
                                         <div className="flex items-center justify-end gap-1.5">
                                             <button
                                                 onClick={() => openEditModal(faq)}
-                                                className="p-1.5 rounded-xl bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-all"
+                                                className="p-1.5 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-all"
                                                 title="Sửa"
                                             >
                                                 <Edit className="w-4 h-4" />

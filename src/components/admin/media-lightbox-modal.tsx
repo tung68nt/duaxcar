@@ -182,7 +182,7 @@ export function MediaLightboxModal({
                 className="h-16 border-b px-4 sm:px-6 flex items-center justify-between z-30 flex-shrink-0"
             >
                 <div className="flex items-center gap-3 min-w-0">
-                    <div className="p-2 rounded-xl bg-orange-500/20 text-orange-400 flex-shrink-0">
+                    <div className="p-2 rounded-lg bg-orange-500/20 text-orange-400 flex-shrink-0">
                         {currentItem.type === "image" ? <FileImage className="w-5 h-5" /> : <Film className="w-5 h-5" />}
                     </div>
                     <div className="min-w-0">
@@ -213,7 +213,7 @@ export function MediaLightboxModal({
                                 onClick={zoomOut}
                                 title="Thu nhỏ (-)"
                                 disabled={zoom <= 0.5}
-                                className="p-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 transition disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                                className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 transition disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
                             >
                                 <ZoomOut className="w-4 h-4" />
                             </button>
@@ -224,21 +224,21 @@ export function MediaLightboxModal({
                                 onClick={zoomIn}
                                 title="Phóng to (+)"
                                 disabled={zoom >= 4}
-                                className="p-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 transition disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                                className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 transition disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
                             >
                                 <ZoomIn className="w-4 h-4" />
                             </button>
                             <button
                                 onClick={resetTransform}
                                 title="Đặt lại kích thước (0)"
-                                className="p-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 transition cursor-pointer"
+                                className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 transition cursor-pointer"
                             >
                                 <RefreshCw className="w-4 h-4" />
                             </button>
                             <button
                                 onClick={rotate}
                                 title="Xoay 90 độ"
-                                className="p-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 transition cursor-pointer"
+                                className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 transition cursor-pointer"
                             >
                                 <RotateCw className="w-4 h-4" />
                             </button>
@@ -248,7 +248,7 @@ export function MediaLightboxModal({
                     <button
                         onClick={toggleFullscreen}
                         title="Toàn màn hình"
-                        className="p-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 transition hidden sm:flex cursor-pointer"
+                        className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 transition hidden sm:flex cursor-pointer"
                     >
                         {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
                     </button>
@@ -256,7 +256,7 @@ export function MediaLightboxModal({
                     <button
                         onClick={copyUrl}
                         title="Sao chép URL"
-                        className={`p-2 rounded-xl border text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
+                        className={`p-2 rounded-lg border text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
                             copied 
                                 ? "bg-emerald-600 border-emerald-500 text-white" 
                                 : "bg-neutral-800 hover:bg-neutral-700 border-white/10 text-white"
@@ -272,7 +272,7 @@ export function MediaLightboxModal({
                                 onSelect(currentItem);
                                 onClose();
                             }}
-                            className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-lg cursor-pointer transition"
+                            className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-lg cursor-pointer transition"
                         >
                             Chọn ảnh này
                         </button>
@@ -281,7 +281,7 @@ export function MediaLightboxModal({
                     <button
                         onClick={onClose}
                         title="Đóng (Esc)"
-                        className="p-2 rounded-xl bg-neutral-800 hover:bg-red-600 text-white border border-white/10 transition ml-1 cursor-pointer"
+                        className="p-2 rounded-lg bg-neutral-800 hover:bg-red-600 text-white border border-white/10 transition ml-1 cursor-pointer"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -336,7 +336,7 @@ export function MediaLightboxModal({
                                 transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom}) rotate(${rotation}deg)`,
                                 transition: isDragging ? "none" : "transform 0.2s ease-out"
                             }}
-                            className="max-w-full max-h-[calc(100vh-230px)] object-contain rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] transition-transform will-change-transform pointer-events-auto select-none"
+                            className="max-w-full max-h-[calc(100vh-230px)] object-contain rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] transition-transform will-change-transform pointer-events-auto select-none"
                         />
                     ) : (
                         <video
@@ -344,7 +344,7 @@ export function MediaLightboxModal({
                             controls
                             autoPlay
                             playsInline
-                            className="max-w-full max-h-[calc(100vh-230px)] rounded-2xl shadow-2xl"
+                            className="max-w-full max-h-[calc(100vh-230px)] rounded-xl shadow-2xl"
                         />
                     )}
                 </div>
@@ -369,7 +369,7 @@ export function MediaLightboxModal({
                                 <div className="grid grid-cols-2 gap-2">
                                     <div>
                                         <span className="text-neutral-400 block mb-1 font-medium">Định dạng</span>
-                                        <span className="px-2 py-0.5 rounded-lg bg-orange-500/20 text-orange-400 font-bold uppercase text-[10px]">
+                                        <span className="px-2 py-0.5 rounded-md bg-orange-500/20 text-orange-400 font-bold uppercase text-[10px]">
                                             {currentItem.type}
                                         </span>
                                     </div>
@@ -388,7 +388,7 @@ export function MediaLightboxModal({
                                         readOnly
                                         value={currentItem.url}
                                         rows={4}
-                                        className="w-full bg-neutral-900 border border-white/15 rounded-xl p-2.5 font-mono text-[10px] text-neutral-300 focus:outline-none resize-none"
+                                        className="w-full bg-neutral-900 border border-white/15 rounded-lg p-2.5 font-mono text-[10px] text-neutral-300 focus:outline-none resize-none"
                                         onClick={(e) => (e.target as any).select()}
                                     />
                                 </div>
@@ -398,7 +398,7 @@ export function MediaLightboxModal({
                         <div className="space-y-2 pt-4 border-t border-white/10">
                             <button
                                 onClick={handleDownload}
-                                className="w-full py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white font-semibold text-xs flex items-center justify-center gap-2 border border-white/10 transition cursor-pointer"
+                                className="w-full py-2.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-semibold text-xs flex items-center justify-center gap-2 border border-white/10 transition cursor-pointer"
                             >
                                 <Download className="w-4 h-4" />
                                 <span>Tải xuống tệp</span>
@@ -417,7 +417,7 @@ export function MediaLightboxModal({
                                             }
                                         }
                                     }}
-                                    className="w-full py-2.5 rounded-xl bg-red-500/20 hover:bg-red-600 text-red-400 hover:text-white font-semibold text-xs flex items-center justify-center gap-2 border border-red-500/30 transition cursor-pointer"
+                                    className="w-full py-2.5 rounded-lg bg-red-500/20 hover:bg-red-600 text-red-400 hover:text-white font-semibold text-xs flex items-center justify-center gap-2 border border-red-500/30 transition cursor-pointer"
                                 >
                                     <Trash2 className="w-4 h-4" />
                                     <span>Xóa tập tin này</span>
@@ -443,7 +443,7 @@ export function MediaLightboxModal({
                             <button
                                 key={item.id || idx}
                                 onClick={() => goToIndex(idx)}
-                                className={`relative flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all group cursor-pointer ${
+                                className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all group cursor-pointer ${
                                     isActive 
                                         ? "!border-orange-500 ring-2 ring-orange-500/80 scale-105 shadow-lg" 
                                         : "border-white/20 opacity-60 hover:opacity-100 hover:border-white/60"

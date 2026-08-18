@@ -264,7 +264,7 @@ export default function AdminSettings() {
 
             {/* Saved Notification */}
             {saved && (
-                <div className="p-4 bg-green-500/10 text-green-500 border border-green-500/20 rounded-xl flex items-center gap-2 text-small font-medium animate-fadeIn">
+                <div className="p-4 bg-green-500/10 text-green-500 border border-green-500/20 rounded-lg flex items-center gap-2 text-small font-medium animate-fadeIn">
                     <CheckCircle className="w-5 h-5 animate-bounce" />
                     <span>Lưu cấu hình hệ thống thành công! Các thay đổi đã được áp dụng.</span>
                 </div>
@@ -275,7 +275,7 @@ export default function AdminSettings() {
                 {activeTab === "general" && (
                     <div className="space-y-6 animate-fadeIn">
                         {/* Brand Info */}
-                        <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl space-y-4">
+                        <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl space-y-4">
                             <h3 className="font-heading font-semibold text-[var(--color-text)] text-base flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
                                 <Globe className="w-5 h-5 text-[var(--color-primary)]" />
                                 <span>Cấu hình thương hiệu</span>
@@ -287,7 +287,7 @@ export default function AdminSettings() {
                                         type="text"
                                         value={config.brandName}
                                         onChange={(e) => setConfig({ ...config, brandName: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                         required
                                     />
                                 </div>
@@ -297,7 +297,7 @@ export default function AdminSettings() {
                                         type="text"
                                         value={config.tagline}
                                         onChange={(e) => setConfig({ ...config, tagline: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                         required
                                     />
                                 </div>
@@ -305,7 +305,7 @@ export default function AdminSettings() {
                         </div>
 
                         {/* Contact Info */}
-                        <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl space-y-4">
+                        <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl space-y-4">
                             <h3 className="font-heading font-semibold text-[var(--color-text)] text-base flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
                                 <Phone className="w-5 h-5 text-[var(--color-primary)]" />
                                 <span>Thông tin liên hệ</span>
@@ -317,7 +317,7 @@ export default function AdminSettings() {
                                         type="text"
                                         value={config.phone}
                                         onChange={(e) => setConfig({ ...config, phone: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                         required
                                     />
                                 </div>
@@ -327,7 +327,7 @@ export default function AdminSettings() {
                                         type="text"
                                         value={config.hotline}
                                         onChange={(e) => setConfig({ ...config, hotline: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                         required
                                     />
                                 </div>
@@ -337,7 +337,7 @@ export default function AdminSettings() {
                                         type="email"
                                         value={config.email}
                                         onChange={(e) => setConfig({ ...config, email: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                         required
                                     />
                                 </div>
@@ -347,7 +347,7 @@ export default function AdminSettings() {
                                         type="text"
                                         value={config.address}
                                         onChange={(e) => setConfig({ ...config, address: e.target.value })}
-                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                         required
                                     />
                                 </div>

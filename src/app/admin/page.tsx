@@ -85,13 +85,13 @@ export default function AdminDashboard() {
     const getStatusBadge = (status: string) => {
         switch(status) {
             case "pending":
-                return <span className="px-2.5 py-1 bg-amber-500/10 text-amber-500 rounded-full font-medium text-xs flex items-center gap-1.5 w-fit"><Clock className="w-3.5 h-3.5" /> Chờ tư vấn</span>;
+                return <span className="px-2.5 py-0.5 bg-amber-500/10 text-amber-500 rounded-md font-medium text-xs flex items-center gap-1.5 w-fit"><Clock className="w-3.5 h-3.5" /> Chờ tư vấn</span>;
             case "contacted":
-                return <span className="px-2.5 py-1 bg-blue-500/10 text-blue-500 rounded-full font-medium text-xs flex items-center gap-1.5 w-fit"><TrendingUp className="w-3.5 h-3.5" /> Đã liên hệ</span>;
+                return <span className="px-2.5 py-0.5 bg-blue-500/10 text-blue-500 rounded-md font-medium text-xs flex items-center gap-1.5 w-fit"><TrendingUp className="w-3.5 h-3.5" /> Đã liên hệ</span>;
             case "enrolled":
-                return <span className="px-2.5 py-1 bg-green-500/10 text-green-500 rounded-full font-medium text-xs flex items-center gap-1.5 w-fit"><CheckCircle className="w-3.5 h-3.5" /> Đã nhập học</span>;
+                return <span className="px-2.5 py-0.5 bg-green-500/10 text-green-500 rounded-md font-medium text-xs flex items-center gap-1.5 w-fit"><CheckCircle className="w-3.5 h-3.5" /> Đã nhập học</span>;
             default:
-                return <span className="px-2.5 py-1 bg-red-500/10 text-red-500 rounded-full font-medium text-xs flex items-center gap-1.5 w-fit"><XCircle className="w-3.5 h-3.5" /> Đã hủy</span>;
+                return <span className="px-2.5 py-0.5 bg-red-500/10 text-red-500 rounded-md font-medium text-xs flex items-center gap-1.5 w-fit"><XCircle className="w-3.5 h-3.5" /> Đã hủy</span>;
         }
     };
 
@@ -108,7 +108,7 @@ export default function AdminDashboard() {
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Link href="/admin/khoa-hoc?add=true" className="btn btn-primary btn-sm flex items-center gap-1.5">
+                    <Link href="/admin/khoa-hoc?add=true" className="btn btn-primary btn-sm flex items-center gap-1.5 rounded-lg">
                         <Plus className="w-4 h-4" />
                         <span>Thêm khóa học</span>
                     </Link>
@@ -116,62 +116,62 @@ export default function AdminDashboard() {
             </div>
 
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {/* Registrations */}
-                <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl flex items-center gap-5">
-                    <div className="w-12 h-12 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-xl flex items-center justify-center">
-                        <Users className="w-6 h-6" />
+                <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-4">
+                    <div className="w-11 h-11 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-lg flex items-center justify-center">
+                        <Users className="w-5 h-5" />
                     </div>
                     <div>
                         <span className="text-xs text-[var(--color-text-muted)] font-medium block">
                             Đơn đăng ký học
                         </span>
-                        <span className="text-2xl font-bold text-[var(--color-text)] block mt-0.5">
+                        <span className="text-xl font-bold text-[var(--color-text)] block mt-0.5">
                             {stats.totalRegistrations}
                         </span>
                     </div>
                 </div>
 
                 {/* Pending */}
-                <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl flex items-center gap-5">
-                    <div className="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center">
-                        <Clock className="w-6 h-6" />
+                <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-4">
+                    <div className="w-11 h-11 bg-amber-500/10 text-amber-500 rounded-lg flex items-center justify-center">
+                        <Clock className="w-5 h-5" />
                     </div>
                     <div>
                         <span className="text-xs text-[var(--color-text-muted)] font-medium block">
                             Đang chờ duyệt
                         </span>
-                        <span className="text-2xl font-bold text-[var(--color-text)] block mt-0.5">
+                        <span className="text-xl font-bold text-[var(--color-text)] block mt-0.5">
                             {stats.pendingRegistrations}
                         </span>
                     </div>
                 </div>
 
                 {/* Courses */}
-                <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl flex items-center gap-5">
-                    <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center">
-                        <BookOpen className="w-6 h-6" />
+                <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-4">
+                    <div className="w-11 h-11 bg-blue-500/10 text-blue-500 rounded-lg flex items-center justify-center">
+                        <BookOpen className="w-5 h-5" />
                     </div>
                     <div>
                         <span className="text-xs text-[var(--color-text-muted)] font-medium block">
                             Tổng số khóa học
                         </span>
-                        <span className="text-2xl font-bold text-[var(--color-text)] block mt-0.5">
+                        <span className="text-xl font-bold text-[var(--color-text)] block mt-0.5">
                             {stats.totalCourses}
                         </span>
                     </div>
                 </div>
 
                 {/* Blogs */}
-                <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl flex items-center gap-5">
-                    <div className="w-12 h-12 bg-purple-500/10 text-purple-500 rounded-xl flex items-center justify-center">
-                        <FileText className="w-6 h-6" />
+                <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-4">
+                    <div className="w-11 h-11 bg-purple-500/10 text-purple-500 rounded-lg flex items-center justify-center">
+                        <FileText className="w-5 h-5" />
                     </div>
                     <div>
                         <span className="text-xs text-[var(--color-text-muted)] font-medium block">
                             Bài viết tin tức
                         </span>
-                        <span className="text-2xl font-bold text-[var(--color-text)] block mt-0.5">
+                        <span className="text-xl font-bold text-[var(--color-text)] block mt-0.5">
                             {stats.totalBlogs}
                         </span>
                     </div>
@@ -179,10 +179,10 @@ export default function AdminDashboard() {
             </div>
 
             {/* Layout Widgets */}
-            <div className="grid lg:grid-cols-3 gap-8">
+            <div className="grid lg:grid-cols-3 gap-6">
                 {/* Recent Registrations Table */}
-                <div className="lg:col-span-2 p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl">
-                    <div className="flex items-center justify-between mb-6">
+                <div className="lg:col-span-2 p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
+                    <div className="flex items-center justify-between mb-5">
                         <h3 className="font-heading font-semibold text-[var(--color-text)] text-base">
                             Đăng ký mới gần đây
                         </h3>
@@ -192,37 +192,37 @@ export default function AdminDashboard() {
                         </Link>
                     </div>
 
-                    <div className="overflow-x-auto -mx-6">
+                    <div className="overflow-x-auto -mx-5">
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-[var(--color-border)] text-xs text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
-                                    <th className="px-6 py-3">Học viên</th>
-                                    <th className="px-6 py-3">Khóa học đăng ký</th>
-                                    <th className="px-6 py-3">Trạng thái</th>
-                                    <th className="px-6 py-3 text-right">Ngày gửi</th>
+                                    <th className="px-5 py-2.5">Học viên</th>
+                                    <th className="px-5 py-2.5">Khóa học đăng ký</th>
+                                    <th className="px-5 py-2.5">Trạng thái</th>
+                                    <th className="px-5 py-2.5 text-right">Ngày gửi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--color-border)] text-small">
                                 {recentRegistrations.length === 0 ? (
                                     <tr>
-                                        <td colSpan={4} className="px-6 py-10 text-center text-[var(--color-text-muted)]">
+                                        <td colSpan={4} className="px-5 py-8 text-center text-[var(--color-text-muted)]">
                                             Chưa có đơn đăng ký nào.
                                         </td>
                                     </tr>
                                 ) : (
                                     recentRegistrations.map((reg) => (
                                         <tr key={reg.id} className="hover:bg-[var(--color-surface-light)]/40 transition-colors">
-                                            <td className="px-6 py-4">
+                                            <td className="px-5 py-3.5">
                                                 <div className="font-semibold text-[var(--color-text)]">{reg.name}</div>
                                                 <div className="text-xs text-[var(--color-text-muted)] mt-0.5">{reg.phone}</div>
                                             </td>
-                                            <td className="px-6 py-4 text-[var(--color-text-secondary)]">
+                                            <td className="px-5 py-3.5 text-[var(--color-text-secondary)]">
                                                 {reg.courseName}
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-5 py-3.5">
                                                 {getStatusBadge(reg.status)}
                                             </td>
-                                            <td className="px-6 py-4 text-right text-xs text-[var(--color-text-muted)]">
+                                            <td className="px-5 py-3.5 text-right text-xs text-[var(--color-text-muted)]">
                                                 {reg.date}
                                             </td>
                                         </tr>
@@ -234,15 +234,15 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Right Widgets: Business Stat & System Info */}
-                <div className="space-y-8">
+                <div className="space-y-6">
                     {/* Enrollment Stat Breakdown */}
-                    <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl">
-                        <h3 className="font-heading font-semibold text-[var(--color-text)] text-base mb-6">
+                    <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
+                        <h3 className="font-heading font-semibold text-[var(--color-text)] text-base mb-5">
                             Thống kê nhanh tháng này
                         </h3>
-                        <div className="space-y-5">
+                        <div className="space-y-4">
                             <div>
-                                <div className="flex justify-between text-xs font-semibold mb-2">
+                                <div className="flex justify-between text-xs font-semibold mb-1.5">
                                     <span className="text-[var(--color-text-secondary)]">Tỷ lệ chuyển đổi học viên</span>
                                     <span className="text-[var(--color-primary)]">68%</span>
                                 </div>
@@ -252,7 +252,7 @@ export default function AdminDashboard() {
                             </div>
 
                             <div>
-                                <div className="flex justify-between text-xs font-semibold mb-2">
+                                <div className="flex justify-between text-xs font-semibold mb-1.5">
                                     <span className="text-[var(--color-text-secondary)]">Chỉ tiêu tuyển sinh khóa Onsite</span>
                                     <span className="text-green-500">80% đạt chỉ tiêu</span>
                                 </div>
@@ -262,7 +262,7 @@ export default function AdminDashboard() {
                             </div>
 
                             <div>
-                                <div className="flex justify-between text-xs font-semibold mb-2">
+                                <div className="flex justify-between text-xs font-semibold mb-1.5">
                                     <span className="text-[var(--color-text-secondary)]">Khóa học bún/phở chiếm lĩnh</span>
                                     <span className="text-purple-500">75% tổng đăng ký</span>
                                 </div>
@@ -274,11 +274,11 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Quick Guide Card */}
-                    <div className="p-6 bg-gradient-to-br from-[var(--color-gray-900)] to-[var(--color-gray-800)] border border-[var(--color-border)] rounded-2xl text-center relative overflow-hidden">
+                    <div className="p-5 bg-gradient-to-br from-[var(--color-gray-900)] to-[var(--color-gray-800)] border border-[var(--color-border)] rounded-xl text-center relative overflow-hidden">
                         <div className="absolute -top-12 -left-12 w-24 h-24 bg-[var(--color-primary)]/10 rounded-full blur-2xl" />
                         <div className="absolute -bottom-12 -right-12 w-24 h-24 bg-[var(--color-primary)]/15 rounded-full blur-2xl" />
                         
-                        <div className="relative z-10 space-y-4">
+                        <div className="relative z-10 space-y-3.5">
                             <span className="text-[10px] text-[var(--color-primary)] font-bold uppercase tracking-wider block">
                                 Hướng dẫn nhanh
                             </span>
@@ -288,7 +288,7 @@ export default function AdminDashboard() {
                             <p className="text-xs text-gray-300 leading-relaxed">
                                 Hãy truy cập trang quản lý Khóa học (CMS) hoặc Bài viết (CMS) ở menu bên trái để chỉnh sửa thông tin chi tiết.
                             </p>
-                            <Link href="/admin/khoa-hoc" className="btn btn-primary btn-sm w-full block">
+                            <Link href="/admin/khoa-hoc" className="btn btn-primary btn-sm w-full block rounded-lg">
                                 Đi tới trang CMS
                             </Link>
                         </div>

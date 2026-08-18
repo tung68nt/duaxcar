@@ -748,7 +748,7 @@ function AdminCoursesContent() {
             </div>
 
             {/* Filters Toolbar */}
-            <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex flex-col md:flex-row gap-4 items-center justify-between">
                 {/* Search Bar */}
                 <div className="relative w-full md:w-96">
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
@@ -757,7 +757,7 @@ function AdminCoursesContent() {
                         placeholder="Tìm khóa học theo tên..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl pl-10 pr-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg pl-10 pr-4 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                     />
                 </div>
 
@@ -765,7 +765,7 @@ function AdminCoursesContent() {
                 <div className="flex gap-2 w-full md:w-auto">
                     <button
                         onClick={() => setTypeFilter("all")}
-                        className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                             typeFilter === "all"
                                 ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
                                 : "bg-[var(--color-background)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-light)]"
@@ -775,7 +775,7 @@ function AdminCoursesContent() {
                     </button>
                     <button
                         onClick={() => setTypeFilter("onsite")}
-                        className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                             typeFilter === "onsite"
                                 ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
                                 : "bg-[var(--color-background)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-light)]"
@@ -785,7 +785,7 @@ function AdminCoursesContent() {
                     </button>
                     <button
                         onClick={() => setTypeFilter("elearning")}
-                        className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                             typeFilter === "elearning"
                                 ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
                                 : "bg-[var(--color-background)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-light)]"
@@ -797,7 +797,7 @@ function AdminCoursesContent() {
             </div>
 
             {/* Courses Table Card */}
-            <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl">
+            <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
                 <div className="overflow-x-auto -mx-6">
                     <table className="w-full text-left border-collapse">
                         <thead>
