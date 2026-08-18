@@ -14,7 +14,11 @@ type NavItem = {
     children?: { label: string; href: string }[];
 };
 
-export default function Header() {
+interface HeaderProps {
+    logo?: string;
+}
+
+export default function Header({ logo = "/images/logo.png" }: HeaderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -42,13 +46,11 @@ export default function Header() {
                 <div className="flex items-center justify-between h-16 md:h-20">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group">
-                        <Image
-                            src="/images/logo.png"
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src={logo}
                             alt="DuaxCar Kitchen"
-                            width={180}
-                            height={60}
-                            className="h-14 md:h-[72px] w-auto -ml-2 transition-all"
-                            priority
+                            className="h-14 md:h-[72px] w-auto -ml-2 object-contain transition-all"
                         />
                     </Link>
 

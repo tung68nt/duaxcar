@@ -23,6 +23,8 @@ export interface FAQItem {
 export interface SiteSettings {
     brandName: string;
     tagline: string;
+    logo?: string;
+    favicon?: string;
     phone: string;
     hotline: string;
     email: string;
@@ -101,6 +103,8 @@ const defaultFaqs: FAQItem[] = [
 const defaultSettings: SiteSettings = {
     brandName: "DuaxCar Kitchen",
     tagline: "Trung tâm đào tạo ẩm thực chuyên nghiệp",
+    logo: "/images/logo.png",
+    favicon: "/images/logo.png",
     phone: "0988.234.567",
     hotline: "0966.789.012",
     email: "contact@duaxcar.com",

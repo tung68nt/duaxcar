@@ -30,6 +30,8 @@ interface BannerItem {
 interface SettingsState {
     brandName: string;
     tagline: string;
+    logo?: string;
+    favicon?: string;
     phone: string;
     hotline: string;
     email: string;
@@ -59,6 +61,8 @@ export default function AdminSettings() {
     const [config, setConfig] = useState<SettingsState>({
         brandName: "DuaxCar Kitchen",
         tagline: "Trung tâm đào tạo ẩm thực chuyên nghiệp",
+        logo: "/images/logo.png",
+        favicon: "/images/logo.png",
         phone: "090 123 4567",
         hotline: "091 888 9999",
         email: "contact@duaxcar.vn",
@@ -301,6 +305,30 @@ export default function AdminSettings() {
                                         required
                                     />
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Logo & Favicon */}
+                        <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl space-y-4">
+                            <h3 className="font-heading font-semibold text-[var(--color-text)] text-base flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
+                                <ImageIcon className="w-5 h-5 text-[var(--color-primary)]" />
+                                <span>Logo thương hiệu & Biểu tượng Favicon</span>
+                            </h3>
+                            <div className="grid sm:grid-cols-2 gap-5">
+                                <MediaSelectorInput
+                                    label="Logo website (Header, Footer, Admin)"
+                                    description="Logo hiển thị chính thức trên website (khuyên dùng định dạng PNG trong suốt)"
+                                    value={config.logo || "/images/logo.png"}
+                                    onChange={(url) => setConfig({ ...config, logo: url })}
+                                    aspectRatio="wide"
+                                />
+                                <MediaSelectorInput
+                                    label="Favicon (Biểu tượng Tab trình duyệt)"
+                                    description="Icon đại diện trên tab & bookmark trình duyệt (khuyên dùng tỉ lệ vuông chuẩn logo)"
+                                    value={config.favicon || "/images/logo.png"}
+                                    onChange={(url) => setConfig({ ...config, favicon: url })}
+                                    aspectRatio="square"
+                                />
                             </div>
                         </div>
 
@@ -603,7 +631,7 @@ export default function AdminSettings() {
                 <div className="flex justify-end border-t border-[var(--color-border)] pt-5">
                     <button
                         type="submit"
-                        className="btn btn-primary btn-lg flex items-center gap-2 shadow-lg shadow-[var(--color-primary)]/20"
+                        className="btn btn-primary btn-md px-6 py-2.5 flex items-center gap-2 shadow-sm rounded-lg"
                     >
                         <Save className="w-5 h-5" />
                         <span>Lưu cài đặt</span>

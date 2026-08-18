@@ -62,10 +62,10 @@ export default function LoginPage() {
                 <ThemeToggle />
             </div>
 
-            <div className="w-full max-w-md bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[2.5rem] p-8 sm:p-10 shadow-2xl relative z-10 flex flex-col items-center">
+            <div className="w-full max-w-md bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-8 sm:p-10 shadow-xl relative z-10 flex flex-col items-center">
                 {/* Logo & Header */}
-                <div className="w-16 h-16 rounded-2xl bg-[var(--color-primary)] flex items-center justify-center mb-6 shadow-lg shadow-[var(--color-primary)]/20">
-                    <ChefHat className="w-9 h-9 text-white" />
+                <div className="w-14 h-14 rounded-xl bg-[var(--color-primary)] flex items-center justify-center mb-5 shadow-sm">
+                    <ChefHat className="w-8 h-8 text-white" />
                 </div>
                 
                 <h1 className="font-heading font-bold text-2xl text-[var(--color-text)] text-center mb-2">
@@ -77,30 +77,30 @@ export default function LoginPage() {
 
                 {/* Notifications */}
                 {error && (
-                    <div className="w-full p-4 mb-5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl flex items-center gap-2 text-xs font-semibold animate-fadeIn">
+                    <div className="w-full p-3.5 mb-5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg flex items-center gap-2 text-xs font-semibold animate-fadeIn">
                         <AlertCircle className="w-4 h-4 flex-shrink-0" />
                         <span>{error}</span>
                     </div>
                 )}
 
                 {success && (
-                    <div className="w-full p-4 mb-5 bg-green-500/10 border border-green-500/20 text-green-500 rounded-2xl flex items-center gap-2 text-xs font-semibold animate-fadeIn">
+                    <div className="w-full p-3.5 mb-5 bg-green-500/10 border border-green-500/20 text-green-500 rounded-lg flex items-center gap-2 text-xs font-semibold animate-fadeIn">
                         <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                         <span>Đăng nhập thành công! Đang chuyển hướng...</span>
                     </div>
                 )}
 
                 {/* Login Form */}
-                <form onSubmit={handleLogin} className="w-full space-y-5">
+                <form onSubmit={handleLogin} className="w-full space-y-4">
                     <div>
                         <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5 pl-1">Email quản trị</label>
                         <div className="relative">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--color-text-muted)]" />
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-2xl pl-11 pr-4 py-3 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-colors"
+                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg pl-10 pr-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-colors"
                                 placeholder="name@duaxcar.vn"
                                 required
                                 disabled={loading || success}
@@ -111,12 +111,12 @@ export default function LoginPage() {
                     <div>
                         <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5 pl-1">Mật khẩu</label>
                         <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--color-text-muted)]" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
                             <input
                                 type={showPassword ? "text" : "password"}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-2xl pl-11 pr-11 py-3 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-colors"
+                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg pl-10 pr-10 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-colors"
                                 placeholder="••••••••"
                                 required
                                 disabled={loading || success}
@@ -124,19 +124,19 @@ export default function LoginPage() {
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] focus:outline-none"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] focus:outline-none"
                             >
                                 {showPassword ? (
-                                    <EyeOff className="w-4.5 h-4.5" />
+                                    <EyeOff className="w-4 h-4" />
                                 ) : (
-                                    <Eye className="w-4.5 h-4.5" />
+                                    <Eye className="w-4 h-4" />
                                 )}
                             </button>
                         </div>
                     </div>
 
                     {/* Helper text info */}
-                    <div className="bg-[var(--color-surface-light)]/40 border border-[var(--color-border)] rounded-2xl p-4 text-[10px] text-[var(--color-text-muted)] leading-relaxed">
+                    <div className="bg-[var(--color-surface-light)]/40 border border-[var(--color-border)] rounded-lg p-3.5 text-[10px] text-[var(--color-text-muted)] leading-relaxed">
                         <span className="font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">Tài khoản trải nghiệm CMS:</span>
                         <div>Email: <strong className="text-[var(--color-text)]">admin@duaxcar.vn</strong></div>
                         <div>Mật khẩu: <strong className="text-[var(--color-text)]">admin</strong></div>
@@ -146,14 +146,14 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={loading || success}
-                        className="w-full btn btn-primary btn-lg flex items-center justify-center gap-2 rounded-2xl py-3 font-semibold shadow-lg shadow-[var(--color-primary)]/20 transition-all active:scale-95 disabled:opacity-50"
+                        className="w-full btn btn-primary btn-md flex items-center justify-center gap-2 rounded-lg py-2.5 font-semibold shadow-sm transition-all disabled:opacity-50"
                     >
                         {loading ? (
                             <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
                         ) : (
                             <>
                                 <span>Đăng nhập hệ thống</span>
-                                <ArrowRight className="w-4.5 h-4.5" />
+                                <ArrowRight className="w-4 h-4" />
                             </>
                         )}
                     </button>

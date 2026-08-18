@@ -10,7 +10,11 @@ import {
 } from "lucide-react";
 import { navigation, contactInfo, siteConfig } from "@/data/mock";
 
-export default function Footer() {
+interface FooterProps {
+    logo?: string;
+}
+
+export default function Footer({ logo = "/images/logo.png" }: FooterProps) {
     return (
         <footer className="bg-[var(--color-black)] border-t border-[var(--color-border)]">
             {/* Main Footer */}
@@ -18,12 +22,11 @@ export default function Footer() {
                 {/* Top Row: Logo */}
                 <div className="mb-0">
                     <Link href="/" className="inline-block">
-                        <Image
-                            src="/images/logo.png"
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src={logo}
                             alt="DuaxCar Kitchen"
-                            width={200}
-                            height={80}
-                            className="h-28 w-auto"
+                            className="h-28 w-auto object-contain"
                         />
                     </Link>
                 </div>

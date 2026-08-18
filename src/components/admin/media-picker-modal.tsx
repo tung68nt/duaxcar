@@ -564,7 +564,7 @@ export function MediaPickerModal({
                             type="button"
                             onClick={handleConfirmSelection}
                             disabled={!selectedItemUrl}
-                            className="btn btn-primary btn-sm px-4 rounded-lg flex items-center gap-1.5 shadow-md shadow-[var(--color-primary)]/20 disabled:opacity-40 disabled:pointer-events-none"
+                            className="btn btn-primary btn-sm px-4 rounded-lg flex items-center gap-1.5 shadow-sm disabled:opacity-40 disabled:pointer-events-none"
                         >
                             <Check className="w-4 h-4" />
                             <span>Xác nhận chọn</span>

@@ -29,6 +29,7 @@ export default function AdminLayout({
     const [isLoading, setIsLoading] = useState(true);
     const pathname = usePathname();
     const router = useRouter();
+    const [logoUrl, setLogoUrl] = useState("/images/logo.png");
 
     useEffect(() => {
         const loggedIn = localStorage.getItem("admin_logged_in");
@@ -37,6 +38,42 @@ export default function AdminLayout({
         } else {
             setIsLoading(false);
         }
+
+        // Fetch settings for logo and favicon
+        try {
+            const cached = localStorage.getItem("admin_settings");
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (parsed.logo) setLogoUrl(parsed.logo);
+                if (parsed.favicon) {
+                    let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+                    if (!link) {
+                        link = document.createElement("link");
+                        link.rel = "icon";
+                        document.head.appendChild(link);
+                    }
+                    link.href = parsed.favicon;
+                }
+            }
+        } catch {}
+
+        fetch("/api/cms/settings")
+            .then(res => res.json())
+            .then(json => {
+                if (json.settings) {
+                    if (json.settings.logo) setLogoUrl(json.settings.logo);
+                    if (json.settings.favicon) {
+                        let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+                        if (!link) {
+                            link = document.createElement("link");
+                            link.rel = "icon";
+                            document.head.appendChild(link);
+                        }
+                        link.href = json.settings.favicon;
+                    }
+                }
+            })
+            .catch(() => {});
     }, [router]);
 
     const handleLogout = () => {
@@ -60,15 +97,18 @@ export default function AdminLayout({
             {/* Desktop Sidebar */}
             <aside className="hidden md:flex flex-col w-64 bg-[var(--color-surface)] border-r border-[var(--color-border)] fixed top-0 bottom-0 left-0 z-30">
                 {/* Brand Logo */}
-                <div className="h-16 flex items-center px-6 border-b border-[var(--color-border)] gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)] flex items-center justify-center font-bold text-white text-lg">
-                        D
-                    </div>
-                    <div>
-                        <span className="font-heading font-bold text-[var(--color-text)] text-base block leading-none">
+                <div className="h-16 flex items-center px-5 border-b border-[var(--color-border)] gap-2.5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        src={logoUrl}
+                        alt="DuaxCar Logo"
+                        className="h-10 w-auto max-w-[120px] object-contain"
+                    />
+                    <div className="min-w-0">
+                        <span className="font-heading font-bold text-[var(--color-text)] text-xs block leading-tight truncate">
                             DuaxCar Admin
                         </span>
-                        <span className="text-[10px] text-[var(--color-primary)] font-medium uppercase tracking-wider block mt-1">
+                        <span className="text-[9px] text-[var(--color-primary)] font-semibold uppercase tracking-wider block">
                             Hệ Thống CMS
                         </span>
                     </div>
@@ -83,10 +123,10 @@ export default function AdminLayout({
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium text-small transition-all duration-200 group ${
+                                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-semibold text-small transition-all duration-200 group ${
                                     isActive
-                                        ? "bg-[var(--color-primary)] text-white shadow-md shadow-[var(--color-primary)]/20"
-                                        : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] hover:text-[var(--color-text)]"
+                                        ? "bg-[var(--color-primary)] text-white shadow-sm"
+                                        : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] hover:text-[var(--color-text)] font-medium"
                                 }`}
                             >
                                 <Icon className={`w-5 h-5 transition-transform duration-200 group-hover:scale-105 ${

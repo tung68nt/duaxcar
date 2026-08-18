@@ -26,6 +26,16 @@ export const metadata: Metadata = {
         description: siteConfig.description,
         siteName: siteConfig.name,
     },
+    icons: {
+        icon: [
+            { url: "/images/logo.png", href: "/images/logo.png" },
+            { url: "/favicon.ico", href: "/favicon.ico" }
+        ],
+        shortcut: ["/images/logo.png"],
+        apple: [
+            { url: "/images/logo.png" }
+        ],
+    },
 };
 
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";

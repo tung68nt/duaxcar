@@ -740,7 +740,7 @@ function AdminCoursesContent() {
                 </div>
                 <button
                     onClick={openAddModal}
-                    className="btn btn-primary btn-sm flex items-center gap-1.5 shadow-lg shadow-[var(--color-primary)]/20"
+                    className="btn btn-primary btn-sm flex items-center gap-1.5 shadow-sm rounded-lg"
                 >
                     <Plus className="w-4 h-4" />
                     <span>Thêm khóa học</span>
