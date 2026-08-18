@@ -17,6 +17,7 @@ import {
     LogOut,
     HelpCircle,
     ChefHat,
+    ShieldCheck,
     Image as ImageIcon
 } from "lucide-react";
 
@@ -88,6 +89,7 @@ export default function AdminLayout({
         { label: "Giảng viên (CMS)", href: "/admin/giang-vien", icon: ChefHat },
         { label: "Đăng ký học", href: "/admin/dang-ky", icon: Users },
         { label: "Hỏi đáp (FAQ)", href: "/admin/faq", icon: HelpCircle },
+        { label: "Chính sách (CMS)", href: "/admin/chinh-sach", icon: ShieldCheck },
         { label: "Thư viện Media", href: "/admin/media", icon: ImageIcon },
         { label: "Cài đặt", href: "/admin/cai-dat", icon: Settings },
     ];

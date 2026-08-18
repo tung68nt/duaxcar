@@ -172,3 +172,32 @@ export async function getSupabaseSettings(): Promise<SiteSettings | null> {
         return null;
     }
 }
+
+import { defaultPolicies, PolicyData } from "@/data/default-policies";
+
+export async function getSupabasePolicy(id: "bao-mat" | "dieu-khoan" | "thanh-toan"): Promise<PolicyData> {
+    const fallback = defaultPolicies.find((p) => p.id === id) || defaultPolicies[0];
+
+    try {
+        const { data, error } = await supabase
+            .from('site_settings')
+            .select('data')
+            .eq('id', `policy_${id}`)
+            .single();
+
+        if (!error && data && data.data && data.data.content) {
+            return data.data;
+        }
+    } catch {}
+
+    try {
+        const db = getLocalDB();
+        const found = db.policies?.find((p) => p.id === id);
+        if (found && found.content) {
+            return found;
+        }
+    } catch {}
+
+    return fallback;
+}
+
