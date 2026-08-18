@@ -14,7 +14,7 @@ const toc = [
     { id: "bao-luu-doi-lich", title: "Quy chế bảo lưu & Chuyển đổi khóa học" },
     { id: "chinh-sach-hoan-phi", title: "Chính sách hoàn tiền & Điều kiện áp dụng" },
     { id: "hoa-don-tai-chinh", title: "Xuất hóa đơn tài chính (VAT) & Biên nhận" },
-    { id: "tai-khoan-chinh-thuc", title: "Thông tin tài khoản thụ hưởng chính thức" },
+    { id: "quy-trinh-thanh-toan", title: "Quy trình thanh toán & Xác thực an toàn" },
 ];
 
 export default function PaymentPolicyPage() {
@@ -28,7 +28,7 @@ export default function PaymentPolicyPage() {
             toc={toc}
         >
             {/* Lead Intro Box */}
-            <div className="p-4 sm:p-5 rounded-xl bg-orange-500/10 border-l-4 border-[var(--color-primary)] text-xs sm:text-small">
+            <div className="p-4 sm:p-5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-xs sm:text-small shadow-sm">
                 <div className="flex items-center gap-2 font-bold text-[var(--color-primary)] text-sm mb-1.5">
                     <ReceiptText className="w-4 h-4" />
                     <span>Minh bạch tài chính & Quyền lợi học viên</span>
@@ -45,26 +45,27 @@ export default function PaymentPolicyPage() {
                     Phương thức thanh toán được chấp nhận
                 </h2>
                 <p>
-                    Nhằm tạo sự thuận tiện tối đa cho học viên trên khắp cả nước và kiều bào nước ngoài, DuaxCar Kitchen hỗ trợ các hình thức thanh toán sau:
+                    Nhằm tạo điều kiện thuận lợi và an toàn tối đa cho học viên trên toàn quốc, DuaxCar Kitchen hỗ trợ các hình thức thanh toán đa dạng sau:
                 </p>
+
                 <div className="grid sm:grid-cols-2 gap-3.5 my-4">
                     <div className="p-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl">
-                        <div className="flex items-center gap-2 font-semibold text-[var(--color-text)] text-xs mb-1.5">
+                        <div className="flex items-center gap-2.5 font-bold text-xs text-[var(--color-text)] mb-1.5">
                             <QrCode className="w-4 h-4 text-[var(--color-primary)]" />
-                            <span>1. Chuyển khoản ngân hàng 24/7 (VietQR)</span>
+                            <span>Chuyển khoản Ngân hàng (QR Code 24/7)</span>
                         </div>
-                        <p className="text-[11px] text-[var(--color-text-secondary)] mb-0">
-                            Chuyển khoản nhanh qua mã QR tự động Napas 247 từ tất cả các ứng dụng ngân hàng và ví điện tử. Tiền nổi ngay lập tức và hệ thống tự động kích hoạt tài khoản E-learning.
+                        <p className="text-[11px] text-[var(--color-text-secondary)] mb-0 leading-relaxed">
+                            Quét mã VietQR chuyển khoản nhanh 24/7 qua Internet Banking của tất cả các ngân hàng Việt Nam. Hệ thống tự động xác nhận trong 1 phút.
                         </p>
                     </div>
 
                     <div className="p-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl">
-                        <div className="flex items-center gap-2 font-semibold text-[var(--color-text)] text-xs mb-1.5">
-                            <Building2 className="w-4 h-4 text-[var(--color-primary)]" />
-                            <span>2. Thanh toán tiền mặt tại Văn phòng học viện</span>
+                        <div className="flex items-center gap-2.5 font-bold text-xs text-[var(--color-text)] mb-1.5">
+                            <Building2 className="w-4 h-4 text-orange-500" />
+                            <span>Thanh toán trực tiếp tại Trụ sở</span>
                         </div>
-                        <p className="text-[11px] text-[var(--color-text-secondary)] mb-0">
-                            Thanh toán trực tiếp tại: Số 20 TT18, KĐT Văn Phú, Phú La, Hà Đông, Hà Nội. Bộ phận lễ tân sẽ cấp phiếu thu có dấu mộc đỏ ngay khi nhận tiền.
+                        <p className="text-[11px] text-[var(--color-text-secondary)] mb-0 leading-relaxed">
+                            Thanh toán bằng tiền mặt hoặc quẹt thẻ POS (hỗ trợ thẻ Visa, Master, JCB, Napas) trực tiếp tại văn phòng tuyển sinh của DuaxCar Kitchen.
                         </p>
                     </div>
                 </div>
@@ -77,13 +78,13 @@ export default function PaymentPolicyPage() {
                     Quy trình đặt cọc & Xác nhận giữ chỗ
                 </h2>
                 <p>
-                    Do mỗi lớp thực hành trực tiếp tại xưởng bếp chỉ giới hạn <strong>tối đa 6-8 học viên</strong> để đảm bảo chất lượng, học viên cần tuân thủ quy trình giữ chỗ:
+                    Do mỗi lớp học thực hành tại DuaxCar chỉ nhận <strong>tối đa 6 - 8 học viên</strong> để đảm bảo chất lượng “cầm tay chỉ việc”, quy trình giữ chỗ được thực hiện như sau:
                 </p>
-                <ol>
-                    <li><strong>Mức đặt cọc giữ chỗ:</strong> Tối thiểu <strong>1.000.000đ - 2.000.000đ</strong>/khóa học (khoản tiền này sẽ được trừ trực tiếp vào tổng học phí).</li>
-                    <li><strong>Thời hạn hoàn tất học phí còn lại:</strong> Học viên đóng đủ phần học phí còn lại vào ngày khai giảng đầu tiên tại lớp.</li>
-                    <li><strong>Xác nhận nhập học:</strong> Sau khi nhận tiền cọc, học viện sẽ gửi Giấy Báo Nhập Học chính thức qua Zalo và SMS trong vòng 30 phút.</li>
-                </ol>
+                <ul>
+                    <li><strong>Mức phí đặt cọc:</strong> Tối thiểu <strong>30% - 50%</strong> tổng học phí của khóa học để trung tâm chuẩn bị nguyên vật liệu và xếp lịch giảng viên.</li>
+                    <li><strong>Thời hạn hoàn tất học phí còn lại:</strong> Học viên thanh toán phần học phí còn lại vào ngày đầu tiên khai giảng khóa học trước khi bước vào giờ thực hành.</li>
+                    <li><strong>Xác nhận nhập học:</strong> Ngay sau khi nhận tiền cọc, DuaxCar Kitchen sẽ gửi Giấy báo nhập học và mã lớp qua Email & SMS cho học viên.</li>
+                </ul>
             </section>
 
             {/* Section 3 */}
@@ -93,13 +94,31 @@ export default function PaymentPolicyPage() {
                     Quy chế bảo lưu & Chuyển đổi khóa học
                 </h2>
                 <p>
-                    Trường hợp học viên có việc đột xuất không thể tham gia khóa học theo lịch đã đăng ký:
+                    Chúng tôi luôn tạo điều kiện linh hoạt nhất cho học viên khi có việc bận đột xuất hoặc kế hoạch kinh doanh thay đổi:
                 </p>
-                <ul>
-                    <li><strong>Thời hạn thông báo:</strong> Học viên cần thông báo cho bộ phận đào tạo trước ngày khai giảng tối thiểu <strong>03 ngày</strong>.</li>
-                    <li><strong>Thời hạn bảo lưu:</strong> Học phí đã đóng được <strong>bảo lưu nguyên vẹn trong vòng 12 tháng</strong>. Học viên có thể sắp xếp học vào bất kỳ đợt khai giảng nào tiếp theo.</li>
-                    <li><strong>Chuyển đổi khóa học:</strong> Học viên có thể chuyển đổi sang môn học khác (ví dụ: từ Phở Bò sang Bún Bò Huế hoặc Lẩu) và chỉ cần bù hoặc nhận lại chênh lệch học phí nếu có.</li>
-                </ul>
+
+                <div className="space-y-3 my-4">
+                    <div className="p-3.5 bg-[var(--color-background)] rounded-xl border border-[var(--color-border)] text-xs">
+                        <strong className="text-[var(--color-text)] block mb-1">1. Quyền bảo lưu học phí:</strong>
+                        <span className="text-[var(--color-text-secondary)] leading-relaxed">
+                            Học viên được bảo lưu toàn bộ học phí đã đóng trong thời hạn <strong>tối đa 06 tháng</strong> kể từ ngày đăng ký. Khi muốn tiếp tục học, chỉ cần báo trước cho ban quản lý lớp 05 ngày làm việc.
+                        </span>
+                    </div>
+
+                    <div className="p-3.5 bg-[var(--color-background)] rounded-xl border border-[var(--color-border)] text-xs">
+                        <strong className="text-[var(--color-text)] block mb-1">2. Chuyển đổi lớp hoặc khóa học:</strong>
+                        <span className="text-[var(--color-text-secondary)] leading-relaxed">
+                            Được phép chuyển sang khóa học khác hoặc đổi ca học hoàn toàn miễn phí nếu thông báo trước ngày khai giảng tối thiểu <strong>03 ngày</strong>.
+                        </span>
+                    </div>
+
+                    <div className="p-3.5 bg-[var(--color-background)] rounded-xl border border-[var(--color-border)] text-xs">
+                        <strong className="text-[var(--color-text)] block mb-1">3. Chuyển nhượng suất học cho người thân:</strong>
+                        <span className="text-[var(--color-text-secondary)] leading-relaxed">
+                            Học viên được quyền chuyển nhượng suất học của mình cho bạn bè hoặc người thân (cần có văn bản xác nhận ủy quyền gửi đến trung tâm).
+                        </span>
+                    </div>
+                </div>
             </section>
 
             {/* Section 4 */}
@@ -109,39 +128,47 @@ export default function PaymentPolicyPage() {
                     Chính sách hoàn tiền & Điều kiện áp dụng
                 </h2>
                 <p>
-                    Chính sách hoàn phí được quy định cụ thể theo bảng dưới đây:
+                    Chính sách hoàn phí được áp dụng nghiêm ngặt theo các khung thời gian sau để bảo vệ quyền lợi của cả học viên và trung tâm:
                 </p>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Trường hợp hủy khóa học</th>
-                            <th>Mức hoàn trả</th>
-                            <th>Thời gian xử lý</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Học viện thay đổi lịch hoặc hủy lớp do nguyên nhân khách quan</td>
-                            <td><strong className="text-green-600 font-bold">Hoàn 100%</strong> học phí đã đóng</td>
-                            <td>Trong vòng 24 giờ</td>
-                        </tr>
-                        <tr>
-                            <td>Học viên báo hủy trước ngày khai giảng từ 05 ngày trở lên</td>
-                            <td><strong>Hoàn 100%</strong> số tiền cọc/học phí</td>
-                            <td>Trong vòng 48 giờ làm việc</td>
-                        </tr>
-                        <tr>
-                            <td>Học viên báo hủy trước ngày khai giảng từ 01 - 04 ngày</td>
-                            <td>Chuyển sang <strong>Bảo lưu 100%</strong> cho khóa sau</td>
-                            <td>Xác nhận bảo lưu tức thì</td>
-                        </tr>
-                        <tr>
-                            <td>Khóa học Online (E-learning) đã kích hoạt và tải tài liệu</td>
-                            <td>Không áp dụng hoàn tiền (do đặc thù giáo trình số)</td>
-                            <td>Hỗ trợ giải đáp chuyên môn trọn đời</td>
-                        </tr>
-                    </tbody>
-                </table>
+
+                <div className="overflow-x-auto my-4">
+                    <table className="w-full text-left text-xs border border-[var(--color-border)] rounded-xl overflow-hidden">
+                        <thead className="bg-[var(--color-surface)] border-b border-[var(--color-border)]">
+                            <tr>
+                                <th className="p-3 font-bold text-[var(--color-text)]">Thời điểm báo hủy</th>
+                                <th className="p-3 font-bold text-[var(--color-text)]">Mức phí hoàn lại</th>
+                                <th className="p-3 font-bold text-[var(--color-text)]">Thời gian xử lý</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[var(--color-border)] bg-[var(--color-background)]">
+                            <tr>
+                                <td className="p-3 font-medium">Báo trước ngày khai giảng ≥ 05 ngày</td>
+                                <td className="p-3 font-bold text-green-600">Hoàn 100% học phí đã đóng</td>
+                                <td className="p-3 text-[var(--color-text-secondary)]">03 - 05 ngày làm việc</td>
+                            </tr>
+                            <tr>
+                                <td className="p-3 font-medium">Báo trước ngày khai giảng từ 02 - 04 ngày</td>
+                                <td className="p-3 font-bold text-orange-600">Hoàn 70% (Trừ chi phí chuẩn bị NVL)</td>
+                                <td className="p-3 text-[var(--color-text-secondary)]">03 - 05 ngày làm việc</td>
+                            </tr>
+                            <tr>
+                                <td className="p-3 font-medium">Báo trước ngày khai giảng &lt; 24 giờ</td>
+                                <td className="p-3 font-bold text-amber-600">Không hoàn cọc (Chuyển sang bảo lưu 06 tháng)</td>
+                                <td className="p-3 text-[var(--color-text-secondary)]">Kích hoạt bảo lưu ngay</td>
+                            </tr>
+                            <tr>
+                                <td className="p-3 font-medium">Sau khi khóa học đã bắt đầu</td>
+                                <td className="p-3 font-bold text-red-600">Không áp dụng hoàn phí</td>
+                                <td className="p-3 text-[var(--color-text-secondary)]">-</td>
+                            </tr>
+                            <tr>
+                                <td className="p-3 font-medium">Trung tâm hủy lớp vì lý do bất khả kháng</td>
+                                <td className="p-3 font-bold text-green-600">Hoàn 100% học phí + Voucher 10%</td>
+                                <td className="p-3 text-[var(--color-text-secondary)]">Trong vòng 24 giờ</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </section>
 
             {/* Section 5 */}
@@ -160,40 +187,51 @@ export default function PaymentPolicyPage() {
             </section>
 
             {/* Section 6 */}
-            <section id="tai-khoan-chinh-thuc">
+            <section id="quy-trinh-thanh-toan">
                 <h2>
                     <span className="w-6 h-6 rounded-lg bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-xs flex items-center justify-center font-mono">06</span>
-                    Thông tin tài khoản thụ hưởng chính thức
+                    Quy trình thanh toán & Xác thực an toàn
                 </h2>
                 <p>
-                    Để đảm bảo an toàn tuyệt đối, tránh các trường hợp mạo danh, học viên chỉ chuyển khoản vào tài khoản ngân hàng chính thức sau:
+                    Để đảm bảo quyền lợi và tính minh bạch tài chính, quy trình thanh toán học phí tại DuaxCar Kitchen được thực hiện theo các bước chuẩn hóa sau:
                 </p>
                 
-                <div className="p-4 bg-[var(--color-background)] border-2 border-[var(--color-primary)]/30 rounded-xl space-y-2 text-xs">
-                    <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-2">
-                        <span className="text-[var(--color-text-muted)] font-medium">Ngân hàng:</span>
-                        <strong className="text-[var(--color-text)]">Ngân hàng TMCP Quân Đội (MB Bank)</strong>
+                <div className="space-y-3 my-4">
+                    <div className="p-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl text-xs space-y-1.5">
+                        <div className="font-bold text-[var(--color-text)] flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-[var(--color-primary)] text-white text-[10px] flex items-center justify-center font-bold">1</span>
+                            Nhận thông tin thanh toán chính thức
+                        </div>
+                        <p className="text-[var(--color-text-secondary)] pl-7 mb-0 leading-relaxed">
+                            Học viên sẽ nhận thông tin tài khoản ngân hàng chính thức kèm Mã hồ sơ học viên định danh qua tin nhắn SMS / Email từ tổng đài DuaxCar Kitchen hoặc trực tiếp từ chuyên viên tư vấn phụ trách.
+                        </p>
                     </div>
-                    <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-2">
-                        <span className="text-[var(--color-text-muted)] font-medium">Chủ tài khoản:</span>
-                        <strong className="text-[var(--color-primary)] font-bold">DuaxCar Kitchen / Nguyễn Hữu Thọ</strong>
+
+                    <div className="p-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl text-xs space-y-1.5">
+                        <div className="font-bold text-[var(--color-text)] flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-[var(--color-primary)] text-white text-[10px] flex items-center justify-center font-bold">2</span>
+                            Cú pháp chuyển khoản chuẩn
+                        </div>
+                        <p className="text-[var(--color-text-secondary)] pl-7 mb-0 leading-relaxed">
+                            Khi chuyển khoản, học viên vui lòng ghi đúng cú pháp: <span className="font-mono font-semibold text-[var(--color-primary)]">[Họ Tên] + [Số Điện Thoại] + [Tên Khóa Học]</span> để hệ thống kế toán tự động đối soát nhanh chóng.
+                        </p>
                     </div>
-                    <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-2">
-                        <span className="text-[var(--color-text-muted)] font-medium">Số tài khoản:</span>
-                        <strong className="font-mono text-sm tracking-wider text-[var(--color-text)]">0963896791</strong>
-                    </div>
-                    <div className="flex items-center justify-between pt-1">
-                        <span className="text-[var(--color-text-muted)] font-medium">Cú pháp chuyển khoản:</span>
-                        <span className="font-mono bg-[var(--color-surface)] px-2 py-0.5 rounded border border-[var(--color-border)] text-[11px] text-[var(--color-text)]">
-                            [Họ Tên] + [Số Điện Thoại] + [Tên Khóa Học]
-                        </span>
+
+                    <div className="p-4 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl text-xs space-y-1.5">
+                        <div className="font-bold text-[var(--color-text)] flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-[var(--color-primary)] text-white text-[10px] flex items-center justify-center font-bold">3</span>
+                            Nhận Giấy báo nhập học & Biên lai điện tử
+                        </div>
+                        <p className="text-[var(--color-text-secondary)] pl-7 mb-0 leading-relaxed">
+                            Sau khi hoàn tất thanh toán, bộ phận kế toán sẽ kích hoạt mã khóa học và gửi Phiếu thu / Giấy báo nhập học điện tử về số điện thoại và email của học viên trong vòng 30 phút làm việc.
+                        </p>
                     </div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-green-500/10 border border-green-500/30 text-[11px] text-[var(--color-text)] flex items-start gap-2.5 my-3">
+                <div className="p-3.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-[11px] text-[var(--color-text)] flex items-start gap-2.5 my-3 shadow-sm">
                     <ShieldCheck className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                     <div>
-                        <strong>Xác thực an toàn:</strong> Sau khi hoàn tất chuyển khoản, học viên vui lòng chụp lại màn hình giao dịch và gửi cho nhân viên tư vấn để nhận mã Giấy Báo Nhập Học.
+                        <strong>Cảnh báo an toàn:</strong> DuaxCar Kitchen không thu học phí qua bất kỳ tài khoản cá nhân không được ủy quyền chính thức. Học viên chỉ chuyển khoản theo hướng dẫn trực tiếp từ kênh liên lạc chính thức của trung tâm.
                     </div>
                 </div>
             </section>
@@ -205,7 +243,7 @@ export default function PaymentPolicyPage() {
                     <span>Phòng Kế Toán & Tài Chính <strong>DuaxCar Kitchen Academy</strong></span>
                 </div>
                 <div className="text-[var(--color-text-muted)] text-[11px]">
-                    Mã văn bản: <code>POL-PAY-2026-V2.0</code>
+                    Hiệu lực thi hành: Áp dụng trên toàn hệ thống từ 01/01/2026
                 </div>
             </div>
         </PolicyLayout>

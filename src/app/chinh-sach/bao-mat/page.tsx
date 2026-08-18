@@ -29,7 +29,7 @@ export default function PrivacyPolicyPage() {
             toc={toc}
         >
             {/* Lead Commitment Box */}
-            <div className="p-4 sm:p-5 rounded-xl bg-orange-500/10 border-l-4 border-[var(--color-primary)] text-xs sm:text-small">
+            <div className="p-4 sm:p-5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-xs sm:text-small shadow-sm">
                 <div className="flex items-center gap-2 font-bold text-[var(--color-primary)] text-sm mb-1.5">
                     <Lock className="w-4 h-4" />
                     <span>Cam kết bảo mật tuyệt đối từ DuaxCar Kitchen</span>

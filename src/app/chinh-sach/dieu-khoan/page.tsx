@@ -29,7 +29,7 @@ export default function TermsOfServicePage() {
             toc={toc}
         >
             {/* Lead Intro Box */}
-            <div className="p-4 sm:p-5 rounded-xl bg-orange-500/10 border-l-4 border-[var(--color-primary)] text-xs sm:text-small">
+            <div className="p-4 sm:p-5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-xs sm:text-small shadow-sm">
                 <div className="flex items-center gap-2 font-bold text-[var(--color-primary)] text-sm mb-1.5">
                     <Scale className="w-4 h-4" />
                     <span>Thỏa thuận đào tạo & Quy chế học viên</span>
@@ -106,10 +106,10 @@ export default function TermsOfServicePage() {
                     <li><strong>Quyền của học viên:</strong> Học viên có toàn quyền sử dụng công thức đã học để mở quán, phát triển kinh doanh chuỗi nhà hàng hoặc nấu phục vụ gia đình không giới hạn.</li>
                     <li><strong>Hành vi nghiêm cấm:</strong> Nghiêm cấm mọi hành vi sao chép giáo trình, quay lén video bài giảng, bán lại khóa học, hoặc mở lớp dạy lại nguyên bản công thức của DuaxCar Kitchen dưới mọi hình thức thương mại khi chưa có sự đồng ý bằng văn bản.</li>
                 </ul>
-                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-[var(--color-text)] flex items-start gap-2.5 my-3">
+                <div className="p-3.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-[11px] text-[var(--color-text)] flex items-start gap-2.5 my-3 shadow-sm">
                     <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
                     <div>
-                        <strong>Lưu ý về vi phạm bản quyền:</strong> Mọi hành vi chia sẻ lậu tài khoản E-learning hoặc phát tán giáo trình độc quyền sẽ bị khóa quyền truy cập vĩnh viễn không hoàn tiền và xử lý theo Luật Sở hữu trí tuệ Việt Nam.
+                        <strong>Xử lý vi phạm:</strong> Mọi hành vi sao chép giáo trình, quay lén bài giảng hoặc phát tán công thức độc quyền vì mục đích thương mại sẽ bị đình chỉ khóa học ngay lập tức và chuyển hồ sơ cho cơ quan chức năng xử lý theo Luật Sở hữu trí tuệ.
                     </div>
                 </div>
             </section>
