@@ -286,64 +286,64 @@ export default function AdminMediaLibrary() {
     };
 
     return (
-        <div className="space-y-6 w-full animate-fadeIn pb-12">
+        <div className="space-y-4">
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
-                    <h1 className="heading-2 text-[var(--color-text)]">
+                    <h1 className="heading-3 text-[var(--color-text)]">
                         Quản Lý Thư Viện Media
                     </h1>
-                    <p className="text-small text-[var(--color-text-secondary)] mt-1">
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
                         Quản lý toàn bộ hình ảnh và video, tự động nén WebP siêu nhẹ, quản lý dung lượng và tích hợp trực tiếp vào CMS.
                     </p>
                 </div>
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2">
                     <button
                         onClick={() => setUploadModalOpen(true)}
-                        className="btn btn-primary btn-sm flex items-center gap-1.5 shadow-sm rounded-lg"
+                        className="btn btn-primary btn-sm flex items-center gap-1.5 shadow-sm rounded-lg text-xs"
                     >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-3.5 h-3.5" />
                         <span>Tải tập tin lên (Nén WebP)</span>
                     </button>
                 </div>
             </div>
 
             {/* Storage Analytics & Meter Widget */}
-            <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-sm space-y-4">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-lg bg-orange-500/10 text-[var(--color-primary)]">
-                            <HardDrive className="w-5 h-5" />
+            <div className="p-3.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-sm space-y-2.5">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                        <div className="p-2 rounded-lg bg-orange-500/10 text-[var(--color-primary)]">
+                            <HardDrive className="w-4 h-4" />
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <h3 className="font-heading font-bold text-sm text-[var(--color-text)]">
+                                <h3 className="font-heading font-bold text-xs text-[var(--color-text)]">
                                     Dung Lượng Thư Viện Media
                                 </h3>
-                                <span className="px-2 py-0.5 rounded-md bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold text-[11px]">
+                                <span className="px-1.5 py-0.5 rounded bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold text-[10px]">
                                     {storageStats.percentUsed}% đã dùng
                                 </span>
                             </div>
-                            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                                Đang sử dụng <b>{storageStats.totalSizeFormatted}</b> trên hạn mức ước tính <b>100 MB</b>
+                            <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                                Đang dùng <b>{storageStats.totalSizeFormatted}</b> trên hạn mức <b>100 MB</b>
                             </p>
                         </div>
                     </div>
 
                     {/* Stat Badges */}
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 text-xs">
-                        <div className="px-3 py-1.5 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] flex items-center gap-2">
-                            <FileImage className="w-4 h-4 text-blue-500" />
-                            <span><b>{storageStats.totalImages}</b> hình ảnh</span>
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                        <div className="px-2.5 py-1 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] flex items-center gap-1.5 text-[11px]">
+                            <FileImage className="w-3.5 h-3.5 text-blue-500" />
+                            <span><b>{storageStats.totalImages}</b> ảnh</span>
                         </div>
-                        <div className="px-3 py-1.5 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] flex items-center gap-2">
-                            <Film className="w-4 h-4 text-purple-500" />
+                        <div className="px-2.5 py-1 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] flex items-center gap-1.5 text-[11px]">
+                            <Film className="w-3.5 h-3.5 text-purple-500" />
                             <span><b>{storageStats.totalVideos}</b> video</span>
                         </div>
                         {storageStats.totalSavedBytes > 0 && (
-                            <div className="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center gap-2">
-                                <Sparkles className="w-4 h-4" />
-                                <span>Tiết kiệm <b>{storageStats.totalSavedFormatted}</b> nhờ WebP</span>
+                            <div className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center gap-1.5 text-[11px]">
+                                <Sparkles className="w-3.5 h-3.5" />
+                                <span>Tiết kiệm <b>{storageStats.totalSavedFormatted}</b> (WebP)</span>
                             </div>
                         )}
                     </div>

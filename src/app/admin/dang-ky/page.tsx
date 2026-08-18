@@ -126,38 +126,38 @@ export default function AdminRegistrations() {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-4">
             {/* Page Header */}
             <div>
-                <h1 className="heading-2 text-[var(--color-text)]">
+                <h1 className="heading-3 text-[var(--color-text)]">
                     Quản Lý Đăng Ký Học
                 </h1>
-                <p className="text-small text-[var(--color-text-secondary)] mt-1">
+                <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
                     Theo dõi danh sách học viên đăng ký học, cập nhật tiến độ tư vấn và quy trình nhập học.
                 </p>
             </div>
 
             {/* Filters & Search Toolbar */}
-            <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="p-3.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex flex-col md:flex-row gap-3 items-center justify-between">
                 {/* Search Bar */}
-                <div className="relative w-full md:w-96">
+                <div className="relative w-full md:w-80">
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
                     <input
                         type="text"
                         placeholder="Tìm tên, SĐT hoặc khóa học..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg pl-10 pr-4 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg pl-10 pr-4 py-1.5 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                     />
                 </div>
 
                 {/* Status Filters */}
-                <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                <div className="flex flex-wrap gap-1.5 w-full md:w-auto">
                     <button
                         onClick={() => setStatusFilter("all")}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                             statusFilter === "all"
-                                ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
+                                ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm"
                                 : "bg-[var(--color-background)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-light)]"
                         }`}
                     >
@@ -165,9 +165,9 @@ export default function AdminRegistrations() {
                     </button>
                     <button
                         onClick={() => setStatusFilter("pending")}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                             statusFilter === "pending"
-                                ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
+                                ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm"
                                 : "bg-[var(--color-background)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-light)]"
                         }`}
                     >
@@ -175,9 +175,9 @@ export default function AdminRegistrations() {
                     </button>
                     <button
                         onClick={() => setStatusFilter("contacted")}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                             statusFilter === "contacted"
-                                ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
+                                ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm"
                                 : "bg-[var(--color-background)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-light)]"
                         }`}
                     >
@@ -185,9 +185,9 @@ export default function AdminRegistrations() {
                     </button>
                     <button
                         onClick={() => setStatusFilter("enrolled")}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                             statusFilter === "enrolled"
-                                ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
+                                ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm"
                                 : "bg-[var(--color-background)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-light)]"
                         }`}
                     >
@@ -197,22 +197,22 @@ export default function AdminRegistrations() {
             </div>
 
             {/* Registrations List Table */}
-            <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
-                <div className="overflow-x-auto -mx-6">
+            <div className="p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
+                <div className="overflow-x-auto -mx-4">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="border-b border-[var(--color-border)] text-xs text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
-                                <th className="px-6 py-3">Thông tin học viên</th>
-                                <th className="px-6 py-3">Khóa học đăng ký</th>
-                                <th className="px-6 py-3">Trạng thái</th>
-                                <th className="px-6 py-3">Ngày đăng ký</th>
-                                <th className="px-6 py-3 text-right">Hành động</th>
+                            <tr className="border-b border-[var(--color-border)] text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
+                                <th className="px-4 py-2">Thông tin học viên</th>
+                                <th className="px-4 py-2">Khóa học đăng ký</th>
+                                <th className="px-4 py-2">Trạng thái</th>
+                                <th className="px-4 py-2">Ngày đăng ký</th>
+                                <th className="px-4 py-2 text-right">Hành động</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[var(--color-border)] text-small">
+                        <tbody className="divide-y divide-[var(--color-border)] text-xs">
                             {filteredRegistrations.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-[var(--color-text-muted)]">
+                                    <td colSpan={5} className="px-4 py-8 text-center text-[var(--color-text-muted)]">
                                         Không tìm thấy đơn đăng ký phù hợp.
                                     </td>
                                 </tr>
@@ -220,35 +220,35 @@ export default function AdminRegistrations() {
                                 filteredRegistrations.map((reg) => (
                                     <tr key={reg.id} className="hover:bg-[var(--color-surface-light)]/40 transition-colors">
                                         {/* Contact details */}
-                                        <td className="px-6 py-4">
+                                        <td className="px-4 py-2.5">
                                             <div className="font-semibold text-[var(--color-text)]">{reg.name}</div>
-                                            <div className="text-xs text-[var(--color-text-muted)] mt-1 flex flex-col gap-0.5">
+                                            <div className="text-[10px] text-[var(--color-text-muted)] mt-0.5 flex flex-col gap-0.5">
                                                 <span>SĐT: {reg.phone}</span>
                                                 {reg.email && <span>Email: {reg.email}</span>}
                                             </div>
                                         </td>
                                         {/* Course Name */}
-                                        <td className="px-6 py-4 text-[var(--color-text-secondary)] font-medium">
+                                        <td className="px-4 py-2.5 text-[var(--color-text-secondary)] font-medium">
                                             {reg.courseName}
                                         </td>
                                         {/* Status Badge */}
-                                        <td className="px-6 py-4">
+                                        <td className="px-4 py-2.5">
                                             {getStatusBadge(reg.status)}
                                         </td>
                                         {/* Date */}
-                                        <td className="px-6 py-4 text-xs text-[var(--color-text-muted)]">
+                                        <td className="px-4 py-2.5 text-[11px] text-[var(--color-text-muted)]">
                                             {reg.date}
                                         </td>
                                         {/* Actions workflow */}
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-1.5">
+                                        <td className="px-4 py-2.5 text-right">
+                                            <div className="flex items-center justify-end gap-1">
                                                 {reg.status === "pending" && (
                                                     <button
                                                         onClick={() => updateStatus(reg.id, "contacted")}
                                                         title="Đã liên hệ tư vấn"
-                                                        className="p-2 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors"
+                                                        className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors"
                                                     >
-                                                        <PhoneCall className="w-4 h-4" />
+                                                        <PhoneCall className="w-3.5 h-3.5" />
                                                     </button>
                                                 )}
                                                 {(reg.status === "pending" || reg.status === "contacted") && (
@@ -256,25 +256,25 @@ export default function AdminRegistrations() {
                                                         <button
                                                             onClick={() => updateStatus(reg.id, "enrolled")}
                                                             title="Đăng ký nhập học chính thức"
-                                                            className="p-2 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-colors"
+                                                            className="p-1.5 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white transition-colors"
                                                         >
-                                                            <Check className="w-4 h-4" />
+                                                            <Check className="w-3.5 h-3.5" />
                                                         </button>
                                                         <button
                                                             onClick={() => updateStatus(reg.id, "cancelled")}
                                                             title="Hủy đơn đăng ký"
-                                                            className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                                                            className="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
                                                         >
-                                                            <X className="w-4 h-4" />
+                                                            <X className="w-3.5 h-3.5" />
                                                         </button>
                                                     </>
                                                 )}
                                                 <button
                                                     onClick={() => deleteRegistration(reg.id)}
                                                     title="Xóa đơn đăng ký"
-                                                    className="p-2 rounded-lg text-[var(--color-text-muted)] hover:bg-red-500/10 hover:text-red-500 transition-colors ml-2"
+                                                    className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:bg-red-500/10 hover:text-red-500 transition-colors ml-1"
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <Trash2 className="w-3.5 h-3.5" />
                                                 </button>
                                             </div>
                                         </td>

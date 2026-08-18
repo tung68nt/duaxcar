@@ -37,10 +37,10 @@ export function MediaSelectorInput({
     const [showManualInput, setShowManualInput] = useState(false);
 
     const aspectClasses = {
-        square: "aspect-square w-24 h-24",
-        video: "aspect-video w-40 h-24",
-        wide: "aspect-[21/9] w-48 h-20",
-        portrait: "aspect-[3/4] w-20 h-28"
+        square: "aspect-square w-16 h-16 sm:w-20 sm:h-20",
+        video: "aspect-video w-28 h-16 sm:w-32 sm:h-20",
+        wide: "aspect-[21/9] w-36 h-16 sm:w-40 sm:h-18",
+        portrait: "aspect-[3/4] w-16 h-20 sm:w-18 sm:h-24"
     }[aspectRatio];
 
     const hasImage = Boolean(value && value.trim());
@@ -55,7 +55,7 @@ export function MediaSelectorInput({
     };
 
     return (
-        <div className="space-y-2">
+        <div className="space-y-1.5">
             {label && (
                 <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-[var(--color-text-secondary)]">
@@ -67,16 +67,16 @@ export function MediaSelectorInput({
                         className="text-[10px] text-[var(--color-text-muted)] hover:text-[var(--color-primary)] flex items-center gap-1 transition"
                     >
                         <LinkIcon className="w-3 h-3" />
-                        <span>{showManualInput ? "Ẩn URL trực tiếp" : "Nhập URL trực tiếp"}</span>
+                        <span>{showManualInput ? "Ẩn URL trực tiếp" : "Nhập URL"}</span>
                     </button>
                 </div>
             )}
 
             {description && (
-                <p className="text-[11px] text-[var(--color-text-muted)]">{description}</p>
+                <p className="text-[10px] text-[var(--color-text-muted)]">{description}</p>
             )}
 
-            <div className="flex flex-col sm:flex-row items-start gap-3.5 p-3 bg-[var(--color-background)] rounded-xl border border-[var(--color-border)]">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 p-2 sm:p-2.5 bg-[var(--color-background)] rounded-lg border border-[var(--color-border)]">
                 {/* Thumbnail Preview Area */}
                 <div 
                     onClick={() => hasImage ? setLightboxOpen(true) : setPickerOpen(true)}

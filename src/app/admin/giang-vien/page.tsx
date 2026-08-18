@@ -590,65 +590,65 @@ export default function AdminInstructors() {
     }
 
     return (
-        <div className="space-y-6 w-full">
+        <div className="space-y-4 w-full">
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
-                    <h1 className="heading-2 text-[var(--color-text)]">
+                    <h1 className="heading-3 text-[var(--color-text)]">
                         Quản Lý Đội Ngũ Giảng Viên
                     </h1>
-                    <p className="text-small text-[var(--color-text-secondary)] mt-1">
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
                         Cập nhật hồ sơ, danh hiệu, thành tựu, trích dẫn, ảnh đại diện và các khóa học do giảng viên phụ trách.
                     </p>
                 </div>
                 <button
                     onClick={openAddModal}
-                    className="btn btn-primary btn-sm flex items-center gap-1.5 self-start sm:self-auto"
+                    className="btn btn-primary btn-sm flex items-center gap-1.5 self-start sm:self-auto text-xs"
                 >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-3.5 h-3.5" />
                     <span>Thêm giảng viên mới</span>
                 </button>
             </div>
 
             {/* Filter Toolbar */}
             <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--color-text-muted)]" />
+                <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
                     <input
                         type="text"
                         placeholder="Tìm kiếm giảng viên theo tên, vai trò..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl pl-10 pr-4 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                        className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg pl-10 pr-4 py-1.5 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                     />
                 </div>
             </div>
 
             {/* Grid List */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                 {filteredInstructors.map((ins) => (
                     <div 
                         key={ins.id}
-                        className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl relative group shadow-sm flex flex-col justify-between"
+                        className="p-3.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl relative group shadow-sm flex flex-col justify-between"
                     >
                         <div>
                             {/* Visibility status */}
                             <button
                                 type="button"
                                 onClick={() => toggleVisibility(ins.id)}
-                                className={`absolute top-4 right-4 p-1.5 rounded-lg border transition-all ${
+                                className={`absolute top-3 right-3 p-1 rounded-lg border transition-all ${
                                     ins.visible !== false
                                         ? "bg-green-500/10 border-green-500/20 text-green-500 hover:bg-green-500/20"
                                         : "bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20"
                                 }`}
                                 title={ins.visible !== false ? "Ẩn giảng viên" : "Hiện giảng viên"}
                             >
-                                {ins.visible !== false ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                {ins.visible !== false ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                             </button>
 
                             {/* Avatar & Profile */}
-                            <div className="flex items-center gap-3.5 mb-5">
-                                <div className="w-14 h-14 rounded-lg overflow-hidden bg-[var(--color-surface-light)] relative border border-[var(--color-border)] flex-shrink-0">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-12 h-12 rounded-lg overflow-hidden bg-[var(--color-surface-light)] relative border border-[var(--color-border)] flex-shrink-0">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={ins.image}
@@ -661,11 +661,11 @@ export default function AdminInstructors() {
                                     />
                                 </div>
                                 <div>
-                                    <h3 className="font-heading font-bold text-base text-[var(--color-text)] leading-tight">
+                                    <h3 className="font-heading font-bold text-sm text-[var(--color-text)] leading-tight">
                                         {ins.name}
                                     </h3>
                                     <p className="text-xs text-[var(--color-primary)] font-semibold mt-0.5">{ins.role}</p>
-                                    <p className="text-[10px] text-[var(--color-text-muted)] font-medium mt-1">{ins.experience || "N/A"}</p>
+                                    <p className="text-[10px] text-[var(--color-text-muted)] font-medium mt-0.5">{ins.experience || "N/A"}</p>
                                 </div>
                             </div>
 

@@ -339,43 +339,43 @@ export default function AdminFAQ() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
-                    <h1 className="heading-2 text-[var(--color-text)]">
+                    <h1 className="heading-3 text-[var(--color-text)]">
                         Quản Lý Hỏi Đáp (FAQ)
                     </h1>
-                    <p className="text-small text-[var(--color-text-secondary)] mt-1">
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
                         Thêm, sửa, xóa các câu hỏi thường gặp và thiết lập trạng thái ẩn hiện hiển thị trên website.
                     </p>
                 </div>
                 <button
                     onClick={openAddModal}
-                    className="btn btn-primary btn-sm flex items-center gap-1.5 self-start sm:self-auto"
+                    className="btn btn-primary btn-sm flex items-center gap-1.5 self-start sm:self-auto text-xs"
                 >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-3.5 h-3.5" />
                     <span>Thêm FAQ mới</span>
                 </button>
             </div>
 
             {/* Filter Toolbar */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2.5">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--color-text-muted)]" />
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
                     <input
                         type="text"
                         placeholder="Tìm kiếm câu hỏi hoặc câu trả lời..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl pl-10 pr-4 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                        className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg pl-10 pr-4 py-1.5 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                     />
                 </div>
-                <div className="w-full sm:w-60">
+                <div className="w-full sm:w-56">
                     <select
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-4 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                        className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                     >
                         <option value="all">Tất cả phân loại</option>
                         <option value="Về khóa học">Về khóa học</option>

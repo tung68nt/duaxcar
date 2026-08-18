@@ -400,111 +400,113 @@ export default function AdminBlogsCMS() {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-4">
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <h1 className="heading-2 text-[var(--color-text)]">
+                    <h1 className="heading-3 text-[var(--color-text)]">
                         Quản Lý Bài Viết (CMS)
                     </h1>
-                    <p className="text-small text-[var(--color-text-secondary)] mt-1">
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
                         Đăng bài viết mới, quản trị nội dung bài hướng dẫn nấu ăn, kinh nghiệm kinh doanh.
                     </p>
                 </div>
                 <button
                     onClick={openAddModal}
-                    className="btn btn-primary btn-sm flex items-center gap-1.5 shadow-lg shadow-[var(--color-primary)]/20"
+                    className="btn btn-primary btn-sm flex items-center gap-1.5 shadow-sm rounded-lg text-xs"
                 >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-3.5 h-3.5" />
                     <span>Đăng bài mới</span>
                 </button>
             </div>
 
             {/* Toolbar search */}
-            <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
-                <div className="relative w-full max-w-md">
+            <div className="p-3.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
+                <div className="relative w-full md:w-80">
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
                     <input
                         type="text"
                         placeholder="Tìm kiếm bài viết theo tiêu đề..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg pl-10 pr-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                        className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg pl-10 pr-4 py-1.5 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                     />
                 </div>
             </div>
 
             {/* Blogs Table Card */}
-            <div className="p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
-                <div className="overflow-x-auto -mx-6">
+            <div className="p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
+                <div className="overflow-x-auto -mx-4">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="border-b border-[var(--color-border)] text-xs text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
-                                <th className="px-6 py-3">Tiêu đề bài viết</th>
-                                <th className="px-6 py-3">Danh mục</th>
-                                <th className="px-6 py-3">Tác giả</th>
-                                <th className="px-6 py-3">Ngày xuất bản</th>
-                                <th className="px-6 py-3 text-right">Thao tác</th>
+                            <tr className="border-b border-[var(--color-border)] text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
+                                <th className="px-4 py-2">Tiêu đề bài viết</th>
+                                <th className="px-4 py-2">Danh mục</th>
+                                <th className="px-4 py-2">Tác giả</th>
+                                <th className="px-4 py-2">Ngày xuất bản</th>
+                                <th className="px-4 py-2 text-right">Thao tác</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[var(--color-border)] text-small">
+                        <tbody className="divide-y divide-[var(--color-border)] text-xs">
                             {filteredPosts.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-[var(--color-text-muted)]">
+                                    <td colSpan={5} className="px-4 py-8 text-center text-[var(--color-text-muted)]">
                                         Chưa có bài viết nào được đăng.
                                     </td>
                                 </tr>
                             ) : (
                                 filteredPosts.map((post) => (
                                     <tr key={post.id} className="hover:bg-[var(--color-surface-light)]/40 transition-colors">
-                                        <td className="px-6 py-4 max-w-md">
-                                            <div className="flex items-center gap-3">
+                                        <td className="px-4 py-2.5 max-w-md">
+                                            <div className="flex items-center gap-2.5">
                                                 {post.image && (
                                                     // eslint-disable-next-line @next/next/no-img-element
                                                     <img
                                                         src={post.image}
                                                         alt={post.title}
-                                                        className="w-14 h-10 rounded-lg object-cover border border-[var(--color-border)] flex-shrink-0"
+                                                        className="w-11 h-8 rounded-lg object-cover border border-[var(--color-border)] flex-shrink-0"
                                                     />
                                                 )}
                                                 <div className="min-w-0">
-                                                    <div className="font-semibold text-[var(--color-text)] line-clamp-1">{post.title}</div>
-                                                    <div className="text-xs text-[var(--color-text-muted)] mt-0.5 line-clamp-1">{post.excerpt}</div>
+                                                    <div className="font-semibold text-[var(--color-text)] truncate">{post.title}</div>
+                                                    <div className="text-[10px] text-[var(--color-text-muted)] truncate">{post.excerpt}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className="badge badge-primary">{post.category}</span>
+                                        <td className="px-4 py-2.5">
+                                            <span className="px-2 py-0.5 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-md text-[10px] font-semibold">
+                                                {post.category}
+                                            </span>
                                         </td>
-                                        <td className="px-6 py-4 text-[var(--color-text-secondary)]">
+                                        <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">
                                             {post.author}
                                         </td>
-                                        <td className="px-6 py-4 text-xs text-[var(--color-text-muted)]">
+                                        <td className="px-4 py-2.5 text-[var(--color-text-muted)] text-[11px]">
                                             {post.date}
                                         </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-1.5">
+                                        <td className="px-4 py-2.5 text-right">
+                                            <div className="flex items-center justify-end gap-1">
                                                 <Link 
                                                     href={`/tin-tuc/${post.slug}`} 
                                                     target="_blank"
-                                                    title="Xem bài viết thực tế"
-                                                    className="p-2 rounded-lg bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
+                                                    title="Xem bài viết trên web"
+                                                    className="p-1.5 rounded-lg bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
                                                 >
-                                                    <Eye className="w-4 h-4" />
+                                                    <Eye className="w-3.5 h-3.5" />
                                                 </Link>
                                                 <button
                                                     onClick={() => openEditModal(post)}
                                                     title="Chỉnh sửa bài viết"
-                                                    className="p-2 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors"
+                                                    className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors"
                                                 >
-                                                    <Edit className="w-4 h-4" />
+                                                    <Edit className="w-3.5 h-3.5" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(post.id)}
                                                     title="Xóa bài viết"
-                                                    className="p-2 rounded-lg text-[var(--color-text-muted)] hover:bg-red-500/10 hover:text-red-500 transition-colors"
+                                                    className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:bg-red-500/10 hover:text-red-500 transition-colors"
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <Trash2 className="w-3.5 h-3.5" />
                                                 </button>
                                             </div>
                                         </td>

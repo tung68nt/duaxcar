@@ -96,82 +96,82 @@ export default function AdminDashboard() {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-4">
             {/* Page Title & Heading */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <h1 className="heading-2 text-[var(--color-text)]">
+                    <h1 className="heading-3 text-[var(--color-text)]">
                         Bảng Tổng Quan
                     </h1>
-                    <p className="text-small text-[var(--color-text-secondary)] mt-1">
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
                         Theo dõi các hoạt động, đăng ký mới và quản trị nội dung website.
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     <Link href="/admin/khoa-hoc?add=true" className="btn btn-primary btn-sm flex items-center gap-1.5 rounded-lg">
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-3.5 h-3.5" />
                         <span>Thêm khóa học</span>
                     </Link>
                 </div>
             </div>
 
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 {/* Registrations */}
-                <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-4">
-                    <div className="w-11 h-11 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-lg flex items-center justify-center">
-                        <Users className="w-5 h-5" />
+                <div className="p-3.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-3">
+                    <div className="w-9 h-9 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Users className="w-4.5 h-4.5" />
                     </div>
-                    <div>
-                        <span className="text-xs text-[var(--color-text-muted)] font-medium block">
+                    <div className="min-w-0">
+                        <span className="text-[11px] text-[var(--color-text-muted)] font-medium block truncate">
                             Đơn đăng ký học
                         </span>
-                        <span className="text-xl font-bold text-[var(--color-text)] block mt-0.5">
+                        <span className="text-lg font-bold text-[var(--color-text)] block leading-tight">
                             {stats.totalRegistrations}
                         </span>
                     </div>
                 </div>
 
                 {/* Pending */}
-                <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-4">
-                    <div className="w-11 h-11 bg-amber-500/10 text-amber-500 rounded-lg flex items-center justify-center">
-                        <Clock className="w-5 h-5" />
+                <div className="p-3.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-3">
+                    <div className="w-9 h-9 bg-amber-500/10 text-amber-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Clock className="w-4.5 h-4.5" />
                     </div>
-                    <div>
-                        <span className="text-xs text-[var(--color-text-muted)] font-medium block">
+                    <div className="min-w-0">
+                        <span className="text-[11px] text-[var(--color-text-muted)] font-medium block truncate">
                             Đang chờ duyệt
                         </span>
-                        <span className="text-xl font-bold text-[var(--color-text)] block mt-0.5">
+                        <span className="text-lg font-bold text-[var(--color-text)] block leading-tight">
                             {stats.pendingRegistrations}
                         </span>
                     </div>
                 </div>
 
                 {/* Courses */}
-                <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-4">
-                    <div className="w-11 h-11 bg-blue-500/10 text-blue-500 rounded-lg flex items-center justify-center">
-                        <BookOpen className="w-5 h-5" />
+                <div className="p-3.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-3">
+                    <div className="w-9 h-9 bg-blue-500/10 text-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <BookOpen className="w-4.5 h-4.5" />
                     </div>
-                    <div>
-                        <span className="text-xs text-[var(--color-text-muted)] font-medium block">
-                            Tổng số khóa học
+                    <div className="min-w-0">
+                        <span className="text-[11px] text-[var(--color-text-muted)] font-medium block truncate">
+                            Tổng khóa học
                         </span>
-                        <span className="text-xl font-bold text-[var(--color-text)] block mt-0.5">
+                        <span className="text-lg font-bold text-[var(--color-text)] block leading-tight">
                             {stats.totalCourses}
                         </span>
                     </div>
                 </div>
 
                 {/* Blogs */}
-                <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-4">
-                    <div className="w-11 h-11 bg-purple-500/10 text-purple-500 rounded-lg flex items-center justify-center">
-                        <FileText className="w-5 h-5" />
+                <div className="p-3.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-3">
+                    <div className="w-9 h-9 bg-purple-500/10 text-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <FileText className="w-4.5 h-4.5" />
                     </div>
-                    <div>
-                        <span className="text-xs text-[var(--color-text-muted)] font-medium block">
+                    <div className="min-w-0">
+                        <span className="text-[11px] text-[var(--color-text-muted)] font-medium block truncate">
                             Bài viết tin tức
                         </span>
-                        <span className="text-xl font-bold text-[var(--color-text)] block mt-0.5">
+                        <span className="text-lg font-bold text-[var(--color-text)] block leading-tight">
                             {stats.totalBlogs}
                         </span>
                     </div>
@@ -179,11 +179,11 @@ export default function AdminDashboard() {
             </div>
 
             {/* Layout Widgets */}
-            <div className="grid lg:grid-cols-3 gap-6">
+            <div className="grid lg:grid-cols-3 gap-4">
                 {/* Recent Registrations Table */}
-                <div className="lg:col-span-2 p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
-                    <div className="flex items-center justify-between mb-5">
-                        <h3 className="font-heading font-semibold text-[var(--color-text)] text-base">
+                <div className="lg:col-span-2 p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-heading font-bold text-[var(--color-text)] text-sm">
                             Đăng ký mới gần đây
                         </h3>
                         <Link href="/admin/dang-ky" className="text-xs font-semibold text-[var(--color-primary)] hover:underline flex items-center gap-1">
@@ -192,37 +192,37 @@ export default function AdminDashboard() {
                         </Link>
                     </div>
 
-                    <div className="overflow-x-auto -mx-5">
+                    <div className="overflow-x-auto -mx-4">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-[var(--color-border)] text-xs text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
-                                    <th className="px-5 py-2.5">Học viên</th>
-                                    <th className="px-5 py-2.5">Khóa học đăng ký</th>
-                                    <th className="px-5 py-2.5">Trạng thái</th>
-                                    <th className="px-5 py-2.5 text-right">Ngày gửi</th>
+                                <tr className="border-b border-[var(--color-border)] text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
+                                    <th className="px-4 py-2">Học viên</th>
+                                    <th className="px-4 py-2">Khóa học đăng ký</th>
+                                    <th className="px-4 py-2">Trạng thái</th>
+                                    <th className="px-4 py-2 text-right">Ngày gửi</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[var(--color-border)] text-small">
+                            <tbody className="divide-y divide-[var(--color-border)] text-xs">
                                 {recentRegistrations.length === 0 ? (
                                     <tr>
-                                        <td colSpan={4} className="px-5 py-8 text-center text-[var(--color-text-muted)]">
+                                        <td colSpan={4} className="px-4 py-6 text-center text-[var(--color-text-muted)]">
                                             Chưa có đơn đăng ký nào.
                                         </td>
                                     </tr>
                                 ) : (
                                     recentRegistrations.map((reg) => (
                                         <tr key={reg.id} className="hover:bg-[var(--color-surface-light)]/40 transition-colors">
-                                            <td className="px-5 py-3.5">
+                                            <td className="px-4 py-2.5">
                                                 <div className="font-semibold text-[var(--color-text)]">{reg.name}</div>
-                                                <div className="text-xs text-[var(--color-text-muted)] mt-0.5">{reg.phone}</div>
+                                                <div className="text-[10px] text-[var(--color-text-muted)]">{reg.phone}</div>
                                             </td>
-                                            <td className="px-5 py-3.5 text-[var(--color-text-secondary)]">
+                                            <td className="px-4 py-2.5 text-[var(--color-text-secondary)]">
                                                 {reg.courseName}
                                             </td>
-                                            <td className="px-5 py-3.5">
+                                            <td className="px-4 py-2.5">
                                                 {getStatusBadge(reg.status)}
                                             </td>
-                                            <td className="px-5 py-3.5 text-right text-xs text-[var(--color-text-muted)]">
+                                            <td className="px-4 py-2.5 text-right text-[11px] text-[var(--color-text-muted)]">
                                                 {reg.date}
                                             </td>
                                         </tr>
@@ -234,39 +234,39 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Right Widgets: Business Stat & System Info */}
-                <div className="space-y-6">
+                <div className="space-y-4">
                     {/* Enrollment Stat Breakdown */}
-                    <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
-                        <h3 className="font-heading font-semibold text-[var(--color-text)] text-base mb-5">
+                    <div className="p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
+                        <h3 className="font-heading font-bold text-[var(--color-text)] text-sm mb-3">
                             Thống kê nhanh tháng này
                         </h3>
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                             <div>
-                                <div className="flex justify-between text-xs font-semibold mb-1.5">
+                                <div className="flex justify-between text-xs font-semibold mb-1">
                                     <span className="text-[var(--color-text-secondary)]">Tỷ lệ chuyển đổi học viên</span>
                                     <span className="text-[var(--color-primary)]">68%</span>
                                 </div>
-                                <div className="h-2 w-full bg-[var(--color-surface-light)] rounded-full overflow-hidden">
+                                <div className="h-1.5 w-full bg-[var(--color-surface-light)] rounded-full overflow-hidden">
                                     <div className="h-full bg-[var(--color-primary)] rounded-full" style={{ width: "68%" }} />
                                 </div>
                             </div>
 
                             <div>
-                                <div className="flex justify-between text-xs font-semibold mb-1.5">
-                                    <span className="text-[var(--color-text-secondary)]">Chỉ tiêu tuyển sinh khóa Onsite</span>
-                                    <span className="text-green-500">80% đạt chỉ tiêu</span>
+                                <div className="flex justify-between text-xs font-semibold mb-1">
+                                    <span className="text-[var(--color-text-secondary)]">Chỉ tiêu tuyển sinh Onsite</span>
+                                    <span className="text-green-500">80%</span>
                                 </div>
-                                <div className="h-2 w-full bg-[var(--color-surface-light)] rounded-full overflow-hidden">
+                                <div className="h-1.5 w-full bg-[var(--color-surface-light)] rounded-full overflow-hidden">
                                     <div className="h-full bg-green-500 rounded-full" style={{ width: "80%" }} />
                                 </div>
                             </div>
 
                             <div>
-                                <div className="flex justify-between text-xs font-semibold mb-1.5">
-                                    <span className="text-[var(--color-text-secondary)]">Khóa học bún/phở chiếm lĩnh</span>
-                                    <span className="text-purple-500">75% tổng đăng ký</span>
+                                <div className="flex justify-between text-xs font-semibold mb-1">
+                                    <span className="text-[var(--color-text-secondary)]">Khóa bún/phở</span>
+                                    <span className="text-purple-500">75%</span>
                                 </div>
-                                <div className="h-2 w-full bg-[var(--color-surface-light)] rounded-full overflow-hidden">
+                                <div className="h-1.5 w-full bg-[var(--color-surface-light)] rounded-full overflow-hidden">
                                     <div className="h-full bg-purple-500 rounded-full" style={{ width: "75%" }} />
                                 </div>
                             </div>
@@ -274,21 +274,21 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Quick Guide Card */}
-                    <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-center relative overflow-hidden">
-                        <div className="absolute -top-12 -left-12 w-24 h-24 bg-[var(--color-primary)]/10 rounded-full blur-2xl pointer-events-none" />
-                        <div className="absolute -bottom-12 -right-12 w-24 h-24 bg-[var(--color-primary)]/10 rounded-full blur-2xl pointer-events-none" />
+                    <div className="p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-center relative overflow-hidden">
+                        <div className="absolute -top-12 -left-12 w-20 h-20 bg-[var(--color-primary)]/10 rounded-full blur-xl pointer-events-none" />
+                        <div className="absolute -bottom-12 -right-12 w-20 h-20 bg-[var(--color-primary)]/10 rounded-full blur-xl pointer-events-none" />
                         
-                        <div className="relative z-10 space-y-3">
-                            <span className="text-[10px] text-[var(--color-primary)] font-bold uppercase tracking-wider block">
+                        <div className="relative z-10 space-y-2.5">
+                            <span className="text-[9px] text-[var(--color-primary)] font-bold uppercase tracking-wider block">
                                 Hướng dẫn nhanh
                             </span>
-                            <h4 className="font-heading font-bold text-[var(--color-text)] text-base">
+                            <h4 className="font-heading font-bold text-[var(--color-text)] text-sm">
                                 Bạn muốn biên tập nội dung khóa học?
                             </h4>
                             <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
-                                Hãy truy cập trang quản lý Khóa học (CMS) hoặc Bài viết (CMS) ở menu bên trái để chỉnh sửa thông tin chi tiết.
+                                Truy cập trang Khóa học hoặc Bài viết ở menu để chỉnh sửa thông tin chi tiết.
                             </p>
-                            <Link href="/admin/khoa-hoc" className="btn btn-primary btn-sm w-full block rounded-lg shadow-sm">
+                            <Link href="/admin/khoa-hoc" className="btn btn-primary btn-sm w-full block rounded-lg shadow-sm text-xs py-1.5">
                                 Đi tới trang CMS
                             </Link>
                         </div>

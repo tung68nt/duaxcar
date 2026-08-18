@@ -97,12 +97,12 @@ export default function AdminLayout({
             {/* Desktop Sidebar */}
             <aside className="hidden md:flex flex-col w-64 bg-[var(--color-surface)] border-r border-[var(--color-border)] fixed top-0 bottom-0 left-0 z-30">
                 {/* Brand Logo */}
-                <div className="h-16 flex items-center px-5 border-b border-[var(--color-border)] gap-2.5">
+                <div className="h-14 flex items-center px-4 border-b border-[var(--color-border)] gap-2.5">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={logoUrl}
                         alt="DuaxCar Logo"
-                        className="h-10 w-auto max-w-[120px] object-contain"
+                        className="h-8 w-auto max-w-[110px] object-contain"
                     />
                     <div className="min-w-0">
                         <span className="font-heading font-bold text-[var(--color-text)] text-xs block leading-tight truncate">
@@ -115,7 +115,7 @@ export default function AdminLayout({
                 </div>
 
                 {/* Navigation Links */}
-                <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+                <nav className="flex-1 px-3 py-3.5 space-y-1 overflow-y-auto">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = pathname === item.href;
@@ -123,13 +123,13 @@ export default function AdminLayout({
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-semibold text-small transition-all duration-200 group ${
+                                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold text-xs transition-all duration-200 group ${
                                     isActive
                                         ? "bg-[var(--color-primary)] text-white shadow-sm"
                                         : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] hover:text-[var(--color-text)] font-medium"
                                 }`}
                             >
-                                <Icon className={`w-5 h-5 transition-transform duration-200 group-hover:scale-105 ${
+                                <Icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-105 ${
                                     isActive ? "text-white" : "text-[var(--color-text-muted)] group-hover:text-[var(--color-text)]"
                                 }`} />
                                 <span>{item.label}</span>
@@ -139,19 +139,19 @@ export default function AdminLayout({
                 </nav>
 
                 {/* Sidebar Footer */}
-                <div className="p-4 border-t border-[var(--color-border)] space-y-2">
+                <div className="p-3 border-t border-[var(--color-border)] space-y-1">
                     <Link 
                         href="/" 
-                        className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] hover:text-[var(--color-text)] transition-colors"
+                        className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] hover:text-[var(--color-text)] transition-colors"
                     >
-                        <Home className="w-4 h-4 text-[var(--color-text-muted)]" />
+                        <Home className="w-3.5 h-3.5 text-[var(--color-text-muted)]" />
                         <span>Xem trang chủ</span>
                     </Link>
                     <button 
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-medium text-red-500 hover:bg-red-500/10 transition-colors"
+                        className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-500 hover:bg-red-500/10 transition-colors"
                     >
-                        <LogOut className="w-4 h-4" />
+                        <LogOut className="w-3.5 h-3.5" />
                         <span>Đăng xuất</span>
                     </button>
                 </div>
@@ -169,12 +169,15 @@ export default function AdminLayout({
             <aside className={`fixed top-0 bottom-0 left-0 w-64 bg-[var(--color-surface)] border-r border-[var(--color-border)] z-50 md:hidden transition-transform duration-300 transform ${
                 sidebarOpen ? "translate-x-0" : "-translate-x-full"
             }`}>
-                <div className="h-16 flex items-center justify-between px-6 border-b border-[var(--color-border)]">
+                <div className="h-14 flex items-center justify-between px-4 border-b border-[var(--color-border)]">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)] flex items-center justify-center font-bold text-white text-lg">
-                            D
-                        </div>
-                        <span className="font-heading font-bold text-[var(--color-text)]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src={logoUrl}
+                            alt="DuaxCar Logo"
+                            className="h-8 w-auto max-w-[110px] object-contain"
+                        />
+                        <span className="font-heading font-bold text-[var(--color-text)] text-xs">
                             DuaxCar Admin
                         </span>
                     </div>
@@ -182,11 +185,11 @@ export default function AdminLayout({
                         onClick={() => setSidebarOpen(false)}
                         className="p-1 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)]"
                     >
-                        <X className="w-5 h-5" />
+                        <X className="w-4 h-4" />
                     </button>
                 </div>
 
-                <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+                <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = pathname === item.href;
@@ -195,32 +198,32 @@ export default function AdminLayout({
                                 key={item.href}
                                 href={item.href}
                                 onClick={() => setSidebarOpen(false)}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-small transition-all group ${
+                                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold text-xs transition-all group ${
                                     isActive
-                                        ? "bg-[var(--color-primary)] text-white shadow-lg"
+                                        ? "bg-[var(--color-primary)] text-white shadow-sm"
                                         : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] hover:text-[var(--color-text)]"
                                 }`}
                             >
-                                <Icon className="w-5 h-5" />
+                                <Icon className="w-4 h-4" />
                                 <span>{item.label}</span>
                             </Link>
                         );
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-[var(--color-border)] space-y-2">
+                <div className="p-3 border-t border-[var(--color-border)] space-y-1">
                     <Link 
                         href="/" 
-                        className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)]"
+                        className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)]"
                     >
-                        <Home className="w-4 h-4" />
+                        <Home className="w-3.5 h-3.5" />
                         <span>Xem trang chủ</span>
                     </Link>
                     <button 
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-medium text-red-500 hover:bg-red-500/10"
+                        className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-500 hover:bg-red-500/10"
                     >
-                        <LogOut className="w-4 h-4" />
+                        <LogOut className="w-3.5 h-3.5" />
                         <span>Đăng xuất</span>
                     </button>
                 </div>
@@ -229,39 +232,39 @@ export default function AdminLayout({
             {/* Main Content Area */}
             <div className="flex-1 md:pl-64 flex flex-col min-w-0">
                 {/* Header / Top Bar */}
-                <header className="h-16 bg-[var(--color-surface)] border-b border-[var(--color-border)] flex items-center justify-between px-6 sticky top-0 z-20">
-                    <div className="flex items-center gap-4">
+                <header className="h-14 bg-[var(--color-surface)] border-b border-[var(--color-border)] flex items-center justify-between px-5 sticky top-0 z-20">
+                    <div className="flex items-center gap-3">
                         <button
                             onClick={() => setSidebarOpen(true)}
-                            className="p-2 -ml-2 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] md:hidden"
+                            className="p-1.5 -ml-1 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] md:hidden"
                         >
                             <Menu className="w-5 h-5" />
                         </button>
-                        <div className="hidden sm:block text-small font-medium text-[var(--color-text-secondary)]">
+                        <div className="hidden sm:block text-xs font-medium text-[var(--color-text-secondary)]">
                             Xin chào, <span className="font-bold text-[var(--color-text)]">Quản trị viên</span> 👋
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         {/* Theme Toggle */}
                         <ThemeToggle />
 
                         {/* Notifications */}
-                        <button className="p-2 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] relative">
-                            <Bell className="w-5 h-5" />
-                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--color-primary)] rounded-full" />
+                        <button className="p-1.5 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] relative">
+                            <Bell className="w-4 h-4" />
+                            <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-[var(--color-primary)] rounded-full" />
                         </button>
 
                         {/* Admin Profile */}
-                        <div className="flex items-center gap-3 pl-3 border-l border-[var(--color-border)]">
-                            <div className="w-9 h-9 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center font-bold text-sm">
+                        <div className="flex items-center gap-2.5 pl-2.5 border-l border-[var(--color-border)]">
+                            <div className="w-8 h-8 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center font-bold text-xs">
                                 AD
                             </div>
                             <div className="hidden lg:block text-left">
                                 <div className="text-xs font-semibold text-[var(--color-text)] leading-none">
                                     Admin User
                                 </div>
-                                <div className="text-[10px] text-[var(--color-text-muted)] mt-1">
+                                <div className="text-[10px] text-[var(--color-text-muted)] mt-0.5">
                                     admin@duaxcar.vn
                                 </div>
                             </div>
@@ -270,7 +273,7 @@ export default function AdminLayout({
                 </header>
 
                 {/* Subpage Content wrapper */}
-                <main className="flex-1 p-6 md:p-8">
+                <main className="flex-1 p-4 sm:p-5 lg:p-6">
                     {children}
                 </main>
             </div>
