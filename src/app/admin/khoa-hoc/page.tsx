@@ -23,6 +23,7 @@ import { Course } from "@/lib/types";
 import { courses as defaultMockCourses, instructors, courseCategories } from "@/data/mock";
 import { supabase } from "@/lib/supabase";
 import { MediaSelectorInput } from "@/components/admin/media-selector-input";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 
 
 function AdminCoursesContent() {
@@ -593,14 +594,12 @@ function AdminCoursesContent() {
                         </div>
 
                         <div>
-                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Mô tả chi tiết</label>
-                            <textarea
+                            <RichTextEditor
+                                label="Mô tả chi tiết khóa học"
                                 value={formState.description}
-                                onChange={(e) => setFormState({ ...formState, description: e.target.value })}
-                                rows={4}
-                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                placeholder="Giới thiệu đầy đủ chi tiết về khóa học..."
-                                required
+                                onChange={(html) => setFormState({ ...formState, description: html })}
+                                placeholder="Giới thiệu đầy đủ, chuyên nghiệp về khóa học, lộ trình học tập, đối tượng phù hợp..."
+                                minHeight="240px"
                             />
                         </div>
 

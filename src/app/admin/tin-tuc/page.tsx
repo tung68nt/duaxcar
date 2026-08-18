@@ -22,6 +22,7 @@ import { blogPosts as defaultMockBlogs } from "@/data/mock";
 import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
 import { MediaSelectorInput } from "@/components/admin/media-selector-input";
 import { MediaPickerModal } from "@/components/admin/media-picker-modal";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 
 interface BlogPost {
     id: string;
@@ -349,31 +350,15 @@ export default function AdminBlogsCMS() {
                             />
                         </div>
 
-                        {/* Main HTML Content */}
+                        {/* Rich Text Editor */}
                         <div>
-                            <div className="flex items-center justify-between mb-1.5">
-                                <label className="text-xs font-semibold text-[var(--color-text-secondary)]">
-                                    Nội dung bài viết (HTML / Editor)
-                                </label>
-                                <button
-                                    type="button"
-                                    onClick={() => setInsertImageModalOpen(true)}
-                                    className="text-xs font-bold text-[var(--color-primary)] hover:underline flex items-center gap-1.5 bg-[var(--color-primary)]/10 px-3 py-1 rounded-lg"
-                                >
-                                    <ImageIcon className="w-3.5 h-3.5" />
-                                    <span>Chèn ảnh từ Thư viện Media</span>
-                                </button>
-                            </div>
-                            <AutoResizeTextarea
+                            <RichTextEditor
+                                label="Nội dung bài viết"
                                 value={formState.content}
-                                onChange={(e) => setFormState({ ...formState, content: e.target.value })}
-                                className="font-mono"
-                                placeholder="<h3>Tiêu đề đoạn</h3> <p>Nội dung đoạn...</p>"
-                                required
+                                onChange={(html) => setFormState({ ...formState, content: html })}
+                                placeholder="Soạn thảo nội dung bài viết theo phong cách trực quan, chèn ảnh, định dạng tiêu đề, danh sách, trích dẫn..."
+                                minHeight="420px"
                             />
-                            <p className="text-[11px] text-[var(--color-text-muted)] mt-1">
-                                Mẹo: Bấm nút <b>Chèn ảnh từ Thư viện Media</b> ở trên để chèn nhanh ảnh vào bài viết mà không cần copy link.
-                            </p>
                         </div>
 
                         {/* Submit */}
