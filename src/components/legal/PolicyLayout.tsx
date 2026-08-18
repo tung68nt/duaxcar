@@ -142,7 +142,7 @@ export function PolicyLayout({
                         
                         {/* Policy Navigation Switcher */}
                         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-4 shadow-sm">
-                            <h3 className="font-heading font-bold text-xs uppercase tracking-wider text-[var(--color-text-muted)] mb-3 flex items-center gap-2">
+                            <h3 className="font-heading font-bold text-xs text-[var(--color-text-muted)] mb-3 flex items-center gap-2">
                                 <FileText className="w-3.5 h-3.5 text-[var(--color-primary)]" />
                                 <span>Văn bản pháp lý & Quy định</span>
                             </h3>
@@ -176,7 +176,7 @@ export function PolicyLayout({
                         {/* Table of Contents */}
                         {toc.length > 0 && (
                             <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-4 shadow-sm hidden md:block">
-                                <h3 className="font-heading font-bold text-xs uppercase tracking-wider text-[var(--color-text-muted)] mb-3 flex items-center gap-2">
+                                <h3 className="font-heading font-bold text-xs text-[var(--color-text-muted)] mb-3 flex items-center gap-2">
                                     <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
                                     <span>Mục lục nội dung</span>
                                 </h3>

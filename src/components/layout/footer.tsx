@@ -35,7 +35,7 @@ export default function Footer({ logo = "/images/logo.png" }: FooterProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12">
                     {/* Column 1: Company Info (Span 5) */}
                     <div className="lg:col-span-4 flex flex-col gap-3">
-                        <h4 className="font-heading font-bold text-[var(--color-primary)] text-sm uppercase tracking-wide leading-tight">
+                        <h4 className="font-heading font-bold text-[var(--color-primary)] text-sm leading-tight">
                             {contactInfo.companyName}
                         </h4>
 
@@ -79,7 +79,7 @@ export default function Footer({ logo = "/images/logo.png" }: FooterProps) {
 
                     {/* Column 2: Links (Span 2) */}
                     <div className="lg:col-span-2 lg:col-start-6">
-                        <h4 className="font-heading font-bold text-[var(--color-text)] mb-4 text-sm uppercase tracking-wide">
+                        <h4 className="font-heading font-bold text-[var(--color-text)] mb-4 text-sm">
                             Liên kết
                         </h4>
                         <nav className="flex flex-col gap-2">
@@ -97,7 +97,7 @@ export default function Footer({ logo = "/images/logo.png" }: FooterProps) {
 
                     {/* Column 3: Policies (Span 2) */}
                     <div className="lg:col-span-2">
-                        <h4 className="font-heading font-bold text-[var(--color-text)] mb-4 text-sm uppercase tracking-wide">
+                        <h4 className="font-heading font-bold text-[var(--color-text)] mb-4 text-sm">
                             Chính sách
                         </h4>
                         <nav className="flex flex-col gap-2">
@@ -124,7 +124,7 @@ export default function Footer({ logo = "/images/logo.png" }: FooterProps) {
 
                     {/* Column 4: Socials (Span 3) */}
                     <div className="lg:col-span-3">
-                        <h4 className="font-heading font-bold text-[var(--color-text)] mb-4 text-sm uppercase tracking-wide">
+                        <h4 className="font-heading font-bold text-[var(--color-text)] mb-4 text-sm">
                             Theo dõi DuaxCar Kitchen
                         </h4>
                         <div className="flex flex-col gap-6">

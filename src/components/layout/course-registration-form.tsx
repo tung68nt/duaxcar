@@ -57,8 +57,8 @@ export default function CourseRegistrationForm({ courseName }: Props) {
             <div className="container max-w-4xl">
                 <div className="card p-8 md:p-12 border border-[var(--color-border)] hover:border-[var(--color-primary)]/20 shadow-xl rounded-[2rem]">
                     <div className="text-center max-w-2xl mx-auto mb-8">
-                        <span className="text-small font-semibold text-[var(--color-primary)] uppercase tracking-wider">
-                            Đăng Ký Khóa Học
+                        <span className="text-small font-semibold text-[var(--color-primary)]">
+                            Đăng ký khóa học
                         </span>
                         <h2 className="heading-2 text-[var(--color-text)] mt-2">
                             Nhận tư vấn & Giữ chỗ ngay

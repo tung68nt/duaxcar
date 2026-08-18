@@ -174,8 +174,8 @@ export default function AboutUsClient({ initialStats, initialInstructors, initia
                     <div className="lg:col-span-7 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-sm relative overflow-hidden group">
                         <div>
                             <div className="flex items-center gap-2 mb-3">
-                                <span className="text-[11px] font-bold text-[var(--color-primary)] uppercase tracking-wider bg-[var(--color-primary)]/10 px-3 py-1 rounded-full">
-                                    Hành Trình Khởi Nghiệp
+                                <span className="text-[11px] font-bold text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-3 py-1 rounded-full">
+                                    Hành trình khởi nghiệp
                                 </span>
                             </div>
                             <h2 className="heading-3 text-[var(--color-text)] mb-4">
@@ -241,8 +241,8 @@ export default function AboutUsClient({ initialStats, initialInstructors, initia
             <section className="container">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
                     <div>
-                        <span className="text-[11px] font-bold text-[var(--color-primary)] uppercase tracking-wider">
-                            Giá Trị Cốt Lõi
+                        <span className="text-[11px] font-bold text-[var(--color-primary)]">
+                            Giá trị cốt lõi
                         </span>
                         <h2 className="heading-3 text-[var(--color-text)] mt-1">
                             Vì sao học viên chọn DuaxCar?
@@ -283,8 +283,8 @@ export default function AboutUsClient({ initialStats, initialInstructors, initia
                 <div className="p-6 sm:p-8 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-3xl">
                     <div className="mb-6 flex items-center justify-between">
                         <div>
-                            <span className="text-[11px] font-bold text-[var(--color-primary)] uppercase tracking-wider">
-                                Cột Mốc Phát Triển
+                            <span className="text-[11px] font-bold text-[var(--color-primary)]">
+                                Cột mốc phát triển
                             </span>
                             <h2 className="heading-4 text-[var(--color-text)] mt-1">
                                 Hành trình kiến tạo giá trị
@@ -392,7 +392,7 @@ export default function AboutUsClient({ initialStats, initialInstructors, initia
                                 {/* Experience Badge - Pinned Cleanly Without Cutoff */}
                                 <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white text-xs font-bold rounded-full shadow-lg shadow-[var(--color-primary)]/20 border-2 border-[var(--color-surface)]">
                                     <Award className="w-4 h-4 fill-current" />
-                                    <span>{activeInstructor.experience || "10+ NĂM"} KINH NGHIỆM</span>
+                                    <span>{activeInstructor.experience || "10+ năm"} kinh nghiệm</span>
                                 </div>
                             </div>
 
@@ -435,8 +435,8 @@ export default function AboutUsClient({ initialStats, initialInstructors, initia
                                         <div className="w-6 h-6 rounded-lg bg-[var(--color-primary)]/20 text-[var(--color-primary)] flex items-center justify-center">
                                             <Award className="w-3.5 h-3.5" />
                                         </div>
-                                        <h4 className="font-heading font-bold text-xs text-[var(--color-text)] uppercase tracking-wider">
-                                            Thành Tựu & Kinh Nghiệm Nổi Bật
+                                        <h4 className="font-heading font-bold text-xs text-[var(--color-text)]">
+                                            Thành tựu & Kinh nghiệm nổi bật
                                         </h4>
                                     </div>
 
@@ -463,7 +463,7 @@ export default function AboutUsClient({ initialStats, initialInstructors, initia
                                     <div className="pt-2 border-t border-[var(--color-border)]/60">
                                         <div className="flex items-center gap-2 mb-2.5">
                                             <BookOpen className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                                            <span className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
+                                            <span className="text-[11px] font-bold text-[var(--color-text-muted)]">
                                                 Khóa học trực tiếp phụ trách
                                             </span>
                                         </div>

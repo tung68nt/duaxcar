@@ -275,7 +275,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                         <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-[var(--color-primary)]/20 rounded-full blur-3xl" />
 
                         <div className="relative z-10">
-                            <span className="text-small font-semibold text-[var(--color-primary)] uppercase tracking-wider mb-3 block">
+                            <span className="text-small font-semibold text-[var(--color-primary)] mb-3 block">
                                 Bắt đầu hành trình của bạn
                             </span>
                             <h2 className="heading-2 text-[var(--color-text)] mb-4">

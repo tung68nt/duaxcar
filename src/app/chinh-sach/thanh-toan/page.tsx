@@ -176,7 +176,7 @@ export default function PaymentPolicyPage() {
                     </div>
                     <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-2">
                         <span className="text-[var(--color-text-muted)] font-medium">Chủ tài khoản:</span>
-                        <strong className="text-[var(--color-primary)] uppercase">DUAXCAR KITCHEN / NGUYEN HUU THO</strong>
+                        <strong className="text-[var(--color-primary)] font-bold">DuaxCar Kitchen / Nguyễn Hữu Thọ</strong>
                     </div>
                     <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-2">
                         <span className="text-[var(--color-text-muted)] font-medium">Số tài khoản:</span>

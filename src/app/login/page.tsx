@@ -137,7 +137,7 @@ export default function LoginPage() {
 
                     {/* Helper text info */}
                     <div className="bg-[var(--color-surface-light)]/40 border border-[var(--color-border)] rounded-lg p-3.5 text-[10px] text-[var(--color-text-muted)] leading-relaxed">
-                        <span className="font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">Tài khoản trải nghiệm CMS:</span>
+                        <span className="font-bold text-[var(--color-primary)] block mb-1">Tài khoản trải nghiệm CMS:</span>
                         <div>Email: <strong className="text-[var(--color-text)]">admin@duaxcar.vn</strong></div>
                         <div>Mật khẩu: <strong className="text-[var(--color-text)]">admin</strong></div>
                     </div>

@@ -506,7 +506,7 @@ function AdminCoursesContent() {
 
                         {/* Conditional Time & Limits */}
                         <div className="p-4 border border-[var(--color-border)] rounded-2xl">
-                            <span className="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider block mb-3">
+                            <span className="text-xs font-semibold text-[var(--color-primary)] block mb-3">
                                 Thông tin lớp {formState.courseType === "onsite" ? "Học trực tiếp" : "Học E-learning"}
                             </span>
                             
@@ -606,7 +606,7 @@ function AdminCoursesContent() {
                         {/* Dynamic Highlights List */}
                         <div className="p-4 border border-[var(--color-border)] rounded-2xl space-y-3">
                             <div className="flex items-center justify-between">
-                                <span className="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider">
+                                <span className="text-xs font-semibold text-[var(--color-primary)]">
                                     Điểm nổi bật của khóa học
                                 </span>
                                 <button
@@ -646,7 +646,7 @@ function AdminCoursesContent() {
                         {/* Dynamic Curriculum Chapters List */}
                         <div className="p-4 border border-[var(--color-border)] rounded-2xl space-y-3">
                             <div className="flex items-center justify-between">
-                                <span className="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider">
+                                <span className="text-xs font-semibold text-[var(--color-primary)]">
                                     Chương trình học chi tiết (Syllabus)
                                 </span>
                                 <button
@@ -800,7 +800,7 @@ function AdminCoursesContent() {
                 <div className="overflow-x-auto -mx-4">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="border-b border-[var(--color-border)] text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
+                            <tr className="border-b border-[var(--color-border)] text-xs text-[var(--color-text-muted)] font-semibold">
                                 <th className="px-4 py-2">Tên khóa học</th>
                                 <th className="px-4 py-2">Loại hình</th>
                                 <th className="px-4 py-2">Học phí</th>

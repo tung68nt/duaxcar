@@ -108,8 +108,8 @@ export default function AdminLayout({
                         <span className="font-heading font-bold text-[var(--color-text)] text-xs block leading-tight truncate">
                             DuaxCar Admin
                         </span>
-                        <span className="text-[9px] text-[var(--color-primary)] font-semibold uppercase tracking-wider block">
-                            Hệ Thống CMS
+                        <span className="text-[10px] text-[var(--color-primary)] font-semibold block">
+                            Hệ thống CMS
                         </span>
                     </div>
                 </div>

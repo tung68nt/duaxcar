@@ -424,7 +424,7 @@ export default function AdminBlogsCMS() {
                 <div className="overflow-x-auto -mx-4">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="border-b border-[var(--color-border)] text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
+                            <tr className="border-b border-[var(--color-border)] text-xs text-[var(--color-text-muted)] font-semibold">
                                 <th className="px-4 py-2">Tiêu đề bài viết</th>
                                 <th className="px-4 py-2">Danh mục</th>
                                 <th className="px-4 py-2">Tác giả</th>

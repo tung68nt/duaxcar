@@ -174,7 +174,7 @@ export default function CourseDetailClient({
                                         rel="noopener noreferrer"
                                         className="btn btn-primary shadow-lg border border-white/20 px-6 py-3 rounded-2xl font-bold flex items-center gap-1.5 transition-all hover:scale-105"
                                     >
-                                        ĐĂNG KÝ NGAY
+                                        Đăng ký ngay
                                         <ArrowRight className="w-4 h-4" />
                                     </a>
                                 ) : (
@@ -182,7 +182,7 @@ export default function CourseDetailClient({
                                         href="#dang-ky"
                                         className="btn btn-primary shadow-lg border border-white/20 px-6 py-3 rounded-2xl font-bold flex items-center gap-1.5 transition-all hover:scale-105"
                                     >
-                                        ĐĂNG KÝ NGAY
+                                        Đăng ký ngay
                                         <ArrowRight className="w-4 h-4" />
                                     </Link>
                                 )}

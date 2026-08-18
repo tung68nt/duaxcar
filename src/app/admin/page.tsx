@@ -195,7 +195,7 @@ export default function AdminDashboard() {
                     <div className="overflow-x-auto -mx-4">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-[var(--color-border)] text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
+                                <tr className="border-b border-[var(--color-border)] text-xs text-[var(--color-text-muted)] font-semibold">
                                     <th className="px-4 py-2">Học viên</th>
                                     <th className="px-4 py-2">Khóa học đăng ký</th>
                                     <th className="px-4 py-2">Trạng thái</th>
@@ -279,7 +279,7 @@ export default function AdminDashboard() {
                         <div className="absolute -bottom-12 -right-12 w-20 h-20 bg-[var(--color-primary)]/10 rounded-full blur-xl pointer-events-none" />
                         
                         <div className="relative z-10 space-y-2.5">
-                            <span className="text-[9px] text-[var(--color-primary)] font-bold uppercase tracking-wider block">
+                            <span className="text-xs text-[var(--color-primary)] font-bold block">
                                 Hướng dẫn nhanh
                             </span>
                             <h4 className="font-heading font-bold text-[var(--color-text)] text-sm">

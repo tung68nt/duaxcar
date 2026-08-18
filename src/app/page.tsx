@@ -157,8 +157,8 @@ export default async function HomePage() {
                 <div className="container">
                     <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-12">
                         <div>
-                            <span className="text-small font-semibold text-[var(--color-primary)] uppercase tracking-wider">
-                                Khóa Học Nổi Bật
+                            <span className="text-small font-semibold text-[var(--color-primary)]">
+                                Khóa học nổi bật
                             </span>
                             <h2 className="heading-2 text-[var(--color-text)] mt-2">
                                 Các khóa học được yêu thích nhất
@@ -243,8 +243,8 @@ export default async function HomePage() {
                     <div className="grid lg:grid-cols-2 gap-12 items-center">
                         {/* Content */}
                         <div>
-                            <span className="text-small font-semibold text-[var(--color-primary)] uppercase tracking-wider">
-                                Về Chúng Tôi
+                            <span className="text-small font-semibold text-[var(--color-primary)]">
+                                Về chúng tôi
                             </span>
                             <h2 className="heading-2 text-[var(--color-text)] mt-2 mb-6">
                                 DuaxCar Kitchen - Nơi đam mê trở thành nghề nghiệp
@@ -349,8 +349,8 @@ export default async function HomePage() {
             <section className="section">
                 <div className="container">
                     <div className="text-center max-w-2xl mx-auto mb-12">
-                        <span className="text-small font-semibold text-[var(--color-primary)] uppercase tracking-wider">
-                            Danh Mục
+                        <span className="text-small font-semibold text-[var(--color-primary)]">
+                            Danh mục
                         </span>
                         <h2 className="heading-2 text-[var(--color-text)] mt-2 mb-4">
                             8 danh mục khóa học đa dạng
@@ -376,7 +376,7 @@ export default async function HomePage() {
                                     <h3 className="font-heading font-bold text-[var(--color-text)] mb-1 group-hover:text-[var(--color-primary)] transition-colors text-center">
                                         {category.name}
                                     </h3>
-                                    <p className="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wide">
+                                    <p className="text-xs text-[var(--color-text-muted)] font-medium">
                                         {courseCount} khóa học
                                     </p>
                                 </Link>
@@ -390,8 +390,8 @@ export default async function HomePage() {
             <section className="section">
                 <div className="container">
                     <div className="text-center max-w-2xl mx-auto mb-12">
-                        <span className="text-small font-semibold text-[var(--color-primary)] uppercase tracking-wider">
-                            Đội Ngũ Giảng Viên
+                        <span className="text-small font-semibold text-[var(--color-primary)]">
+                            Đội ngũ giảng viên
                         </span>
                         <h2 className="heading-2 text-[var(--color-text)] mt-2 mb-4">
                             Học từ những người giỏi nhất
@@ -485,8 +485,8 @@ export default async function HomePage() {
             <section className="section bg-[var(--color-surface)]">
                 <div className="container">
                     <div className="text-center max-w-2xl mx-auto mb-12">
-                        <span className="text-small font-semibold text-[var(--color-primary)] uppercase tracking-wider">
-                            Học Viên Nói Gì
+                        <span className="text-small font-semibold text-[var(--color-primary)]">
+                            Học viên nói gì
                         </span>
                         <h2 className="heading-2 text-[var(--color-text)] mt-2 mb-4">
                             Câu chuyện thành công từ học viên
@@ -540,8 +540,8 @@ export default async function HomePage() {
             <section className="section bg-[var(--color-surface)] border-t border-[var(--color-border)]">
                 <div className="container">
                     <div className="text-center mb-12">
-                        <span className="text-small font-semibold text-[var(--color-primary)] uppercase tracking-wider mb-2 block">
-                            Đồng Hành Cùng Phát Triển
+                        <span className="text-small font-semibold text-[var(--color-primary)] mb-2 block">
+                            Đồng hành cùng phát triển
                         </span>
                         <h2 className="heading-2 text-[var(--color-text)] mb-4">
                             Đối Tác Của Chúng Tôi

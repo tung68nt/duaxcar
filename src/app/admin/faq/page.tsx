@@ -391,7 +391,7 @@ export default function AdminFAQ() {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface-light)]/40 text-xs font-semibold text-[var(--color-text-secondary)] uppercase">
+                            <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface-light)]/40 text-xs font-semibold text-[var(--color-text-secondary)]">
                                 <th className="px-6 py-4">Phân loại</th>
                                 <th className="px-6 py-4">Câu hỏi / Câu trả lời</th>
                                 <th className="px-6 py-4 text-center">Hiển thị</th>
