@@ -274,21 +274,21 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Quick Guide Card */}
-                    <div className="p-5 bg-gradient-to-br from-[var(--color-gray-900)] to-[var(--color-gray-800)] border border-[var(--color-border)] rounded-xl text-center relative overflow-hidden">
-                        <div className="absolute -top-12 -left-12 w-24 h-24 bg-[var(--color-primary)]/10 rounded-full blur-2xl" />
-                        <div className="absolute -bottom-12 -right-12 w-24 h-24 bg-[var(--color-primary)]/15 rounded-full blur-2xl" />
+                    <div className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-center relative overflow-hidden">
+                        <div className="absolute -top-12 -left-12 w-24 h-24 bg-[var(--color-primary)]/10 rounded-full blur-2xl pointer-events-none" />
+                        <div className="absolute -bottom-12 -right-12 w-24 h-24 bg-[var(--color-primary)]/10 rounded-full blur-2xl pointer-events-none" />
                         
-                        <div className="relative z-10 space-y-3.5">
+                        <div className="relative z-10 space-y-3">
                             <span className="text-[10px] text-[var(--color-primary)] font-bold uppercase tracking-wider block">
                                 Hướng dẫn nhanh
                             </span>
-                            <h4 className="font-heading font-semibold text-white text-base">
+                            <h4 className="font-heading font-bold text-[var(--color-text)] text-base">
                                 Bạn muốn biên tập nội dung khóa học?
                             </h4>
-                            <p className="text-xs text-gray-300 leading-relaxed">
+                            <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
                                 Hãy truy cập trang quản lý Khóa học (CMS) hoặc Bài viết (CMS) ở menu bên trái để chỉnh sửa thông tin chi tiết.
                             </p>
-                            <Link href="/admin/khoa-hoc" className="btn btn-primary btn-sm w-full block rounded-lg">
+                            <Link href="/admin/khoa-hoc" className="btn btn-primary btn-sm w-full block rounded-lg shadow-sm">
                                 Đi tới trang CMS
                             </Link>
                         </div>
