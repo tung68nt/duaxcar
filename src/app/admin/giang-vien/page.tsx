@@ -18,8 +18,8 @@ import {
     ArrowLeft
 } from "lucide-react";
 import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
-
 import { supabase } from "@/lib/supabase";
+import { MediaSelectorInput } from "@/components/admin/media-selector-input";
 
 interface Instructor {
 
@@ -421,23 +421,14 @@ export default function AdminInstructors() {
 
                         <div className="grid sm:grid-cols-3 gap-4">
                             <div className="sm:col-span-2">
-                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Ảnh đại diện (Avatar URL)</label>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        value={formState.image}
-                                        onChange={(e) => setFormState({ ...formState, image: e.target.value })}
-                                        className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                        required
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setMediaModalOpen(true)}
-                                        className="px-4 py-2 bg-[var(--color-surface-light)] border border-[var(--color-border)] text-xs font-semibold rounded-xl text-[var(--color-text)] hover:bg-[var(--color-primary)] hover:text-white flex-shrink-0"
-                                    >
-                                        Chọn ảnh
-                                    </button>
-                                </div>
+                                <MediaSelectorInput
+                                    label="Ảnh chân dung giảng viên"
+                                    description="Ảnh đại diện sắc nét của giảng viên"
+                                    value={formState.image}
+                                    onChange={(url) => setFormState({ ...formState, image: url })}
+                                    aspectRatio="portrait"
+                                    required
+                                />
                             </div>
                             <div className="sm:col-span-1">
                                 <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Căn vị trí ảnh (Lấy nét mặt)</label>
@@ -726,98 +717,6 @@ export default function AdminInstructors() {
                 ))}
             </div>
 
-            {/* Avatar Media Dialog */}
-            {mediaModalOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-                    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl flex flex-col animate-fadeIn">
-                        <div className="p-6 border-b border-[var(--color-border)] flex items-center justify-between sticky top-0 bg-[var(--color-surface)] z-10">
-                            <div>
-                                <h3 className="font-heading font-semibold text-[var(--color-text)] text-base">
-                                    Thư viện Media
-                                </h3>
-                                <p className="text-xs text-[var(--color-text-muted)] mt-0.5">Chọn ảnh đại diện giảng viên hoặc tải ảnh mới</p>
-                            </div>
-                            <button 
-                                onClick={() => setMediaModalOpen(false)}
-                                className="p-1 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)]"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        <div className="p-6 space-y-6">
-                            {/* Upload Area */}
-                            <div className="border-2 border-dashed border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-2xl p-6 text-center cursor-pointer transition-colors relative group">
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFileUpload}
-                                    className="absolute inset-0 opacity-0 cursor-pointer"
-                                />
-                                <div className="flex flex-col items-center justify-center gap-2">
-                                    <div className="w-10 h-10 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <Plus className="w-5 h-5" />
-                                    </div>
-                                    <span className="text-xs font-semibold text-[var(--color-text)]">Tải ảnh mới từ máy tính</span>
-                                </div>
-                            </div>
-
-                            {/* Stock images */}
-                            <div className="space-y-3">
-                                <h4 className="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Ảnh giảng viên có sẵn</h4>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                    {stockImages.map((img) => (
-                                        <button
-                                            key={img.url}
-                                            type="button"
-                                            onClick={() => { setFormState(prev => ({ ...prev, image: img.url })); setMediaModalOpen(false); }}
-                                            className="group text-left border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-xl overflow-hidden bg-[var(--color-background)] transition-all focus:outline-none"
-                                        >
-                                            <div className="relative aspect-[3/4] bg-[var(--color-surface-light)]">
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                <img
-                                                    src={img.url}
-                                                    alt={img.name}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
-                                            <div className="p-2 border-t border-[var(--color-border)]">
-                                                <p className="text-[10px] font-semibold text-[var(--color-text)] truncate">{img.name}</p>
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* User Custom Uploaded Images */}
-                            {uploadedMedia.length > 0 && (
-                                <div className="space-y-3">
-                                    <h4 className="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Ảnh bạn đã tải lên</h4>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                        {uploadedMedia.map((base64, index) => (
-                                            <button
-                                                key={index}
-                                                type="button"
-                                                onClick={() => { setFormState(prev => ({ ...prev, image: base64 })); setMediaModalOpen(false); }}
-                                                className="group text-left border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-xl overflow-hidden bg-[var(--color-background)] transition-all focus:outline-none"
-                                            >
-                                                <div className="relative aspect-square bg-[var(--color-surface-light)]">
-                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                    <img
-                                                        src={base64}
-                                                        alt={`Custom upload ${index + 1}`}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                </div>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

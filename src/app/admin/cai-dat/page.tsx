@@ -19,6 +19,7 @@ import {
     FileText,
     Image as ImageIcon
 } from "lucide-react";
+import { MediaSelectorInput } from "@/components/admin/media-selector-input";
 
 interface BannerItem {
     id: number;
@@ -462,53 +463,34 @@ export default function AdminSettings() {
                                         <button
                                             type="button"
                                             onClick={() => handleRemoveBanner(index)}
-                                            className="absolute top-2 right-2 p-1.5 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                                            className="absolute top-2 right-2 p-1.5 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all z-10"
+                                            title="Xóa banner này"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />
                                         </button>
                                         
-                                        <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-[var(--color-background)] border border-[var(--color-border)]">
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img
-                                                src={banner.image}
-                                                alt={banner.alt}
-                                                className="w-full h-full object-cover"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => openMediaModal("banner", index)}
-                                                className="absolute inset-0 bg-black/40 hover:bg-black/60 flex items-center justify-center text-white text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
-                                                Thay đổi ảnh
-                                            </button>
-                                        </div>
+                                        <MediaSelectorInput
+                                            label={`Banner #${index + 1}`}
+                                            value={banner.image}
+                                            onChange={(url) => {
+                                                const updated = [...config.heroBanners];
+                                                updated[index] = { ...updated[index], image: url };
+                                                setConfig({ ...config, heroBanners: updated });
+                                            }}
+                                            aspectRatio="video"
+                                            required
+                                        />
 
-                                        <div className="space-y-2">
-                                            <div>
-                                                <label className="text-[10px] font-semibold text-[var(--color-text-secondary)] block mb-1">Mô tả ảnh / ALT tag</label>
-                                                <input
-                                                    type="text"
-                                                    value={banner.alt}
-                                                    onChange={(e) => handleBannerAltChange(index, e.target.value)}
-                                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-3 py-1.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                                    placeholder="Ví dụ: Lớp học nấu Phở..."
-                                                    required
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="text-[10px] font-semibold text-[var(--color-text-secondary)] block mb-1">Đường dẫn ảnh</label>
-                                                <input
-                                                    type="text"
-                                                    value={banner.image}
-                                                    onChange={(e) => {
-                                                        const updated = [...config.heroBanners];
-                                                        updated[index] = { ...updated[index], image: e.target.value };
-                                                        setConfig({ ...config, heroBanners: updated });
-                                                    }}
-                                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-3 py-1.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                                    required
-                                                />
-                                            </div>
+                                        <div>
+                                            <label className="text-[10px] font-semibold text-[var(--color-text-secondary)] block mb-1">Mô tả ảnh / ALT tag</label>
+                                            <input
+                                                type="text"
+                                                value={banner.alt}
+                                                onChange={(e) => handleBannerAltChange(index, e.target.value)}
+                                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-3 py-1.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                                placeholder="Ví dụ: Lớp học nấu Phở..."
+                                                required
+                                            />
                                         </div>
                                     </div>
                                 ))}
@@ -552,35 +534,28 @@ export default function AdminSettings() {
 
                                 <hr className="border-[var(--color-border)]" />
 
-                                <div className="grid sm:grid-cols-3 gap-4">
-                                    <div className="sm:col-span-2">
-                                        <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Tiêu đề sứ mệnh (Story Title)</label>
-                                        <input
-                                            type="text"
-                                            value={config.aboutStoryTitle}
-                                            onChange={(e) => setConfig({ ...config, aboutStoryTitle: e.target.value })}
-                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Ảnh đi kèm Story</label>
-                                        <div className="flex gap-2">
+                                <div className="grid sm:grid-cols-2 gap-4">
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Tiêu đề sứ mệnh (Story Title)</label>
                                             <input
                                                 type="text"
-                                                value={config.aboutStoryImage}
-                                                onChange={(e) => setConfig({ ...config, aboutStoryImage: e.target.value })}
-                                                className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                                value={config.aboutStoryTitle}
+                                                onChange={(e) => setConfig({ ...config, aboutStoryTitle: e.target.value })}
+                                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                                 required
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => openMediaModal("about")}
-                                                className="px-3 py-2 bg-[var(--color-surface-light)] border border-[var(--color-border)] text-xs font-semibold rounded-xl text-[var(--color-text)] hover:bg-[var(--color-primary)] hover:text-white"
-                                            >
-                                                Chọn ảnh
-                                            </button>
                                         </div>
+                                    </div>
+                                    <div>
+                                        <MediaSelectorInput
+                                            label="Ảnh câu chuyện thương hiệu (Story Image)"
+                                            description="Ảnh minh họa trong phần Câu chuyện sáng lập"
+                                            value={config.aboutStoryImage}
+                                            onChange={(url) => setConfig({ ...config, aboutStoryImage: url })}
+                                            aspectRatio="wide"
+                                            required
+                                        />
                                     </div>
                                 </div>
 
@@ -636,99 +611,6 @@ export default function AdminSettings() {
                 </div>
             </form>
 
-            {/* Settings Media Library Modal */}
-            {mediaModalOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-                    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl flex flex-col animate-fadeIn">
-                        <div className="p-6 border-b border-[var(--color-border)] flex items-center justify-between sticky top-0 bg-[var(--color-surface)] z-10">
-                            <div>
-                                <h3 className="font-heading font-semibold text-[var(--color-text)] text-base">
-                                    Thư viện Media
-                                </h3>
-                                <p className="text-xs text-[var(--color-text-muted)] mt-0.5">Chọn ảnh mẫu hoặc tải ảnh mới từ máy tính của bạn</p>
-                            </div>
-                            <button 
-                                onClick={() => { setMediaModalOpen(false); setActiveMediaTarget(null); }}
-                                className="p-1 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)]"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        <div className="p-6 space-y-6">
-                            {/* Upload Area */}
-                            <div className="border-2 border-dashed border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-2xl p-6 text-center cursor-pointer transition-colors relative group">
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFileUpload}
-                                    className="absolute inset-0 opacity-0 cursor-pointer"
-                                />
-                                <div className="flex flex-col items-center justify-center gap-2">
-                                    <div className="w-10 h-10 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <Plus className="w-5 h-5" />
-                                    </div>
-                                    <span className="text-xs font-semibold text-[var(--color-text)]">Tải ảnh lên từ thiết bị</span>
-                                    <span className="text-[10px] text-[var(--color-text-muted)]">Chấp nhận JPG, PNG, WEBP. Tự động chuyển Base64.</span>
-                                </div>
-                            </div>
-
-                            {/* Stock Images */}
-                            <div className="space-y-3">
-                                <h4 className="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Ảnh món ăn DuaxCar</h4>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    {stockImages.map((img) => (
-                                        <button
-                                            key={img.url}
-                                            type="button"
-                                            onClick={() => applyMediaSelection(img.url)}
-                                            className="group text-left border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-xl overflow-hidden bg-[var(--color-background)] transition-all focus:outline-none"
-                                        >
-                                            <div className="relative aspect-[4/3] bg-[var(--color-surface-light)]">
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                <img
-                                                    src={img.url}
-                                                    alt={img.name}
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-350"
-                                                />
-                                            </div>
-                                            <div className="p-2 border-t border-[var(--color-border)]">
-                                                <p className="text-[10px] font-semibold text-[var(--color-text)] truncate">{img.name}</p>
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Custom Uploaded Images */}
-                            {uploadedMedia.length > 0 && (
-                                <div className="space-y-3">
-                                    <h4 className="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Ảnh bạn đã tải lên</h4>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                        {uploadedMedia.map((base64, index) => (
-                                            <button
-                                                key={index}
-                                                type="button"
-                                                onClick={() => applyMediaSelection(base64)}
-                                                className="group text-left border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-xl overflow-hidden bg-[var(--color-background)] transition-all focus:outline-none"
-                                            >
-                                                <div className="relative aspect-[4/3] bg-[var(--color-surface-light)]">
-                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                    <img
-                                                        src={base64}
-                                                        alt={`Custom upload ${index + 1}`}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                </div>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

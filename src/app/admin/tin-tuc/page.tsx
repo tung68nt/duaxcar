@@ -14,11 +14,14 @@ import {
     Calendar,
     User,
     Tag,
-    ArrowLeft
+    ArrowLeft,
+    Image as ImageIcon
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { blogPosts as defaultMockBlogs } from "@/data/mock";
 import { AutoResizeTextarea } from "@/components/ui/auto-resize-textarea";
+import { MediaSelectorInput } from "@/components/admin/media-selector-input";
+import { MediaPickerModal } from "@/components/admin/media-picker-modal";
 
 interface BlogPost {
     id: string;
@@ -42,6 +45,7 @@ export default function AdminBlogsCMS() {
     
     // Modal states
     const [modalOpen, setModalOpen] = useState(false);
+    const [insertImageModalOpen, setInsertImageModalOpen] = useState(false);
     const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
     const [formState, setFormState] = useState<Omit<BlogPost, "id">>({
         slug: "",
@@ -315,6 +319,25 @@ export default function AdminBlogsCMS() {
                             </div>
                         </div>
 
+                        {/* Image Selectors */}
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <MediaSelectorInput
+                                label="Ảnh đại diện bài viết (Thumbnail)"
+                                description="Ảnh hiển thị nổi bật ở trang chủ và danh sách bài viết"
+                                value={formState.image}
+                                onChange={(url) => setFormState({ ...formState, image: url })}
+                                aspectRatio="video"
+                                required
+                            />
+                            <MediaSelectorInput
+                                label="Ảnh chân dung tác giả"
+                                description="Ảnh đại diện tác giả bài viết"
+                                value={formState.authorImage}
+                                onChange={(url) => setFormState({ ...formState, authorImage: url })}
+                                aspectRatio="square"
+                            />
+                        </div>
+
                         {/* Excerpt */}
                         <div>
                             <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Mô tả ngắn bài viết (SEO Description)</label>
@@ -328,7 +351,19 @@ export default function AdminBlogsCMS() {
 
                         {/* Main HTML Content */}
                         <div>
-                            <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5">Nội dung bài viết (HTML / Editor)</label>
+                            <div className="flex items-center justify-between mb-1.5">
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)]">
+                                    Nội dung bài viết (HTML / Editor)
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => setInsertImageModalOpen(true)}
+                                    className="text-xs font-bold text-[var(--color-primary)] hover:underline flex items-center gap-1.5 bg-[var(--color-primary)]/10 px-3 py-1 rounded-xl"
+                                >
+                                    <ImageIcon className="w-3.5 h-3.5" />
+                                    <span>Chèn ảnh từ Thư viện Media</span>
+                                </button>
+                            </div>
                             <AutoResizeTextarea
                                 value={formState.content}
                                 onChange={(e) => setFormState({ ...formState, content: e.target.value })}
@@ -336,6 +371,9 @@ export default function AdminBlogsCMS() {
                                 placeholder="<h3>Tiêu đề đoạn</h3> <p>Nội dung đoạn...</p>"
                                 required
                             />
+                            <p className="text-[11px] text-[var(--color-text-muted)] mt-1">
+                                Mẹo: Bấm nút <b>Chèn ảnh từ Thư viện Media</b> ở trên để chèn nhanh ảnh vào bài viết mà không cần copy link.
+                            </p>
                         </div>
 
                         {/* Submit */}
@@ -420,8 +458,20 @@ export default function AdminBlogsCMS() {
                                 filteredPosts.map((post) => (
                                     <tr key={post.id} className="hover:bg-[var(--color-surface-light)]/40 transition-colors">
                                         <td className="px-6 py-4 max-w-md">
-                                            <div className="font-semibold text-[var(--color-text)] line-clamp-1">{post.title}</div>
-                                            <div className="text-xs text-[var(--color-text-muted)] mt-1 line-clamp-1">{post.excerpt}</div>
+                                            <div className="flex items-center gap-3">
+                                                {post.image && (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={post.image}
+                                                        alt={post.title}
+                                                        className="w-14 h-10 rounded-xl object-cover border border-[var(--color-border)] flex-shrink-0"
+                                                    />
+                                                )}
+                                                <div className="min-w-0">
+                                                    <div className="font-semibold text-[var(--color-text)] line-clamp-1">{post.title}</div>
+                                                    <div className="text-xs text-[var(--color-text-muted)] mt-0.5 line-clamp-1">{post.excerpt}</div>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="badge badge-primary">{post.category}</span>
@@ -465,6 +515,21 @@ export default function AdminBlogsCMS() {
                     </table>
                 </div>
             </div>
+
+            {/* Insert Image Modal for Editor Content */}
+            <MediaPickerModal
+                isOpen={insertImageModalOpen}
+                onClose={() => setInsertImageModalOpen(false)}
+                title="Chèn ảnh vào nội dung bài viết"
+                onSelect={(url, item) => {
+                    const altText = item?.name || formState.title || "Hình ảnh bài viết";
+                    const imageHtml = `\n<figure class="my-6">\n  <img src="${url}" alt="${altText}" class="rounded-2xl w-full object-cover max-h-[500px] shadow-lg" />\n  <figcaption class="text-xs text-center text-gray-500 mt-2 italic">${altText}</figcaption>\n</figure>\n`;
+                    setFormState(prev => ({
+                        ...prev,
+                        content: prev.content ? `${prev.content}\n${imageHtml}` : imageHtml
+                    }));
+                }}
+            />
         </div>
     );
 }

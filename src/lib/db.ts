@@ -54,6 +54,8 @@ export interface Registration {
     note?: string;
 }
 
+import { MediaItem } from './media-store';
+
 export interface DBData {
     courses: Course[];
     instructors: Instructor[];
@@ -62,6 +64,7 @@ export interface DBData {
     faqs: FAQItem[];
     settings: SiteSettings;
     registrations: Registration[];
+    media?: MediaItem[];
 }
 
 const defaultFaqs: FAQItem[] = [
@@ -154,7 +157,8 @@ export function getLocalDB(): DBData {
             testimonials: parsed.testimonials || defaultTestimonials,
             faqs: parsed.faqs || defaultFaqs,
             settings: parsed.settings || defaultSettings,
-            registrations: parsed.registrations || defaultRegistrations
+            registrations: parsed.registrations || defaultRegistrations,
+            media: parsed.media || []
         };
     } catch (e) {
         console.error("Error reading local db store:", e);
