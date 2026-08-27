@@ -508,8 +508,12 @@ export default function CourseDetailClient({
                 </div>
             </section>
 
-            {/* Registration Form */}
-            <CourseRegistrationForm courseName={course.name} />
+            {/* Registration / Inquiry Form */}
+            <CourseRegistrationForm 
+                courseName={course.name} 
+                courseType={course.courseType} 
+                onlineUrl={course.onlineUrl} 
+            />
 
             {/* Related Courses */}
             {relatedCourses.length > 0 && (
