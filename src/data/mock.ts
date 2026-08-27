@@ -251,6 +251,47 @@ export const courses: Course[] = [
         onlineUrl: "https://academy.duaxcar.com/courses/pho-bo-online",
     },
     {
+        id: "pho-xao",
+        slug: "pho-xao",
+        name: "Phở Xào",
+        category: "mon-an-sang",
+        courseType: "elearning",
+        description: "Khóa học nấu Phở Xào Bò & Phở Xào Giòn chuẩn vị kinh doanh, giữ độ dai giòn của bánh phở và vị đậm đà thơm ngậy của thịt bò mềm mọng.",
+        shortDescription: "Bí quyết phở xào bò chuẩn vị gia truyền thơm ngon đậm đà",
+        price: 800000,
+        contactForPrice: false,
+        duration: "14 giờ",
+        totalLessons: 5,
+        totalDuration: "14 giờ",
+        accessDuration: "Trọn đời",
+        instructor: "Nguyễn Hữu Thọ",
+        instructorId: "nguyen-huu-tho",
+        image: "/images/courses/pho-bo.jpg",
+        videoUrl: "https://www.youtube.com/watch?v=2iZ_B7WjL10",
+        highlights: [
+            "Bí quyết xào bánh phở không bị nát, cháy chảo",
+            "Kỹ thuật ướp thịt bò mềm ngọt, giữ nước",
+            "Công thức nước sốt xào phở gia truyền độc quyền",
+            "Tư vấn tính cost và mở quán kinh doanh phở xào"
+        ],
+        curriculum: [
+            {
+                title: "Chương 1: Chọn và sơ chế bánh phở, thịt bò",
+                description: "Kỹ thuật gỡ bánh phở, ướp thịt bò mọng nước và chuẩn bị rau củ quả."
+            },
+            {
+                title: "Chương 2: Công thức nước sốt xào phở đỉnh cao",
+                description: "Định lượng chuẩn từng thìa gia vị xào số lượng lớn."
+            },
+            {
+                title: "Chương 3: Kỹ thuật canh lửa và thao tác xào chảo gang",
+                description: "Kiểm soát độ nóng của chảo, tạo mùi xém khói (Wok Hei) đặc trưng."
+            }
+        ],
+        featured: true,
+        onlineUrl: "https://academy.duaxcar.com/",
+    },
+    {
         id: "bun-bo-hue",
         slug: "bun-bo-hue",
         name: "Bún Bò Huế Chuẩn Vị",
