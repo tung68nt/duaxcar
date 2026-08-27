@@ -297,48 +297,62 @@ export default function CourseDetailClient({
                                 </div>
                             )}
 
-                            {/* MasterClass Style Price & Action Showcase Card */}
+                            {/* Ultra High-Contrast Price & Action Showcase Card */}
                             {isElearning ? (
-                                <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-white dark:to-[#161220] border-2 border-purple-500/30 shadow-xl shadow-purple-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-                                    <div className="space-y-1">
-                                        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">
+                                <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-[#161220] border-2 border-purple-500 dark:border-purple-500/60 shadow-2xl shadow-purple-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-5 relative overflow-hidden">
+                                    <div className="space-y-2">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 text-xs font-extrabold uppercase tracking-wide border border-purple-300 dark:border-purple-800">
                                             <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
-                                            Học phí trọn gói (Online E-Learning)
+                                            Học phí trực tuyến E-Learning
                                         </div>
-                                        <div className="text-3xl sm:text-4xl font-black text-purple-700 dark:text-purple-300 tracking-tight">
-                                            {course.contactForPrice ? "Liên hệ tư vấn" : (course.price ? formatPrice(course.price) : "Học phí ưu đãi")}
+                                        <div className="flex items-baseline gap-1">
+                                            <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-purple-950 dark:text-white tracking-tight">
+                                                {course.contactForPrice ? "Liên hệ tư vấn" : (course.price ? course.price.toLocaleString("vi-VN") : "Học phí ưu đãi")}
+                                            </span>
+                                            {!course.contactForPrice && course.price && (
+                                                <span className="text-xl sm:text-2xl font-bold text-purple-700 dark:text-purple-400">
+                                                    đ
+                                                </span>
+                                            )}
                                         </div>
-                                        <p className="text-xs text-[var(--color-text-secondary)] font-medium">
-                                            ✓ Xem lại bài học mọi lúc • Hỗ trợ tài liệu công thức
+                                        <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-1.5">
+                                            <span className="text-green-600 font-bold">✓</span> Học ngay lập tức • Xem lại bài giảng trọn đời
                                         </p>
                                     </div>
                                     <a
                                         href={course.onlineUrl || "https://academy.duaxcar.com/"}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="btn bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-extrabold text-base py-4 px-8 rounded-2xl shadow-xl shadow-purple-600/30 hover:scale-[1.03] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 flex-shrink-0"
+                                        className="btn bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-base py-4 px-8 rounded-2xl shadow-xl shadow-purple-600/40 hover:scale-[1.03] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 flex-shrink-0"
                                     >
                                         <span>Vào Học Online</span>
                                         <Play className="w-4 h-4 fill-current" />
                                     </a>
                                 </div>
                             ) : (
-                                <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-white dark:to-[#1e1510] border-2 border-orange-500/30 shadow-xl shadow-orange-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-                                    <div className="space-y-1">
-                                        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
+                                <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-[#1e1510] border-2 border-orange-500 dark:border-orange-500/60 shadow-2xl shadow-orange-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-5 relative overflow-hidden">
+                                    <div className="space-y-2">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-orange-100 dark:bg-orange-950/80 text-orange-950 dark:text-orange-200 text-xs font-extrabold uppercase tracking-wide border border-orange-300 dark:border-orange-800">
                                             <span className="w-2 h-2 rounded-full bg-orange-600 animate-pulse" />
                                             Học phí đào tạo trực tiếp
                                         </div>
-                                        <div className="text-3xl sm:text-4xl font-black text-orange-600 dark:text-orange-400 tracking-tight">
-                                            {course.contactForPrice ? "Liên hệ tư vấn" : formatPrice(course.price)}
+                                        <div className="flex items-baseline gap-1">
+                                            <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-orange-950 dark:text-white tracking-tight">
+                                                {course.contactForPrice ? "Liên hệ tư vấn" : (course.price ? course.price.toLocaleString("vi-VN") : "Liên hệ")}
+                                            </span>
+                                            {!course.contactForPrice && course.price && (
+                                                <span className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
+                                                    đ
+                                                </span>
+                                            )}
                                         </div>
-                                        <p className="text-xs text-[var(--color-text-secondary)] font-medium">
-                                            ✓ Thực hành 1 kèm 1 tại trung tâm • Cấp chứng nhận
+                                        <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-1.5">
+                                            <span className="text-green-600 font-bold">✓</span> Thực hành 1 kèm 1 • Hỗ trợ công thức mở quán
                                         </p>
                                     </div>
                                     <Link 
                                         href="#dang-ky" 
-                                        className="btn btn-primary font-extrabold text-base py-4 px-8 rounded-2xl shadow-xl shadow-orange-500/30 hover:scale-[1.03] active:scale-[0.98] transition-all flex items-center justify-center gap-2 flex-shrink-0"
+                                        className="btn btn-primary font-extrabold text-base py-4 px-8 rounded-2xl shadow-xl shadow-orange-500/40 hover:scale-[1.03] active:scale-[0.98] transition-all flex items-center justify-center gap-2 flex-shrink-0"
                                     >
                                         <span>Đăng ký giữ chỗ</span>
                                         <ArrowRight className="w-5 h-5" />
