@@ -187,10 +187,20 @@ export default function Footer({ logo = "/images/logo.png" }: FooterProps) {
 
             {/* Bottom Bar */}
             <div className="border-t border-[var(--color-border)] bg-[var(--color-surface)]/30">
-                <div className="container py-6">
-                    <p className="text-[var(--color-text-muted)] text-sm text-center">
-                        © {new Date().getFullYear()} DuaxCar Kitchen. Nấu từ tâm, kinh
-                        doanh từ bền vững.
+                <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-[var(--color-text-muted)]">
+                    <p className="text-center sm:text-left">
+                        © {new Date().getFullYear()} DuaxCar Kitchen. Nấu từ tâm, kinh doanh từ bền vững.
+                    </p>
+                    <p className="text-center sm:text-right">
+                        Thiết kế &amp; Phát triển bởi{" "}
+                        <a 
+                            href="https://tulie.agency" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors underline-offset-4 hover:underline"
+                        >
+                            Tulie Agency
+                        </a>
                     </p>
                 </div>
             </div>
