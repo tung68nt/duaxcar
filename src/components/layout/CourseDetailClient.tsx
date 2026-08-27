@@ -122,12 +122,12 @@ export default function CourseDetailClient({
             </section>
 
             {/* Hero */}
-            <section className="section-sm bg-[var(--color-surface)]/30 border-b border-[var(--color-border)]">
+            <section className="section-sm bg-[var(--color-surface)]/40 border-b border-[var(--color-border)]">
                 <div className="container">
                     <div className="grid lg:grid-cols-12 gap-8 items-start">
                         {/* Left Column: Image Card */}
                         <div className="lg:col-span-5">
-                            <div className="relative rounded-2xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] group">
+                            <div className="relative rounded-xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] group">
                                 <div className="relative aspect-[4/3] flex items-center justify-center overflow-hidden">
                                     {course.image || category?.image ? (
                                         <Image
@@ -149,7 +149,7 @@ export default function CourseDetailClient({
                                             className="absolute inset-0 flex items-center justify-center group/play cursor-pointer transition-colors hover:bg-black/10"
                                             title="Nhấp để vào học Online"
                                         >
-                                            <div className="w-14 h-14 rounded-full bg-purple-600 text-white flex items-center justify-center group-hover/play:scale-110 transition-transform duration-200 shadow-md">
+                                            <div className="w-14 h-14 rounded-full bg-purple-600 text-white flex items-center justify-center group-hover/play:scale-110 transition-transform duration-200">
                                                 <Play className="w-6 h-6 text-white fill-white ml-0.5" />
                                             </div>
                                         </a>
@@ -159,18 +159,18 @@ export default function CourseDetailClient({
                                 {/* Badges on Top-Left */}
                                 <div className="absolute top-3 left-3 flex items-center gap-1.5 z-20">
                                     {isElearning ? (
-                                        <span className="badge bg-purple-600 text-white border-none flex items-center gap-1 font-medium text-xs">
+                                        <span className="px-2.5 py-1 rounded-md bg-purple-600 text-white flex items-center gap-1 font-medium text-xs">
                                             <Play className="w-3 h-3 fill-current" />
-                                            Online
+                                            Khóa Online
                                         </span>
                                     ) : (
-                                        <span className="badge bg-green-600 text-white border-none flex items-center gap-1 font-medium text-xs">
+                                        <span className="px-2.5 py-1 rounded-md bg-green-600 text-white flex items-center gap-1 font-medium text-xs">
                                             <Users className="w-3 h-3 fill-current" />
                                             Trực tiếp
                                         </span>
                                     )}
                                     {course.featured && (
-                                        <span className="badge bg-[var(--color-primary)] text-white border-none font-medium text-xs">
+                                        <span className="px-2.5 py-1 rounded-md bg-[var(--color-primary)] text-white font-medium text-xs">
                                             Nổi bật
                                         </span>
                                     )}
@@ -179,7 +179,7 @@ export default function CourseDetailClient({
                         </div>
 
                         {/* Right Column: Course Info */}
-                        <div className="lg:col-span-7 space-y-6">
+                        <div className="lg:col-span-7 space-y-5">
                             {/* Title & Category */}
                             <div>
                                 <div className="flex items-center gap-2 mb-2">
@@ -193,12 +193,12 @@ export default function CourseDetailClient({
                                     </span>
                                 </div>
 
-                                <h1 className="font-heading font-bold text-2xl sm:text-3xl lg:text-4xl text-[var(--color-text)] mb-3">
+                                <h1 className="font-heading font-bold text-2xl sm:text-3xl lg:text-4xl text-[var(--color-text)] mb-2">
                                     {course.name}
                                 </h1>
 
                                 {course.description && (
-                                    <p className="text-body text-[var(--color-text-secondary)]">
+                                    <p className="text-sm sm:text-base text-[var(--color-text-secondary)] leading-relaxed">
                                         {course.description}
                                     </p>
                                 )}
@@ -208,7 +208,7 @@ export default function CourseDetailClient({
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                 {isElearning ? (
                                     <>
-                                        <div className="p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center gap-3">
+                                        <div className="p-3.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center gap-3">
                                             <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-500 flex-shrink-0">
                                                 <BookOpen className="w-5 h-5" />
                                             </div>
@@ -218,29 +218,29 @@ export default function CourseDetailClient({
                                             </div>
                                         </div>
 
-                                        <div className="p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center gap-3">
+                                        <div className="p-3.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center gap-3">
                                             <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-500 flex-shrink-0">
                                                 <Clock className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <div className="text-xs text-[var(--color-text-muted)]">Tổng thời lượng</div>
+                                                <div className="text-xs text-[var(--color-text-muted)]">Thời lượng</div>
                                                 <div className="font-semibold text-sm text-[var(--color-text)]">{course.totalDuration || course.duration || "14 giờ"}</div>
                                             </div>
                                         </div>
 
-                                        <div className="p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center gap-3 col-span-2 sm:col-span-1">
+                                        <div className="p-3.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center gap-3 col-span-2 sm:col-span-1">
                                             <div className="p-2.5 rounded-lg bg-green-500/10 text-green-500 flex-shrink-0">
                                                 <Lock className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <div className="text-xs text-[var(--color-text-muted)]">Thời hạn học</div>
+                                                <div className="text-xs text-[var(--color-text-muted)]">Truy cập</div>
                                                 <div className="font-semibold text-sm text-green-600 dark:text-green-400">{course.accessDuration || "Trọn đời"}</div>
                                             </div>
                                         </div>
                                     </>
                                 ) : (
                                     <>
-                                        <div className="p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center gap-3">
+                                        <div className="p-3.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center gap-3">
                                             <div className="p-2.5 rounded-lg bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex-shrink-0">
                                                 <Clock className="w-5 h-5" />
                                             </div>
@@ -250,7 +250,7 @@ export default function CourseDetailClient({
                                             </div>
                                         </div>
 
-                                        <div className="p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center gap-3">
+                                        <div className="p-3.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center gap-3">
                                             <div className="p-2.5 rounded-lg bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex-shrink-0">
                                                 <Users className="w-5 h-5" />
                                             </div>
@@ -260,7 +260,7 @@ export default function CourseDetailClient({
                                             </div>
                                         </div>
 
-                                        <div className="p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center gap-3 col-span-2 sm:col-span-1">
+                                        <div className="p-3.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center gap-3 col-span-2 sm:col-span-1">
                                             <div className="p-2.5 rounded-lg bg-green-500/10 text-green-500 flex-shrink-0">
                                                 <ChefHat className="w-5 h-5" />
                                             </div>
@@ -275,16 +275,16 @@ export default function CourseDetailClient({
 
                             {/* Instructor Info */}
                             {instructor && (
-                                <div className="p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-between gap-4">
-                                    <div className="flex items-center gap-3.5">
-                                        <div className="w-11 h-11 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center flex-shrink-0">
+                                <div className="p-3.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-between gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center flex-shrink-0">
                                             <ChefHat className="w-5 h-5" />
                                         </div>
                                         <div>
                                             <div className="text-xs text-[var(--color-text-muted)]">
-                                                Giảng viên
+                                                Giảng viên đứng lớp
                                             </div>
-                                            <div className="font-semibold text-[var(--color-text)]">
+                                            <div className="font-semibold text-sm text-[var(--color-text)]">
                                                 {instructor.name}
                                             </div>
                                             <div className="text-xs text-[var(--color-primary)] font-medium">
@@ -292,46 +292,55 @@ export default function CourseDetailClient({
                                             </div>
                                         </div>
                                     </div>
+                                    <div className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-md bg-[var(--color-background)] text-xs text-[var(--color-text-secondary)] border border-[var(--color-border)]">
+                                        <span>Bếp trưởng thực chiến</span>
+                                    </div>
                                 </div>
                             )}
 
                             {/* Price & Action Card */}
                             {isElearning ? (
-                                <div className="p-5 sm:p-6 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                    <div>
-                                        <div className="text-xs text-[var(--color-text-muted)] mb-1">
-                                            Hình thức học trực tuyến (E-Learning)
+                                <div className="p-5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <div className="space-y-1">
+                                        <div className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                                            Học phí trực tuyến (E-Learning)
                                         </div>
-                                        <div className="font-heading font-bold text-2xl sm:text-3xl text-purple-600 dark:text-purple-400">
+                                        <div className="font-heading font-bold text-2xl sm:text-3xl text-[var(--color-text)]">
                                             {course.contactForPrice ? "Liên hệ tư vấn" : (course.price ? formatPrice(course.price) : "Liên hệ")}
+                                        </div>
+                                        <div className="text-xs text-[var(--color-text-secondary)] font-medium pt-0.5">
+                                            ✓ Học ngay lập tức • Xem lại bài giảng trọn đời
                                         </div>
                                     </div>
                                     <a
                                         href={course.onlineUrl || "https://academy.duaxcar.com/"}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="btn bg-purple-600 hover:bg-purple-700 text-white font-semibold flex items-center justify-center gap-2"
+                                        className="btn bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-3 rounded-lg flex items-center justify-center gap-2 flex-shrink-0"
                                     >
                                         <span>Vào học Online</span>
                                         <Play className="w-4 h-4 fill-current" />
                                     </a>
                                 </div>
                             ) : (
-                                <div className="p-5 sm:p-6 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                    <div>
-                                        <div className="text-xs text-[var(--color-text-muted)] mb-1">
-                                            Đào tạo trực tiếp tại trung tâm
+                                <div className="p-5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <div className="space-y-1">
+                                        <div className="text-xs font-medium text-[var(--color-primary)]">
+                                            Học phí đào tạo trực tiếp
                                         </div>
-                                        <div className="font-heading font-bold text-2xl sm:text-3xl text-[var(--color-primary)]">
+                                        <div className="font-heading font-bold text-2xl sm:text-3xl text-[var(--color-text)]">
                                             {course.contactForPrice ? "Liên hệ tư vấn" : formatPrice(course.price)}
+                                        </div>
+                                        <div className="text-xs text-[var(--color-text-secondary)] font-medium pt-0.5">
+                                            ✓ Thực hành 1 kèm 1 • Hỗ trợ công thức mở quán
                                         </div>
                                     </div>
                                     <Link 
                                         href="#dang-ky" 
-                                        className="btn btn-primary font-semibold flex items-center justify-center gap-2"
+                                        className="btn btn-primary font-medium px-6 py-3 rounded-lg flex items-center justify-center gap-2 flex-shrink-0"
                                     >
                                         <span>Đăng ký giữ chỗ</span>
-                                        <ArrowRight className="w-5 h-5" />
+                                        <ArrowRight className="w-4 h-4" />
                                     </Link>
                                 </div>
                             )}
