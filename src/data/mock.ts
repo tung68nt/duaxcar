@@ -17,40 +17,12 @@ export const siteConfig = {
         "Đào tạo các món ăn Việt truyền thống và kỹ năng kinh doanh quán ăn thực tế. Nấu từ tâm, kinh doanh từ bền vững.",
 };
 
-// Navigation - With dropdown for Courses
+// Navigation
 export const navigation = [
     { label: "Trang chủ", href: "/" },
     { label: "Về DuaxCar", href: "/ve-duaxcar" },
-    {
-        label: "Khóa học Trực tiếp",
-        href: "/khoa-hoc?type=onsite",
-        children: [
-            { label: "Tất cả khóa trực tiếp", href: "/khoa-hoc?type=onsite" },
-            { label: "Món ăn sáng", href: "/khoa-hoc?type=onsite&category=mon-an-sang" },
-            { label: "Món Đồng quê", href: "/khoa-hoc?type=onsite&category=mon-dong-que" },
-            { label: "Món Hải sản", href: "/khoa-hoc?type=onsite&category=mon-hai-san" },
-            { label: "Món Nhậu", href: "/khoa-hoc?type=onsite&category=mon-nhau" },
-            { label: "Món Cơm thố", href: "/khoa-hoc?type=onsite&category=mon-com-tho" },
-            { label: "Lẩu + Nướng", href: "/khoa-hoc?type=onsite&category=lau-nuong" },
-            { label: "Món Cao cấp", href: "/khoa-hoc?type=onsite&category=mon-cao-cap" },
-            { label: "Món Gia đình", href: "/khoa-hoc?type=onsite&category=mon-gia-dinh" },
-        ],
-    },
-    {
-        label: "Khóa học Online",
-        href: "/khoa-hoc?type=elearning",
-        children: [
-            { label: "Tất cả khóa Online", href: "/khoa-hoc?type=elearning" },
-            { label: "Món ăn sáng", href: "/khoa-hoc?type=elearning&category=mon-an-sang" },
-            { label: "Món Đồng quê", href: "/khoa-hoc?type=elearning&category=mon-dong-que" },
-            { label: "Món Hải sản", href: "/khoa-hoc?type=elearning&category=mon-hai-san" },
-            { label: "Món Nhậu", href: "/khoa-hoc?type=elearning&category=mon-nhau" },
-            { label: "Món Cơm thố", href: "/khoa-hoc?type=elearning&category=mon-com-tho" },
-            { label: "Lẩu + Nướng", href: "/khoa-hoc?type=elearning&category=lau-nuong" },
-            { label: "Món Cao cấp", href: "/khoa-hoc?type=elearning&category=mon-cao-cap" },
-            { label: "Món Gia đình", href: "/khoa-hoc?type=elearning&category=mon-gia-dinh" },
-        ],
-    },
+    { label: "Khóa học Trực tiếp", href: "/khoa-hoc?type=onsite" },
+    { label: "Khóa học Online", href: "/khoa-hoc?type=elearning" },
     { label: "Lịch khai giảng", href: "/lich-khai-giang" },
     { label: "Tin tức", href: "/tin-tuc" },
     { label: "FAQ", href: "/faq" },
