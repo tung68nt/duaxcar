@@ -70,6 +70,7 @@ function AdminCoursesContent() {
         instructor: "Nguyễn Hữu Thọ",
         instructorId: "1",
         image: "/images/courses/pho-bo.jpg",
+        videoUrl: "",
         highlights: [
             "Bí quyết gia truyền chuẩn hương vị kinh doanh",
             "Hướng dẫn tính toán chi phí cost và tối ưu lợi nhuận",
@@ -197,6 +198,7 @@ function AdminCoursesContent() {
             instructor: course.instructor,
             instructorId: course.instructorId,
             image: course.image || "/images/courses/pho-bo.jpg",
+            videoUrl: course.videoUrl || "",
             highlights: course.highlights || [],
             curriculum: course.curriculum || [],
             featured: course.featured || false
@@ -227,6 +229,7 @@ function AdminCoursesContent() {
             instructor: course.instructor,
             instructorId: course.instructorId,
             image: course.image || "/images/courses/pho-bo.jpg",
+            videoUrl: course.videoUrl || "",
             highlights: course.highlights ? [...course.highlights] : [],
             curriculum: course.curriculum ? [...course.curriculum] : [],
             featured: false
@@ -969,6 +972,15 @@ function AdminCoursesContent() {
                                     onChange={(url) => setFormState({ ...formState, image: url })}
                                     aspectRatio="video"
                                     required
+                                />
+
+                                <MediaSelectorInput
+                                    label="Video giới thiệu / Xem thử (Trailer/Preview Video)"
+                                    description="Dán link YouTube (https://youtu.be/...) hoặc video MP4 từ Thư viện Media. Khi bấm vào ảnh sẽ phát video này"
+                                    value={formState.videoUrl || ""}
+                                    onChange={(url) => setFormState({ ...formState, videoUrl: url })}
+                                    mediaType="video"
+                                    placeholder="Dán link YouTube hoặc chọn file video MP4..."
                                 />
 
                                 <label className="flex items-center gap-2.5 p-3 rounded-xl bg-[var(--color-surface-light)]/50 border border-[var(--color-border)] cursor-pointer hover:bg-[var(--color-surface-light)] transition-colors">

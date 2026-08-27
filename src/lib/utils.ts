@@ -29,3 +29,33 @@ export function slugify(text: string): string {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)+/g, "");
 }
+
+export function getVideoEmbedInfo(url?: string): { isVideo: boolean; type: "youtube" | "direct" | "unknown"; embedUrl: string } {
+    if (!url || !url.trim()) return { isVideo: false, type: "unknown", embedUrl: "" };
+    const cleanUrl = url.trim();
+
+    // YouTube URLs: youtube.com/watch?v=xxx, youtu.be/xxx, youtube.com/shorts/xxx, youtube.com/embed/xxx
+    const ytMatch = cleanUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+    if (ytMatch && ytMatch[1]) {
+        return {
+            isVideo: true,
+            type: "youtube",
+            embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0`,
+        };
+    }
+
+    // Direct MP4 / WebM / OGG or local video storage URL
+    if (cleanUrl.match(/\.(mp4|webm|ogg)($|\?)/i) || cleanUrl.startsWith("data:video/")) {
+        return {
+            isVideo: true,
+            type: "direct",
+            embedUrl: cleanUrl,
+        };
+    }
+
+    return {
+        isVideo: Boolean(cleanUrl),
+        type: "unknown",
+        embedUrl: cleanUrl,
+    };
+}

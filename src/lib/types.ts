@@ -20,6 +20,8 @@ export interface Course {
     highlights: string[];
     curriculum: CurriculumItem[];
     featured?: boolean;
+    // Video preview / Intro
+    videoUrl?: string; // YouTube URL, MP4 link, or Media Library video
     // E-learning specific
     totalLessons?: number;
     totalDuration?: string;

@@ -31,7 +31,8 @@ export async function GET() {
                 totalLessons: c.total_lessons,
                 totalDuration: c.total_duration,
                 accessDuration: c.access_duration,
-                onlineUrl: c.online_url
+                onlineUrl: c.online_url,
+                videoUrl: c.video_url || c.videoUrl
             }));
             return NextResponse.json({ courses: mappedCourses });
         }
@@ -80,7 +81,8 @@ export async function POST(request: Request) {
             total_lessons: finalCourse.totalLessons || null,
             total_duration: finalCourse.totalDuration || null,
             access_duration: finalCourse.accessDuration || null,
-            online_url: finalCourse.onlineUrl || null
+            online_url: finalCourse.onlineUrl || null,
+            video_url: finalCourse.videoUrl || null
         };
 
         const { error: sbError } = await supabase.from('courses').upsert(payload);

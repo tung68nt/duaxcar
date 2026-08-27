@@ -15,12 +15,14 @@ import {
     BookOpen,
     Lock,
     Award,
+    X
 } from "lucide-react";
 import { CourseAccordion } from "@/components/ui/course-accordion";
 import { instructors, courseCategories } from "@/data/mock";
 import CategoryIcon from "@/components/category-icon";
 import CourseRegistrationForm from "@/components/layout/course-registration-form";
 import { Course } from "@/lib/types";
+import { formatPrice, getVideoEmbedInfo } from "@/lib/utils";
 
 interface CourseDetailClientProps {
     slug: string;
@@ -41,6 +43,7 @@ export default function CourseDetailClient({
     const [relatedCourses, setRelatedCourses] = useState<Course[]>(initialRelatedCourses);
     const [instructor, setInstructor] = useState(initialInstructor);
     const [category, setCategory] = useState(initialCategory);
+    const [videoModalOpen, setVideoModalOpen] = useState(false);
 
     useEffect(() => {
         const updateCourseData = (parsed: Course[]) => {
@@ -140,8 +143,19 @@ export default function CourseDetailClient({
                                         <ChefHat className="w-20 h-20 text-[var(--color-gray-600)]" />
                                     )}
 
-                                    {/* Play Button Overlay for E-learning */}
-                                    {isElearning && (
+                                    {/* Video Play Button Overlay if videoUrl is configured */}
+                                    {course.videoUrl ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => setVideoModalOpen(true)}
+                                            className="absolute inset-0 flex items-center justify-center group/play cursor-pointer transition-colors hover:bg-black/20"
+                                            title="Bấm để xem video giới thiệu"
+                                        >
+                                            <div className="w-14 h-14 rounded-full bg-red-600/90 text-white flex items-center justify-center group-hover/play:scale-110 transition-transform duration-200 border-2 border-white/80">
+                                                <Play className="w-6 h-6 text-white fill-white ml-0.5" />
+                                            </div>
+                                        </button>
+                                    ) : isElearning ? (
                                         <a
                                             href={course.onlineUrl || "https://academy.duaxcar.com/"}
                                             target="_blank"
@@ -153,7 +167,7 @@ export default function CourseDetailClient({
                                                 <Play className="w-6 h-6 text-white fill-white ml-0.5" />
                                             </div>
                                         </a>
-                                    )}
+                                    ) : null}
                                 </div>
                                 
                                 {/* Badges on Top-Left */}
@@ -632,6 +646,54 @@ export default function CourseDetailClient({
                         </div>
                     </div>
                 </section>
+            )}
+
+            {/* Video Modal Popup */}
+            {videoModalOpen && course.videoUrl && (
+                <div 
+                    className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fadeIn"
+                    onClick={() => setVideoModalOpen(false)}
+                >
+                    <div 
+                        className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden border border-white/20 shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Close button */}
+                        <button
+                            type="button"
+                            onClick={() => setVideoModalOpen(false)}
+                            className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center transition border border-white/20"
+                            title="Đóng video"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+
+                        <div className="relative aspect-video w-full flex items-center justify-center bg-black">
+                            {(() => {
+                                const videoInfo = getVideoEmbedInfo(course.videoUrl);
+                                if (videoInfo.type === "youtube") {
+                                    return (
+                                        <iframe
+                                            src={videoInfo.embedUrl}
+                                            className="w-full h-full"
+                                            title={course.name}
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                        />
+                                    );
+                                }
+                                return (
+                                    <video
+                                        src={course.videoUrl}
+                                        controls
+                                        autoPlay
+                                        className="w-full h-full object-contain"
+                                    />
+                                );
+                            })()}
+                        </div>
+                    </div>
+                </div>
             )}
         </>
     );
