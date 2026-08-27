@@ -122,137 +122,150 @@ export default function CourseDetailClient({
             </section>
 
             {/* Hero */}
-            <section className="section-sm bg-[var(--color-surface)] pattern-plus">
+            <section className="section-sm bg-[var(--color-surface)] pattern-plus border-b border-[var(--color-border)]">
                 <div className="container">
-                    <div className="grid lg:grid-cols-2 gap-12 items-start">
-                        {/* Image */}
-                        <div className="relative">
-                            <div className="relative aspect-[4/3] bg-gradient-to-br from-[var(--color-gray-700)] to-[var(--color-gray-800)] rounded-3xl flex items-center justify-center overflow-hidden shadow-2xl">
-                                {course.image || category?.image ? (
-                                    <Image
-                                        src={course.image || category?.image || ""}
-                                        alt={course.name}
-                                        fill
-                                        className="object-cover hover:scale-105 transition-transform duration-700"
-                                    />
-                                ) : (
-                                    <ChefHat className="w-24 h-24 text-[var(--color-gray-600)]" />
-                                )}
-                                {isElearning && (
-                                    <a
-                                        href={course.onlineUrl || "https://academy.duaxcar.com/"}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="absolute inset-0 flex items-center justify-center group/play cursor-pointer transition-colors hover:bg-black/10"
-                                        title="Nhấp để vào học Online"
-                                    >
-                                        <div className="w-16 h-16 rounded-full bg-purple-600/90 text-white shadow-2xl flex items-center justify-center group-hover/play:scale-110 transition-transform duration-300 border-2 border-white/40">
-                                            <Play className="w-7 h-7 text-white fill-white ml-0.5" />
-                                        </div>
-                                    </a>
-                                )}
-                            </div>
-                            
-                            {/* Badges on Top-Left */}
-                            <div className="absolute top-4 left-4 flex items-center gap-2 z-20">
-                                {isElearning ? (
-                                    <span className="px-3 py-1.5 rounded-xl bg-purple-600/90 backdrop-blur-md text-white border border-white/20 flex items-center gap-1.5 font-bold text-xs shadow-lg">
-                                        <Play className="w-3.5 h-3.5 fill-current" />
-                                        Online
-                                    </span>
-                                ) : (
-                                    <span className="px-3 py-1.5 rounded-xl bg-green-600/90 backdrop-blur-md text-white border border-white/20 flex items-center gap-1.5 font-bold text-xs shadow-lg">
-                                        <Users className="w-3.5 h-3.5 fill-current" />
-                                        Trực tiếp
-                                    </span>
-                                )}
-                                {course.featured && (
-                                    <span className="px-3 py-1.5 rounded-xl bg-amber-500/90 backdrop-blur-md text-white border border-white/20 font-bold text-xs shadow-lg">
-                                        Nổi bật
-                                    </span>
-                                )}
+                    <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+                        {/* Left Column: Image Card */}
+                        <div className="lg:col-span-5 xl:col-span-5">
+                            <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-[var(--color-border)] bg-white dark:bg-gray-900 group">
+                                <div className="relative aspect-[4/3] flex items-center justify-center overflow-hidden">
+                                    {course.image || category?.image ? (
+                                        <Image
+                                            src={course.image || category?.image || ""}
+                                            alt={course.name}
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-700"
+                                        />
+                                    ) : (
+                                        <ChefHat className="w-24 h-24 text-[var(--color-gray-600)]" />
+                                    )}
+
+                                    {/* Play Button Overlay for E-learning */}
+                                    {isElearning && (
+                                        <a
+                                            href={course.onlineUrl || "https://academy.duaxcar.com/"}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="absolute inset-0 flex items-center justify-center group/play cursor-pointer transition-all duration-300 hover:bg-black/15"
+                                            title="Nhấp để vào học Online"
+                                        >
+                                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-purple-600/90 text-white shadow-2xl flex items-center justify-center group-hover/play:scale-110 transition-transform duration-300 border-4 border-white/60 backdrop-blur-md">
+                                                <Play className="w-8 h-8 text-white fill-white ml-1" />
+                                            </div>
+                                        </a>
+                                    )}
+                                </div>
+                                
+                                {/* Badges on Top-Left */}
+                                <div className="absolute top-4 left-4 flex items-center gap-2 z-20">
+                                    {isElearning ? (
+                                        <span className="px-3.5 py-1.5 rounded-xl bg-purple-600/95 backdrop-blur-md text-white border border-white/20 flex items-center gap-1.5 font-bold text-xs shadow-xl">
+                                            <Play className="w-3.5 h-3.5 fill-current" />
+                                            Khóa Online
+                                        </span>
+                                    ) : (
+                                        <span className="px-3.5 py-1.5 rounded-xl bg-green-600/95 backdrop-blur-md text-white border border-white/20 flex items-center gap-1.5 font-bold text-xs shadow-xl">
+                                            <Users className="w-3.5 h-3.5 fill-current" />
+                                            Trực tiếp
+                                        </span>
+                                    )}
+                                    {course.featured && (
+                                        <span className="px-3.5 py-1.5 rounded-xl bg-amber-500/95 backdrop-blur-md text-white border border-white/20 font-bold text-xs shadow-xl">
+                                            Nổi bật
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
-                        {/* Content */}
-                        <div className="space-y-6">
-                            {/* Category & Title */}
+                        {/* Right Column: High-End Course Showcase */}
+                        <div className="lg:col-span-7 xl:col-span-7 space-y-5">
+                            {/* Title & Category Header */}
                             <div>
-                                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-xs font-semibold mb-3 border border-[var(--color-primary)]/20">
-                                    <CategoryIcon id={course.category} className="w-3.5 h-3.5" />
-                                    <span>{category?.name || "Món ẩm thực"}</span>
-                                    <span className="text-[var(--color-text-muted)]">•</span>
-                                    <span>{isElearning ? "Khóa học Online" : "Khóa học Trực tiếp"}</span>
+                                <div className="flex flex-wrap items-center gap-2 mb-3">
+                                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-xs font-bold border border-orange-500/20 shadow-xs">
+                                        <CategoryIcon id={course.category} className="w-3.5 h-3.5" />
+                                        <span>{category?.name || "Món ẩm thực"}</span>
+                                    </span>
+                                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[var(--color-surface)] text-[var(--color-text-secondary)] text-xs font-semibold border border-[var(--color-border)]">
+                                        {isElearning ? "🎓 E-Learning Trực tuyến" : "🍳 Thực chiến tại bếp"}
+                                    </span>
                                 </div>
-                                <h1 className="heading-1 font-extrabold text-[var(--color-text)] text-3xl sm:text-4xl tracking-tight mb-3">
+
+                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[var(--color-text)] tracking-tight mb-3">
                                     {course.name}
                                 </h1>
+
                                 {course.description && (
-                                    <p className="text-sm sm:text-base text-[var(--color-text-secondary)] leading-relaxed">
+                                    <p className="text-sm sm:text-base text-[var(--color-text-secondary)] leading-relaxed line-clamp-3">
                                         {course.description}
                                     </p>
                                 )}
                             </div>
 
-                            {/* Bento Info Grid */}
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] shadow-sm">
+                            {/* Bento Key Stats Grid */}
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
                                 {isElearning ? (
                                     <>
-                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-background)] border border-[var(--color-border)]/60">
-                                            <div className="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center flex-shrink-0">
+                                        <div className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-gray-200/80 dark:border-gray-800 shadow-sm hover:border-purple-500/40 transition-all flex items-center gap-3.5">
+                                            <div className="w-11 h-11 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0 shadow-xs">
                                                 <BookOpen className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <div className="text-[11px] text-[var(--color-text-muted)] font-medium">Số bài học</div>
-                                                <div className="font-bold text-xs sm:text-sm text-[var(--color-text)]">{course.totalLessons || 10} video</div>
+                                                <div className="text-[11px] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider">Số bài học</div>
+                                                <div className="font-extrabold text-sm sm:text-base text-[var(--color-text)]">{course.totalLessons || 5} video HD</div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-background)] border border-[var(--color-border)]/60">
-                                            <div className="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center flex-shrink-0">
+
+                                        <div className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-gray-200/80 dark:border-gray-800 shadow-sm hover:border-purple-500/40 transition-all flex items-center gap-3.5">
+                                            <div className="w-11 h-11 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0 shadow-xs">
                                                 <Clock className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <div className="text-[11px] text-[var(--color-text-muted)] font-medium">Tổng thời lượng</div>
-                                                <div className="font-bold text-xs sm:text-sm text-[var(--color-text)]">{course.totalDuration || course.duration || "Trọn gói"}</div>
+                                                <div className="text-[11px] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider">Thời lượng</div>
+                                                <div className="font-extrabold text-sm sm:text-base text-[var(--color-text)]">{course.totalDuration || course.duration || "14 giờ"}</div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-background)] border border-[var(--color-border)]/60 col-span-2 sm:col-span-1">
-                                            <div className="w-10 h-10 rounded-lg bg-green-500/10 text-green-500 flex items-center justify-center flex-shrink-0">
+
+                                        <div className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-gray-200/80 dark:border-gray-800 shadow-sm hover:border-emerald-500/40 transition-all col-span-2 sm:col-span-1 flex items-center gap-3.5">
+                                            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 shadow-xs">
                                                 <Lock className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <div className="text-[11px] text-[var(--color-text-muted)] font-medium">Truy cập</div>
-                                                <div className="font-bold text-xs sm:text-sm text-green-600 dark:text-green-400">{course.accessDuration || "Trọn đời"}</div>
+                                                <div className="text-[11px] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider">Truy cập</div>
+                                                <div className="font-extrabold text-sm sm:text-base text-emerald-600 dark:text-emerald-400">{course.accessDuration || "Trọn đời"}</div>
                                             </div>
                                         </div>
                                     </>
                                 ) : (
                                     <>
-                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-background)] border border-[var(--color-border)]/60">
-                                            <div className="w-10 h-10 rounded-lg bg-orange-500/10 text-[var(--color-primary)] flex items-center justify-center flex-shrink-0">
+                                        <div className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-gray-200/80 dark:border-gray-800 shadow-sm hover:border-orange-500/40 transition-all flex items-center gap-3.5">
+                                            <div className="w-11 h-11 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center flex-shrink-0 shadow-xs">
                                                 <Clock className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <div className="text-[11px] text-[var(--color-text-muted)] font-medium">Thời lượng</div>
-                                                <div className="font-bold text-xs sm:text-sm text-[var(--color-text)]">{course.duration}</div>
+                                                <div className="text-[11px] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider">Thời lượng</div>
+                                                <div className="font-extrabold text-sm sm:text-base text-[var(--color-text)]">{course.duration}</div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-background)] border border-[var(--color-border)]/60">
-                                            <div className="w-10 h-10 rounded-lg bg-orange-500/10 text-[var(--color-primary)] flex items-center justify-center flex-shrink-0">
+
+                                        <div className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-gray-200/80 dark:border-gray-800 shadow-sm hover:border-orange-500/40 transition-all flex items-center gap-3.5">
+                                            <div className="w-11 h-11 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center flex-shrink-0 shadow-xs">
                                                 <Users className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <div className="text-[11px] text-[var(--color-text-muted)] font-medium">Quy mô lớp</div>
-                                                <div className="font-bold text-xs sm:text-sm text-[var(--color-text)]">Tối đa {course.maxStudents || 8} HV</div>
+                                                <div className="text-[11px] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider">Quy mô lớp</div>
+                                                <div className="font-extrabold text-sm sm:text-base text-[var(--color-text)]">Tối đa {course.maxStudents || 8} HV</div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-background)] border border-[var(--color-border)]/60 col-span-2 sm:col-span-1">
-                                            <div className="w-10 h-10 rounded-lg bg-green-500/10 text-green-500 flex items-center justify-center flex-shrink-0">
+
+                                        <div className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-gray-200/80 dark:border-gray-800 shadow-sm hover:border-emerald-500/40 transition-all col-span-2 sm:col-span-1 flex items-center gap-3.5">
+                                            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 shadow-xs">
                                                 <ChefHat className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <div className="text-[11px] text-[var(--color-text-muted)] font-medium">Hình thức</div>
-                                                <div className="font-bold text-xs sm:text-sm text-[var(--color-text)]">Thực hành 100%</div>
+                                                <div className="text-[11px] text-[var(--color-text-muted)] font-semibold uppercase tracking-wider">Hình thức</div>
+                                                <div className="font-extrabold text-sm sm:text-base text-[var(--color-text)]">Thực hành 100%</div>
                                             </div>
                                         </div>
                                     </>
@@ -261,73 +274,71 @@ export default function CourseDetailClient({
 
                             {/* Instructor Card */}
                             {instructor && (
-                                <div className="flex items-center justify-between p-4 bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] shadow-sm">
+                                <div className="p-4 sm:p-4.5 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-gray-200/80 dark:border-gray-800 shadow-sm flex items-center justify-between gap-4">
                                     <div className="flex items-center gap-3.5">
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-primary)]/20 to-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/30 flex items-center justify-center flex-shrink-0">
+                                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500/15 to-orange-500/5 text-orange-600 dark:text-orange-400 border border-orange-500/30 flex items-center justify-center flex-shrink-0 shadow-xs">
                                             <ChefHat className="w-6 h-6" />
                                         </div>
                                         <div>
-                                            <div className="text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
-                                                Giảng viên đứng lớp
+                                            <div className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
+                                                Giảng viên đào tạo
                                             </div>
-                                            <div className="font-bold text-sm sm:text-base text-[var(--color-text)]">
+                                            <div className="font-extrabold text-base text-[var(--color-text)]">
                                                 {instructor.name}
                                             </div>
-                                            <div className="text-xs text-[var(--color-primary)] font-medium">
+                                            <div className="text-xs text-orange-600 dark:text-orange-400 font-semibold">
                                                 {instructor.role}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="hidden sm:block text-right">
-                                        <span className="text-xs text-[var(--color-text-muted)] bg-[var(--color-background)] px-3 py-1.5 rounded-lg border border-[var(--color-border)]">
-                                            Bếp trưởng thực chiến
-                                        </span>
+                                    <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-xs font-semibold text-[var(--color-text-secondary)] border border-gray-200 dark:border-gray-700">
+                                        <span>Bếp trưởng thực chiến</span>
                                     </div>
                                 </div>
                             )}
 
-                            {/* High-Impact CTA & Price Card */}
+                            {/* MasterClass Style Price & Action Showcase Card */}
                             {isElearning ? (
-                                <div className="p-5 sm:p-6 bg-gradient-to-br from-purple-900/15 via-purple-600/10 to-indigo-900/10 dark:from-purple-950/40 dark:via-purple-900/20 dark:to-transparent rounded-2xl border border-purple-500/30 shadow-xl shadow-purple-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                    <div>
-                                        <div className="text-xs font-semibold text-purple-600 dark:text-purple-300 mb-1 flex items-center gap-1.5">
-                                            <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
-                                            Khóa học trực tuyến E-Learning
+                                <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-white dark:to-[#161220] border-2 border-purple-500/30 shadow-xl shadow-purple-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                                    <div className="space-y-1">
+                                        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">
+                                            <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
+                                            Học phí trọn gói (Online E-Learning)
                                         </div>
-                                        <div className="text-2xl sm:text-3xl font-extrabold text-purple-700 dark:text-purple-300">
+                                        <div className="text-3xl sm:text-4xl font-black text-purple-700 dark:text-purple-300 tracking-tight">
                                             {course.contactForPrice ? "Liên hệ tư vấn" : (course.price ? formatPrice(course.price) : "Học phí ưu đãi")}
                                         </div>
-                                        <div className="text-[11px] text-[var(--color-text-muted)] mt-1">
-                                            ✓ Kích hoạt học ngay • Xem lại trọn đời
-                                        </div>
+                                        <p className="text-xs text-[var(--color-text-secondary)] font-medium">
+                                            ✓ Xem lại bài học mọi lúc • Hỗ trợ tài liệu công thức
+                                        </p>
                                     </div>
                                     <a
                                         href={course.onlineUrl || "https://academy.duaxcar.com/"}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="btn bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white btn-lg font-bold flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl shadow-lg shadow-purple-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                        className="btn bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-extrabold text-base py-4 px-8 rounded-2xl shadow-xl shadow-purple-600/30 hover:scale-[1.03] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 flex-shrink-0"
                                     >
                                         <span>Vào Học Online</span>
                                         <Play className="w-4 h-4 fill-current" />
                                     </a>
                                 </div>
                             ) : (
-                                <div className="p-5 sm:p-6 bg-gradient-to-br from-orange-500/15 via-orange-500/5 to-transparent dark:from-orange-950/40 dark:via-orange-900/20 dark:to-transparent rounded-2xl border border-[var(--color-primary)]/30 shadow-xl shadow-orange-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                    <div>
-                                        <div className="text-xs font-semibold text-[var(--color-primary)] mb-1 flex items-center gap-1.5">
-                                            <span className="w-2 h-2 rounded-full bg-[var(--color-primary)] animate-pulse" />
-                                            Đào tạo trực tiếp tại trung tâm
+                                <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-white dark:to-[#1e1510] border-2 border-orange-500/30 shadow-xl shadow-orange-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                                    <div className="space-y-1">
+                                        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
+                                            <span className="w-2 h-2 rounded-full bg-orange-600 animate-pulse" />
+                                            Học phí đào tạo trực tiếp
                                         </div>
-                                        <div className="text-2xl sm:text-3xl font-extrabold text-[var(--color-primary)]">
+                                        <div className="text-3xl sm:text-4xl font-black text-orange-600 dark:text-orange-400 tracking-tight">
                                             {course.contactForPrice ? "Liên hệ tư vấn" : formatPrice(course.price)}
                                         </div>
-                                        <div className="text-[11px] text-[var(--color-text-muted)] mt-1">
-                                            ✓ Thực hành 1 kèm 1 • Hỗ trợ mở quán
-                                        </div>
+                                        <p className="text-xs text-[var(--color-text-secondary)] font-medium">
+                                            ✓ Thực hành 1 kèm 1 tại trung tâm • Cấp chứng nhận
+                                        </p>
                                     </div>
                                     <Link 
                                         href="#dang-ky" 
-                                        className="btn btn-primary btn-lg font-bold flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl shadow-lg shadow-orange-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                        className="btn btn-primary font-extrabold text-base py-4 px-8 rounded-2xl shadow-xl shadow-orange-500/30 hover:scale-[1.03] active:scale-[0.98] transition-all flex items-center justify-center gap-2 flex-shrink-0"
                                     >
                                         <span>Đăng ký giữ chỗ</span>
                                         <ArrowRight className="w-5 h-5" />
