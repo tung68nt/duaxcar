@@ -151,22 +151,10 @@ export default function CourseDetailClient({
                                             className="absolute inset-0 flex items-center justify-center group/play cursor-pointer transition-colors hover:bg-black/20"
                                             title="Bấm để xem video giới thiệu"
                                         >
-                                            <div className="w-14 h-14 rounded-full bg-red-600/90 text-white flex items-center justify-center group-hover/play:scale-110 transition-transform duration-200 border-2 border-white/80">
+                                            <div className="w-14 h-14 rounded-full bg-red-600/90 text-white flex items-center justify-center group-hover/play:scale-110 transition-transform duration-200 border-2 border-white/80 shadow-lg">
                                                 <Play className="w-6 h-6 text-white fill-white ml-0.5" />
                                             </div>
                                         </button>
-                                    ) : isElearning ? (
-                                        <a
-                                            href={course.onlineUrl || "https://academy.duaxcar.com/"}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="absolute inset-0 flex items-center justify-center group/play cursor-pointer transition-colors hover:bg-black/10"
-                                            title="Nhấp để vào học Online"
-                                        >
-                                            <div className="w-14 h-14 rounded-full bg-purple-600 text-white flex items-center justify-center group-hover/play:scale-110 transition-transform duration-200">
-                                                <Play className="w-6 h-6 text-white fill-white ml-0.5" />
-                                            </div>
-                                        </a>
                                     ) : null}
                                 </div>
                                 

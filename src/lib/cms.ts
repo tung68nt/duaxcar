@@ -29,7 +29,8 @@ export async function getSupabaseCourses(): Promise<Course[]> {
                 totalLessons: c.total_lessons,
                 totalDuration: c.total_duration,
                 accessDuration: c.access_duration,
-                onlineUrl: c.online_url
+                onlineUrl: c.online_url,
+                videoUrl: c.video_url || c.videoUrl
             }));
         }
     } catch (e) {
