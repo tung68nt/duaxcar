@@ -195,9 +195,9 @@ export default async function CoursesPage({ searchParams }: Props) {
                                             >
                                                 {/* Image */}
                                                 <div className="relative h-48 bg-gradient-to-br from-[var(--color-gray-700)] to-[var(--color-gray-800)] flex items-center justify-center overflow-hidden">
-                                                    {courseCategories.find((c) => c.id === course.category)?.image ? (
+                                                    {course.image || courseCategories.find((c) => c.id === course.category)?.image ? (
                                                         <Image
-                                                            src={courseCategories.find((c) => c.id === course.category)?.image || ""}
+                                                            src={course.image || courseCategories.find((c) => c.id === course.category)?.image || ""}
                                                             alt={course.name}
                                                             fill
                                                             className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -463,9 +463,9 @@ export default async function CoursesPage({ searchParams }: Props) {
                                             >
                                                 {/* Image */}
                                                 <div className="relative h-48 bg-gradient-to-br from-[var(--color-gray-700)] to-[var(--color-gray-800)] flex items-center justify-center overflow-hidden">
-                                                    {courseCategories.find((c) => c.id === course.category)?.image ? (
+                                                    {course.image || courseCategories.find((c) => c.id === course.category)?.image ? (
                                                         <Image
-                                                            src={courseCategories.find((c) => c.id === course.category)?.image || ""}
+                                                            src={course.image || courseCategories.find((c) => c.id === course.category)?.image || ""}
                                                             alt={course.name}
                                                             fill
                                                             className="object-cover group-hover:scale-105 transition-transform duration-300"
