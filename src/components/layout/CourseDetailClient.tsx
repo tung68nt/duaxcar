@@ -99,15 +99,13 @@ export default function CourseDetailClient({
                 <div className="container">
                     <div className="flex items-center gap-2 text-small">
                         {isElearning ? (
-                            <a
-                                href="https://academy.duaxcar.com/"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <Link
+                                href="/khoa-hoc?type=elearning"
                                 className="text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors flex items-center gap-1"
                             >
                                 <ArrowLeft className="w-4 h-4" />
                                 Khóa học Online
-                            </a>
+                            </Link>
                         ) : (
                             <Link
                                 href="/khoa-hoc?type=onsite"
@@ -546,12 +544,10 @@ export default function CourseDetailClient({
                         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {relatedCourses.map((relatedCourse) => {
                                 const isRelatedElearning = relatedCourse.courseType === "elearning";
-                                const href = isRelatedElearning ? "https://academy.duaxcar.com/" : `/khoa-hoc/${relatedCourse.slug}`;
                                 return (
                                     <Link
                                         key={relatedCourse.id}
-                                        href={href}
-                                        {...(isRelatedElearning ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                                        href={`/khoa-hoc/${relatedCourse.slug}`}
                                         className="card card-glow group"
                                     >
                                         {/* Image */}

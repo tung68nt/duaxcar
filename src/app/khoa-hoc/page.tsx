@@ -134,27 +134,29 @@ export default async function CoursesPage({ searchParams }: Props) {
                         </Link>
 
                         {/* E-Learning */}
-                        {/* E-Learning */}
-                        <a
-                            href="https://academy.duaxcar.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`relative p-5 rounded-2xl border-2 transition-all group border-[var(--color-border)] hover:border-purple-500/50`}
+                        <Link
+                            href="/khoa-hoc?type=elearning"
+                            className={`relative p-5 rounded-2xl border-2 transition-all group ${selectedType === "elearning"
+                                ? "border-purple-500 bg-purple-500/10 shadow-sm"
+                                : "border-[var(--color-border)] hover:border-purple-500/50"
+                                }`}
                         >
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[var(--color-gray-700)]">
-                                    <Play className="w-6 h-6 text-[var(--color-text-muted)]" />
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
+                                    selectedType === "elearning" ? "bg-purple-600 text-white" : "bg-[var(--color-gray-700)] text-[var(--color-text-muted)]"
+                                }`}>
+                                    <Play className="w-6 h-6 fill-current" />
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-[var(--color-text)]">
-                                        Khóa học Online | E-Learning
+                                    <h3 className={`font-semibold ${selectedType === "elearning" ? "text-purple-400" : "text-[var(--color-text)]"}`}>
+                                        Khóa học Online
                                     </h3>
                                     <p className="text-small text-[var(--color-text-muted)]">
                                         {elearningCourses.length} khóa học • Học mọi lúc
                                     </p>
                                 </div>
                             </div>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </section>
@@ -184,13 +186,11 @@ export default async function CoursesPage({ searchParams }: Props) {
                             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {filteredCourses.map((course) => {
                                     const isElearning = course.courseType === "elearning";
-                                    const href = isElearning ? (course.onlineUrl || "https://academy.duaxcar.com/") : `/khoa-hoc/${course.slug}`;
                                     return (
                                         <div key={course.id} className="relative group">
                                             <Link
                                                 key={course.id}
-                                                href={href}
-                                                {...(isElearning ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                                                href={`/khoa-hoc/${course.slug}`}
                                                 className="card card-glow block h-full"
                                             >
                                                 {/* Image */}
@@ -454,13 +454,11 @@ export default async function CoursesPage({ searchParams }: Props) {
                             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {filteredCourses.map((course) => {
                                     const isElearning = course.courseType === "elearning";
-                                    const href = isElearning ? (course.onlineUrl || "https://academy.duaxcar.com/") : `/khoa-hoc/${course.slug}`;
                                     return (
                                         <div key={course.id} className="relative group">
                                             <Link
                                                 key={course.id}
-                                                href={href}
-                                                {...(isElearning ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                                                href={`/khoa-hoc/${course.slug}`}
                                                 className="card card-glow block h-full"
                                             >
                                                 {/* Image */}
