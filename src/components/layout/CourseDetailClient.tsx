@@ -163,19 +163,18 @@ export default function CourseDetailClient({
                                 {course.featured && (
                                     <span className="badge bg-[var(--color-primary)] text-white border-none font-bold shadow-md">Nổi bật</span>
                                 )}
-                            </div>
-
+                                
                             {/* REGISTER BUTTON OVERLAY ON IMAGE */}
                             <div className="absolute bottom-4 right-4 z-20">
                                 {isElearning ? (
                                     <a
-                                        href="https://academy.duaxcar.com/"
+                                        href={course.onlineUrl || "https://academy.duaxcar.com/"}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="btn btn-primary shadow-lg border border-white/20 px-6 py-3 rounded-2xl font-bold flex items-center gap-1.5 transition-all hover:scale-105"
+                                        className="btn bg-purple-600 hover:bg-purple-700 text-white shadow-lg border border-white/20 px-6 py-3 rounded-2xl font-bold flex items-center gap-1.5 transition-all hover:scale-105"
                                     >
-                                        Đăng ký ngay
-                                        <ArrowRight className="w-4 h-4" />
+                                        Học Online Ngay
+                                        <Play className="w-4 h-4 fill-current" />
                                     </a>
                                 ) : (
                                     <Link
@@ -186,6 +185,7 @@ export default function CourseDetailClient({
                                         <ArrowRight className="w-4 h-4" />
                                     </Link>
                                 )}
+                            </div>
                             </div>
                         </div>
 
@@ -213,7 +213,7 @@ export default function CourseDetailClient({
                                                     Số bài học
                                                 </div>
                                                 <div className="font-medium text-[var(--color-text)]">
-                                                    {course.totalLessons} video
+                                                    {course.totalLessons || 10} video
                                                 </div>
                                             </div>
                                         </div>
@@ -224,7 +224,7 @@ export default function CourseDetailClient({
                                                     Tổng thời lượng
                                                 </div>
                                                 <div className="font-medium text-[var(--color-text)]">
-                                                    {course.totalDuration}
+                                                    {course.totalDuration || course.duration}
                                                 </div>
                                             </div>
                                         </div>
@@ -235,7 +235,7 @@ export default function CourseDetailClient({
                                                     Thời hạn truy cập
                                                 </div>
                                                 <div className="font-medium text-green-400">
-                                                    {course.accessDuration}
+                                                    {course.accessDuration || "Trọn đời"}
                                                 </div>
                                             </div>
                                         </div>
@@ -260,7 +260,7 @@ export default function CourseDetailClient({
                                                     Số lượng
                                                 </div>
                                                 <div className="font-medium text-[var(--color-text)]">
-                                                    Tối đa {course.maxStudents} học viên
+                                                    Tối đa {course.maxStudents || 8} học viên
                                                 </div>
                                             </div>
                                         </div>
@@ -287,40 +287,40 @@ export default function CourseDetailClient({
                                 </div>
                             )}
 
-                            <div className="flex items-center justify-between p-6 bg-gradient-to-r from-[var(--color-orange-600)]/20 to-[var(--color-orange-500)]/10 rounded-xl border border-[var(--color-primary)]/30">
-                                <div>
-                                    <div className="text-small text-[var(--color-text-muted)]">
-                                        Hình thức tuyển sinh
-                                    </div>
-                                    <div className="heading-3 gradient-text">
-                                        Tư vấn & Đăng ký
-                                    </div>
-                                </div>
-                                <Link href="#dang-ky" className="btn btn-primary btn-lg">
-                                    Đăng ký ngay
-                                    <ArrowRight className="w-5 h-5" />
-                                </Link>
-                            </div>
-
-                            {course.onlineUrl && (
-                                <div className="mt-4 flex items-center justify-between p-6 bg-gradient-to-r from-purple-900/20 to-purple-800/10 rounded-xl border border-purple-500/30">
+                            {isElearning ? (
+                                <div className="flex items-center justify-between p-6 bg-gradient-to-r from-purple-900/30 to-purple-800/10 rounded-xl border border-purple-500/30 shadow-lg">
                                     <div>
                                         <div className="text-small text-[var(--color-text-muted)]">
-                                            Học trực tuyến từ xa
+                                            Hình thức học trực tuyến (E-Learning)
                                         </div>
-                                        <div className="heading-3 text-purple-400 font-semibold">
-                                            Lớp Online Học Ngay
-            </div>
+                                        <div className="heading-3 text-purple-400 font-bold">
+                                            {course.contactForPrice ? "Liên hệ tư vấn" : (course.price ? formatPrice(course.price) : "Học ngay")}
+                                        </div>
                                     </div>
                                     <a
-                                        href={course.onlineUrl}
+                                        href={course.onlineUrl || "https://academy.duaxcar.com/"}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="btn bg-purple-600 hover:bg-purple-700 text-white btn-lg font-bold flex items-center gap-1.5 transition-all hover:scale-105"
+                                        className="btn bg-purple-600 hover:bg-purple-700 text-white btn-lg font-bold flex items-center gap-2 transition-all hover:scale-105 shadow-md"
                                     >
-                                        Học Online
+                                        <span>Vào Học Online</span>
                                         <Play className="w-5 h-5 fill-current" />
                                     </a>
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-between p-6 bg-gradient-to-r from-[var(--color-orange-600)]/20 to-[var(--color-orange-500)]/10 rounded-xl border border-[var(--color-primary)]/30 shadow-lg">
+                                    <div>
+                                        <div className="text-small text-[var(--color-text-muted)]">
+                                            Đào tạo trực tiếp tại trung tâm
+                                        </div>
+                                        <div className="heading-3 gradient-text">
+                                            {course.contactForPrice ? "Liên hệ tư vấn" : formatPrice(course.price)}
+                                        </div>
+                                    </div>
+                                    <Link href="#dang-ky" className="btn btn-primary btn-lg font-bold flex items-center gap-2 shadow-md">
+                                        <span>Đăng ký tư vấn</span>
+                                        <ArrowRight className="w-5 h-5" />
+                                    </Link>
                                 </div>
                             )}
                         </div>
@@ -487,16 +487,18 @@ export default function CourseDetailClient({
                                     <div className="mt-6 pt-6 border-t border-[var(--color-border)]" />
                                     {isElearning ? (
                                         <a
-                                            href="https://academy.duaxcar.com/"
+                                            href={course.onlineUrl || "https://academy.duaxcar.com/"}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="btn btn-primary w-full text-center block"
+                                            className="btn bg-purple-600 hover:bg-purple-700 text-white w-full text-center flex items-center justify-center gap-2 font-bold shadow-md"
                                         >
-                                            Mua ngay
+                                            <Play className="w-4 h-4 fill-current" />
+                                            <span>Học Online Ngay</span>
                                         </a>
                                     ) : (
-                                        <Link href="#dang-ky" className="btn btn-primary w-full text-center block">
-                                            Đăng ký ngay
+                                        <Link href="#dang-ky" className="btn btn-primary w-full text-center flex items-center justify-center gap-2 font-bold shadow-md">
+                                            <span>Đăng ký tư vấn</span>
+                                            <ArrowRight className="w-4 h-4" />
                                         </Link>
                                     )}
                                 </div>

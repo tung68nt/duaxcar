@@ -184,7 +184,7 @@ export default async function CoursesPage({ searchParams }: Props) {
                             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {filteredCourses.map((course) => {
                                     const isElearning = course.courseType === "elearning";
-                                    const href = isElearning ? "https://academy.duaxcar.com/" : `/khoa-hoc/${course.slug}`;
+                                    const href = isElearning ? (course.onlineUrl || "https://academy.duaxcar.com/") : `/khoa-hoc/${course.slug}`;
                                     return (
                                         <div key={course.id} className="relative group">
                                             <Link
@@ -454,7 +454,7 @@ export default async function CoursesPage({ searchParams }: Props) {
                             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {filteredCourses.map((course) => {
                                     const isElearning = course.courseType === "elearning";
-                                    const href = isElearning ? "https://academy.duaxcar.com/" : `/khoa-hoc/${course.slug}`;
+                                    const href = isElearning ? (course.onlineUrl || "https://academy.duaxcar.com/") : `/khoa-hoc/${course.slug}`;
                                     return (
                                         <div key={course.id} className="relative group">
                                             <Link
