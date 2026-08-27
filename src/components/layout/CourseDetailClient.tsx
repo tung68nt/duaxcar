@@ -139,51 +139,38 @@ export default function CourseDetailClient({
                                     <ChefHat className="w-24 h-24 text-[var(--color-gray-600)]" />
                                 )}
                                 {isElearning && (
-                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center group cursor-pointer">
-                                        <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <Play className="w-10 h-10 text-white fill-white" />
+                                    <a
+                                        href={course.onlineUrl || "https://academy.duaxcar.com/"}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="absolute inset-0 flex items-center justify-center group/play cursor-pointer transition-colors hover:bg-black/10"
+                                        title="Nhấp để vào học Online"
+                                    >
+                                        <div className="w-16 h-16 rounded-full bg-purple-600/90 text-white shadow-2xl flex items-center justify-center group-hover/play:scale-110 transition-transform duration-300 border-2 border-white/40">
+                                            <Play className="w-7 h-7 text-white fill-white ml-0.5" />
                                         </div>
-                                    </div>
+                                    </a>
                                 )}
                             </div>
-                            <div className="absolute top-4 left-4 flex gap-2">
+                            
+                            {/* Badges on Top-Left */}
+                            <div className="absolute top-4 left-4 flex items-center gap-2 z-20">
                                 {isElearning ? (
-                                    <span className="badge bg-purple-600 text-white border-none flex items-center gap-1 font-bold shadow-md">
+                                    <span className="px-3 py-1.5 rounded-xl bg-purple-600/90 backdrop-blur-md text-white border border-white/20 flex items-center gap-1.5 font-bold text-xs shadow-lg">
                                         <Play className="w-3.5 h-3.5 fill-current" />
                                         Online
                                     </span>
                                 ) : (
-                                    <span className="badge bg-green-600 text-white border-none flex items-center gap-1 font-bold shadow-md">
+                                    <span className="px-3 py-1.5 rounded-xl bg-green-600/90 backdrop-blur-md text-white border border-white/20 flex items-center gap-1.5 font-bold text-xs shadow-lg">
                                         <Users className="w-3.5 h-3.5 fill-current" />
                                         Trực tiếp
                                     </span>
                                 )}
                                 {course.featured && (
-                                    <span className="badge bg-[var(--color-primary)] text-white border-none font-bold shadow-md">Nổi bật</span>
+                                    <span className="px-3 py-1.5 rounded-xl bg-amber-500/90 backdrop-blur-md text-white border border-white/20 font-bold text-xs shadow-lg">
+                                        Nổi bật
+                                    </span>
                                 )}
-                                
-                            {/* REGISTER BUTTON OVERLAY ON IMAGE */}
-                            <div className="absolute bottom-4 right-4 z-20">
-                                {isElearning ? (
-                                    <a
-                                        href={course.onlineUrl || "https://academy.duaxcar.com/"}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="btn bg-purple-600 hover:bg-purple-700 text-white shadow-lg border border-white/20 px-6 py-3 rounded-2xl font-bold flex items-center gap-1.5 transition-all hover:scale-105"
-                                    >
-                                        Học Online Ngay
-                                        <Play className="w-4 h-4 fill-current" />
-                                    </a>
-                                ) : (
-                                    <Link
-                                        href="#dang-ky"
-                                        className="btn btn-primary shadow-lg border border-white/20 px-6 py-3 rounded-2xl font-bold flex items-center gap-1.5 transition-all hover:scale-105"
-                                    >
-                                        Đăng ký ngay
-                                        <ArrowRight className="w-4 h-4" />
-                                    </Link>
-                                )}
-                            </div>
                             </div>
                         </div>
 
