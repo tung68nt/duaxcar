@@ -38,6 +38,8 @@ import { formatDate } from "@/lib/utils";
 import { Course } from "@/lib/types";
 import { courses as defaultMockCourses, instructors, courseCategories } from "@/data/mock";
 import { MediaSelectorInput } from "@/components/admin/media-selector-input";
+import { MediaPickerModal } from "@/components/admin/media-picker-modal";
+import { MediaLightboxModal } from "@/components/admin/media-lightbox-modal";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 
 function AdminCoursesContent() {
@@ -56,6 +58,11 @@ function AdminCoursesContent() {
     const [modalOpen, setModalOpen] = useState(false);
     const [editingCourse, setEditingCourse] = useState<Course | null>(null);
     const [isDuplicateMode, setIsDuplicateMode] = useState(false);
+
+    // Gallery Picker & Lightbox states
+    const [galleryPickerIndex, setGalleryPickerIndex] = useState<number | null>(null);
+    const [isAddingNewGalleryImage, setIsAddingNewGalleryImage] = useState(false);
+    const [galleryLightboxIndex, setGalleryLightboxIndex] = useState<number | null>(null);
     
     const initialFormState: Omit<Course, "id"> = {
         slug: "",
@@ -969,21 +976,31 @@ function AdminCoursesContent() {
                                     </label>
                                     <div className="relative">
                                         <input
-                                            type="number"
-                                            value={formState.price}
-                                            onChange={(e) => setFormState({ ...formState, price: Number(e.target.value) })}
-                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small font-bold text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none pr-8"
-                                            placeholder="5000000"
-                                            min="0"
-                                            step="50000"
-                                            required
+                                            type="text"
+                                            inputMode="numeric"
+                                            value={formState.contactForPrice ? "" : (formState.price ? Number(formState.price).toLocaleString("vi-VN") : (formState.price === 0 ? "0" : ""))}
+                                            onChange={(e) => {
+                                                const raw = e.target.value.replace(/\D/g, "");
+                                                setFormState({ ...formState, price: raw ? Number(raw) : 0 });
+                                            }}
+                                            disabled={formState.contactForPrice}
+                                            className={`w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-base font-bold text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none pr-8 transition ${
+                                                formState.contactForPrice ? "opacity-50 cursor-not-allowed bg-[var(--color-surface-light)]" : ""
+                                            }`}
+                                            placeholder={formState.contactForPrice ? "Liên hệ tư vấn" : "Ví dụ: 5.500.000"}
+                                            required={!formState.contactForPrice}
                                         />
                                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--color-text-muted)]">
                                             đ
                                         </span>
                                     </div>
-                                    <div className="text-right text-[11px] text-[var(--color-primary)] font-bold mt-1">
-                                        = {formatPrice(formState.price || 0)}
+                                    <div className="flex items-center justify-between text-[11px] mt-1.5">
+                                        <span className="text-[var(--color-text-muted)]">
+                                            {formState.contactForPrice ? "Đang bật chế độ hiển thị 'Liên hệ'" : "Tự động phân cách hàng nghìn (000.000 đ)"}
+                                        </span>
+                                        <span className="text-[var(--color-primary)] font-bold font-mono">
+                                            {formState.contactForPrice ? "Liên hệ tư vấn" : formatPrice(formState.price || 0)}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -1032,9 +1049,9 @@ function AdminCoursesContent() {
                                         className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                     >
                                         {instructors.map((inst) => (
-                                            <option key={inst.id} value={inst.id}>
-                                                {inst.name} - {inst.role}
-                                            </option>
+                                             <option key={inst.id} value={inst.id}>
+                                                 {inst.name} - {inst.role}
+                                             </option>
                                         ))}
                                     </select>
                                 </div>
@@ -1076,67 +1093,118 @@ function AdminCoursesContent() {
 
                             {/* 6. HÌNH ẢNH LỚP HỌC & THỰC HÀNH (CLASSROOM PHOTO GALLERY) */}
                             <div className="card p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl space-y-4 shadow-sm">
-                                <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--color-border)] pb-3">
                                     <div>
                                         <h3 className="font-heading font-bold text-sm text-[var(--color-text)] flex items-center gap-2">
                                             <Images className="w-4 h-4 text-[var(--color-primary)]" />
                                             <span>Hình ảnh lớp học & Thành phẩm thực tế ({formState.gallery?.length || 0} ảnh)</span>
                                         </h3>
                                         <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                                            Tải lên nhiều hình ảnh về không gian lớp học, dụng cụ, quá trình giảng viên hướng dẫn và thành phẩm của học viên.
+                                            Tải lên nhiều hình ảnh về không gian lớp học, dụng cụ, quá trình hướng dẫn và thành phẩm của học viên.
                                         </p>
                                     </div>
                                     <button
                                         type="button"
-                                        onClick={() => addGalleryImage("/images/courses/pho-bo.jpg")}
-                                        className="btn btn-secondary btn-xs flex items-center gap-1 text-[var(--color-primary)] border-[var(--color-primary)]/30 hover:bg-[var(--color-primary)]/10"
+                                        onClick={() => setIsAddingNewGalleryImage(true)}
+                                        className="btn btn-primary btn-xs flex items-center gap-1.5 shadow-sm self-start sm:self-auto"
                                     >
                                         <Plus className="w-3.5 h-3.5" />
-                                        <span>Thêm ảnh</span>
+                                        <span>Thêm ảnh mới</span>
                                     </button>
                                 </div>
 
-                                {formState.gallery && formState.gallery.length > 0 ? (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {formState.gallery.map((imgUrl, gIdx) => (
-                                            <div key={gIdx} className="p-3 rounded-xl bg-[var(--color-background)] border border-[var(--color-border)] space-y-2 relative group">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-[11px] font-semibold text-[var(--color-text-muted)] flex items-center gap-1">
-                                                        <Camera className="w-3 h-3 text-[var(--color-primary)]" /> Ảnh lớp học #{gIdx + 1}
-                                                    </span>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
+                                    {formState.gallery && formState.gallery.map((imgUrl, gIdx) => (
+                                        <div 
+                                            key={gIdx} 
+                                            className="group relative rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] overflow-hidden shadow-xs hover:shadow-md hover:border-[var(--color-primary)]/60 transition-all duration-200 flex flex-col justify-between"
+                                        >
+                                            {/* 16:9 Image Preview */}
+                                            <div className="aspect-video relative overflow-hidden bg-neutral-950 flex items-center justify-center">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
+                                                    src={imgUrl}
+                                                    alt={`Ảnh lớp học #${gIdx + 1}`}
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                                />
+
+                                                {/* Index Badge */}
+                                                <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-xs border border-white/20 text-[10px] font-bold text-white shadow-xs">
+                                                    #{gIdx + 1}
+                                                </div>
+
+                                                {/* Hover Action Overlay */}
+                                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition duration-200 flex items-center justify-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setGalleryLightboxIndex(gIdx)}
+                                                        className="p-1.5 rounded-lg bg-black/80 text-white border border-white/20 hover:bg-orange-600 transition shadow-md"
+                                                        title="Xem ảnh to"
+                                                    >
+                                                        <Eye className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setGalleryPickerIndex(gIdx)}
+                                                        className="p-1.5 rounded-lg bg-black/80 text-white border border-white/20 hover:bg-blue-600 transition shadow-md"
+                                                        title="Đổi ảnh khác"
+                                                    >
+                                                        <ImageIcon className="w-3.5 h-3.5" />
+                                                    </button>
                                                     <button
                                                         type="button"
                                                         onClick={() => removeGalleryImage(gIdx)}
-                                                        className="p-1 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors"
+                                                        className="p-1.5 rounded-lg bg-red-600/90 text-white border border-red-400/40 hover:bg-red-600 transition shadow-md"
                                                         title="Xóa ảnh này"
                                                     >
                                                         <Trash2 className="w-3.5 h-3.5" />
                                                     </button>
                                                 </div>
-                                                <MediaSelectorInput
-                                                    value={imgUrl}
-                                                    onChange={(url) => updateGalleryImage(gIdx, url)}
-                                                    aspectRatio="video"
-                                                />
                                             </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-6 border-2 border-dashed border-[var(--color-border)] rounded-xl bg-[var(--color-background)]/50">
-                                        <Images className="w-8 h-8 text-[var(--color-text-muted)] mx-auto mb-2 opacity-50" />
-                                        <p className="text-xs text-[var(--color-text-muted)] mb-3">
-                                            Chưa có ảnh lớp học nào. Thêm nhiều ảnh để học viên dễ dàng hình dung không gian & chất lượng đào tạo thực tế.
-                                        </p>
-                                        <button
-                                            type="button"
-                                            onClick={() => addGalleryImage("/images/courses/pho-bo.jpg")}
-                                            className="btn btn-primary btn-xs flex items-center gap-1 mx-auto"
-                                        >
-                                            <Plus className="w-3.5 h-3.5" />
-                                            <span>Thêm ảnh lớp học đầu tiên</span>
-                                        </button>
-                                    </div>
-                                )}
+
+                                            {/* Bottom Card Footer with Actions */}
+                                            <div className="p-2 border-t border-[var(--color-border)] flex items-center justify-between gap-1.5 bg-[var(--color-surface)]">
+                                                <span className="text-[11px] font-medium text-[var(--color-text-secondary)] truncate">
+                                                    Ảnh #{gIdx + 1}
+                                                </span>
+                                                <div className="flex items-center gap-1">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setGalleryPickerIndex(gIdx)}
+                                                        className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[var(--color-surface-light)] hover:bg-[var(--color-primary)] hover:text-white text-[var(--color-text)] transition"
+                                                    >
+                                                        Đổi ảnh
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeGalleryImage(gIdx)}
+                                                        className="p-1 rounded-md text-red-500 hover:bg-red-500/10 transition"
+                                                        title="Xóa"
+                                                    >
+                                                        <Trash2 className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {/* Add Card Slot */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsAddingNewGalleryImage(true)}
+                                        className="aspect-video rounded-xl border-2 border-dashed border-[var(--color-border)] hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 flex flex-col items-center justify-center p-3 text-center transition group cursor-pointer"
+                                    >
+                                        <div className="p-2 rounded-full bg-orange-500/10 text-[var(--color-primary)] group-hover:scale-110 transition duration-200 mb-1.5">
+                                            <Plus className="w-4 h-4" />
+                                        </div>
+                                        <span className="text-xs font-bold text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition">
+                                            Thêm ảnh mới
+                                        </span>
+                                        <span className="text-[10px] text-[var(--color-text-muted)] mt-0.5">
+                                            Chọn từ máy hoặc thư viện
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
 
                         </div>
@@ -1162,6 +1230,47 @@ function AdminCoursesContent() {
                             <span>{isSaving ? "Đang lưu khóa học..." : "Lưu khóa học"}</span>
                         </button>
                     </div>
+
+                    {/* Modal: Add New Gallery Image */}
+                    <MediaPickerModal
+                        isOpen={isAddingNewGalleryImage}
+                        onClose={() => setIsAddingNewGalleryImage(false)}
+                        onSelect={(url) => {
+                            addGalleryImage(url);
+                            setIsAddingNewGalleryImage(false);
+                        }}
+                        title="Thêm ảnh lớp học vào khóa học"
+                    />
+
+                    {/* Modal: Replace Existing Gallery Image */}
+                    <MediaPickerModal
+                        isOpen={galleryPickerIndex !== null}
+                        onClose={() => setGalleryPickerIndex(null)}
+                        onSelect={(url) => {
+                            if (galleryPickerIndex !== null) {
+                                updateGalleryImage(galleryPickerIndex, url);
+                                setGalleryPickerIndex(null);
+                            }
+                        }}
+                        selectedUrl={galleryPickerIndex !== null && formState.gallery ? (formState.gallery[galleryPickerIndex] || "") : ""}
+                        title={`Thay đổi ảnh lớp học #${(galleryPickerIndex ?? 0) + 1}`}
+                    />
+
+                    {/* Lightbox Preview for Classroom Gallery */}
+                    {galleryLightboxIndex !== null && formState.gallery && (
+                        <MediaLightboxModal
+                            items={formState.gallery.map((url, idx) => ({
+                                id: `gallery-prev-${idx}`,
+                                name: `Ảnh lớp học #${idx + 1}`,
+                                url: url,
+                                type: "image",
+                                size: "Lớp học thực tế",
+                                uploadedAt: formState.name || "Khóa học"
+                            }))}
+                            initialIndex={galleryLightboxIndex}
+                            onClose={() => setGalleryLightboxIndex(null)}
+                        />
+                    )}
                 </form>
             </div>
         );
