@@ -2,14 +2,49 @@ import { cache } from "react";
 import { supabase } from "@/lib/supabase";
 import { Course, Instructor, BlogPost, Testimonial } from "@/lib/types";
 import { getLocalDB, SiteSettings, FAQItem } from "@/lib/db";
+import { defaultPolicies, PolicyData } from "@/data/default-policies";
 
-// Dynamic Data Fetchers with Server Database + Supabase Fallback
-// Wrapped with React.cache() to deduplicate calls within the same request
-// (e.g., generateMetadata + page component both calling getSupabaseCourses)
+export type { PolicyData };
+
+// In-memory caching layer with TTL to prevent slow repetitive network hops to Supabase
+const CACHE_TTL_MS = 60 * 1000; // 60 seconds
+
+type CacheEntry<T> = {
+    data: T;
+    timestamp: number;
+};
+
+const memoryCache = new Map<string, CacheEntry<any>>();
+
+export function clearCMSCache(key?: string) {
+    if (key) {
+        memoryCache.delete(key);
+    } else {
+        memoryCache.clear();
+    }
+}
+
+async function fetchWithTimeout<T>(promise: PromiseLike<T>, timeoutMs = 1500): Promise<T> {
+    let timer: NodeJS.Timeout;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`Supabase query timeout after ${timeoutMs}ms`)), timeoutMs);
+    });
+    try {
+        return await Promise.race([Promise.resolve(promise), timeoutPromise]);
+    } finally {
+        clearTimeout(timer!);
+    }
+}
 
 export const getSupabaseCourses = cache(async (): Promise<Course[]> => {
+    const cached = memoryCache.get('courses');
+    if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
+        return cached.data;
+    }
+
     try {
-        const { data, error } = await supabase.from('courses').select('*').order('created_at', { ascending: false });
+        const queryPromise = supabase.from('courses').select('*').order('created_at', { ascending: false });
+        const { data, error } = (await fetchWithTimeout(queryPromise, 1500)) as any;
         if (!error && data && data.length > 0) {
             let localCourses: Course[] = [];
             try {
@@ -17,7 +52,7 @@ export const getSupabaseCourses = cache(async (): Promise<Course[]> => {
                 localCourses = db.courses || [];
             } catch {}
 
-            return data.map((c) => {
+            const mappedCourses: Course[] = data.map((c: any) => {
                 const local = localCourses.find(x => x.id === c.id || x.slug === c.slug);
                 return {
                     id: c.id,
@@ -33,10 +68,10 @@ export const getSupabaseCourses = cache(async (): Promise<Course[]> => {
                     maxStudents: c.max_students,
                     instructor: c.instructor,
                     instructorId: c.instructor_id,
-                    image: c.image,
-                    gallery: c.gallery || local?.gallery || [],
-                    highlights: c.highlights || [],
-                    curriculum: c.curriculum || [],
+                    image: c.image || local?.image,
+                    gallery: (c.gallery && Array.isArray(c.gallery) && c.gallery.length > 0) ? c.gallery : (local?.gallery || []),
+                    highlights: (c.highlights && c.highlights.length > 0) ? c.highlights : (local?.highlights || []),
+                    curriculum: (c.curriculum && c.curriculum.length > 0) ? c.curriculum : (local?.curriculum || []),
                     featured: c.featured,
                     totalLessons: c.total_lessons,
                     totalDuration: c.total_duration,
@@ -45,14 +80,18 @@ export const getSupabaseCourses = cache(async (): Promise<Course[]> => {
                     videoUrl: c.video_url || local?.videoUrl
                 };
             });
+
+            memoryCache.set('courses', { data: mappedCourses, timestamp: Date.now() });
+            return mappedCourses;
         }
     } catch (e) {
-        console.warn("Supabase fetch courses failed, fallback to local DB:", e);
+        console.warn("Supabase fetch courses failed/timed out, using local DB:", e);
     }
 
     try {
         const db = getLocalDB();
         if (db.courses && db.courses.length > 0) {
+            memoryCache.set('courses', { data: db.courses, timestamp: Date.now() });
             return db.courses;
         }
     } catch {}
@@ -61,10 +100,16 @@ export const getSupabaseCourses = cache(async (): Promise<Course[]> => {
 });
 
 export const getSupabaseInstructors = cache(async (): Promise<Instructor[]> => {
+    const cached = memoryCache.get('instructors');
+    if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
+        return cached.data;
+    }
+
     try {
-        const { data, error } = await supabase.from('instructors').select('*');
+        const queryPromise = supabase.from('instructors').select('*');
+        const { data, error } = (await fetchWithTimeout(queryPromise, 1500)) as any;
         if (!error && data && data.length > 0) {
-            return data.map((i) => ({
+            const mapped = data.map((i: any) => ({
                 id: i.id,
                 name: i.name,
                 role: i.role,
@@ -77,14 +122,17 @@ export const getSupabaseInstructors = cache(async (): Promise<Instructor[]> => {
                 quote: i.quote,
                 experience: i.experience
             }));
+            memoryCache.set('instructors', { data: mapped, timestamp: Date.now() });
+            return mapped;
         }
     } catch (e) {
-        console.warn("Supabase fetch instructors failed, fallback to local DB:", e);
+        console.warn("Supabase fetch instructors failed/timed out, fallback to local DB:", e);
     }
 
     try {
         const db = getLocalDB();
         if (db.instructors && db.instructors.length > 0) {
+            memoryCache.set('instructors', { data: db.instructors, timestamp: Date.now() });
             return db.instructors;
         }
     } catch {}
@@ -93,10 +141,16 @@ export const getSupabaseInstructors = cache(async (): Promise<Instructor[]> => {
 });
 
 export const getSupabaseBlogPosts = cache(async (): Promise<BlogPost[]> => {
+    const cached = memoryCache.get('blogs');
+    if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
+        return cached.data;
+    }
+
     try {
-        const { data, error } = await supabase.from('blog_posts').select('*').order('date', { ascending: false });
+        const queryPromise = supabase.from('blog_posts').select('*').order('date', { ascending: false });
+        const { data, error } = (await fetchWithTimeout(queryPromise, 1500)) as any;
         if (!error && data && data.length > 0) {
-            return data.map((b) => ({
+            const mapped = data.map((b: any) => ({
                 id: b.id,
                 slug: b.slug,
                 title: b.title,
@@ -110,14 +164,17 @@ export const getSupabaseBlogPosts = cache(async (): Promise<BlogPost[]> => {
                 readTime: b.read_time,
                 featured: b.featured
             }));
+            memoryCache.set('blogs', { data: mapped, timestamp: Date.now() });
+            return mapped;
         }
     } catch (e) {
-        console.warn("Supabase fetch blog posts failed, fallback to local DB:", e);
+        console.warn("Supabase fetch blog posts failed/timed out, fallback to local DB:", e);
     }
 
     try {
         const db = getLocalDB();
         if (db.blogs && db.blogs.length > 0) {
+            memoryCache.set('blogs', { data: db.blogs, timestamp: Date.now() });
             return db.blogs;
         }
     } catch {}
@@ -126,10 +183,16 @@ export const getSupabaseBlogPosts = cache(async (): Promise<BlogPost[]> => {
 });
 
 export const getSupabaseTestimonials = cache(async (): Promise<Testimonial[]> => {
+    const cached = memoryCache.get('testimonials');
+    if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
+        return cached.data;
+    }
+
     try {
-        const { data, error } = await supabase.from('testimonials').select('*');
+        const queryPromise = supabase.from('testimonials').select('*');
+        const { data, error } = (await fetchWithTimeout(queryPromise, 1500)) as any;
         if (!error && data && data.length > 0) {
-            return data.map((t) => ({
+            const mapped = data.map((t: any) => ({
                 id: t.id,
                 name: t.name,
                 role: t.role,
@@ -138,14 +201,17 @@ export const getSupabaseTestimonials = cache(async (): Promise<Testimonial[]> =>
                 rating: Number(t.rating),
                 course: t.course
             }));
+            memoryCache.set('testimonials', { data: mapped, timestamp: Date.now() });
+            return mapped;
         }
     } catch (e) {
-        console.warn("Supabase fetch testimonials failed, fallback to local DB:", e);
+        console.warn("Supabase fetch testimonials failed/timed out, fallback to local DB:", e);
     }
 
     try {
         const db = getLocalDB();
         if (db.testimonials && db.testimonials.length > 0) {
+            memoryCache.set('testimonials', { data: db.testimonials, timestamp: Date.now() });
             return db.testimonials;
         }
     } catch {}
@@ -154,15 +220,23 @@ export const getSupabaseTestimonials = cache(async (): Promise<Testimonial[]> =>
 });
 
 export const getSupabaseFaqs = cache(async (): Promise<FAQItem[]> => {
+    const cached = memoryCache.get('faqs');
+    if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
+        return cached.data;
+    }
+
     try {
-        const { data, error } = await supabase.from('site_settings').select('data').eq('id', 'default_faqs').single();
+        const queryPromise = supabase.from('site_settings').select('data').eq('id', 'default_faqs').single();
+        const { data, error } = (await fetchWithTimeout(queryPromise, 1500)) as any;
         if (!error && data && Array.isArray(data.data) && data.data.length > 0) {
+            memoryCache.set('faqs', { data: data.data, timestamp: Date.now() });
             return data.data;
         }
     } catch {}
 
     try {
         const db = getLocalDB();
+        memoryCache.set('faqs', { data: db.faqs, timestamp: Date.now() });
         return db.faqs;
     } catch {
         return [];
@@ -170,36 +244,49 @@ export const getSupabaseFaqs = cache(async (): Promise<FAQItem[]> => {
 });
 
 export const getSupabaseSettings = cache(async (): Promise<SiteSettings | null> => {
+    const cached = memoryCache.get('settings');
+    if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
+        return cached.data;
+    }
+
     try {
-        const { data, error } = await supabase.from('site_settings').select('*').eq('id', 'default').single();
+        const queryPromise = supabase.from('site_settings').select('*').eq('id', 'default').single();
+        const { data, error } = (await fetchWithTimeout(queryPromise, 1500)) as any;
         if (!error && data && data.data) {
+            memoryCache.set('settings', { data: data.data, timestamp: Date.now() });
             return data.data;
         }
     } catch (e) {
-        console.warn("Supabase fetch site_settings failed, fallback to local DB:", e);
+        console.warn("Supabase fetch site_settings failed/timed out, fallback to local DB:", e);
     }
 
     try {
         const db = getLocalDB();
+        memoryCache.set('settings', { data: db.settings, timestamp: Date.now() });
         return db.settings;
     } catch {
         return null;
     }
 });
 
-import { defaultPolicies, PolicyData } from "@/data/default-policies";
-
 export const getSupabasePolicy = cache(async (id: "bao-mat" | "dieu-khoan" | "thanh-toan"): Promise<PolicyData> => {
     const fallback = defaultPolicies.find((p) => p.id === id) || defaultPolicies[0];
 
+    const cached = memoryCache.get(`policy_${id}`);
+    if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
+        return cached.data;
+    }
+
     try {
-        const { data, error } = await supabase
+        const queryPromise = supabase
             .from('site_settings')
             .select('data')
             .eq('id', `policy_${id}`)
             .single();
+        const { data, error } = (await fetchWithTimeout(queryPromise, 1500)) as any;
 
         if (!error && data && data.data && data.data.content) {
+            memoryCache.set(`policy_${id}`, { data: data.data, timestamp: Date.now() });
             return data.data;
         }
     } catch {}
@@ -208,10 +295,10 @@ export const getSupabasePolicy = cache(async (id: "bao-mat" | "dieu-khoan" | "th
         const db = getLocalDB();
         const found = db.policies?.find((p) => p.id === id);
         if (found && found.content) {
+            memoryCache.set(`policy_${id}`, { data: found, timestamp: Date.now() });
             return found;
         }
     } catch {}
 
     return fallback;
 });
-

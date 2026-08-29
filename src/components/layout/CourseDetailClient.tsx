@@ -79,6 +79,14 @@ export default function CourseDetailClient({
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [activeGalleryIndex, galleryList.length]);
 
+    // Sync state with props when server sends new data
+    useEffect(() => {
+        setCourse(initialCourse);
+        setRelatedCourses(initialRelatedCourses);
+        setInstructor(initialInstructor);
+        setCategory(initialCategory);
+    }, [initialCourse, initialRelatedCourses, initialInstructor, initialCategory]);
+
     useEffect(() => {
         const updateCourseData = (parsed: Course[]) => {
             const found = parsed.find((c) => c.slug === slug || c.id === initialCourse.id);
@@ -101,16 +109,8 @@ export default function CourseDetailClient({
             }
         };
 
-        const localCourses = localStorage.getItem("admin_courses");
-        if (localCourses) {
-            try {
-                const parsed: Course[] = JSON.parse(localCourses);
-                updateCourseData(parsed);
-            } catch {}
-        }
-
-        // Also fetch from live CMS API
-        fetch('/api/cms/courses')
+        // Fetch fresh live CMS data without HTTP caching
+        fetch('/api/cms/courses', { cache: 'no-store' })
             .then(res => res.json())
             .then(data => {
                 if (data.courses && Array.isArray(data.courses)) {
@@ -449,7 +449,7 @@ export default function CourseDetailClient({
                                         /* 1 Image: Large Widescreen Highlight */
                                         <div
                                             onClick={() => setActiveGalleryIndex(0)}
-                                            className="group relative aspect-[16/9] sm:aspect-[21/9] rounded-2xl overflow-hidden bg-[var(--color-surface)] border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-all duration-300 shadow-md hover:shadow-xl"
+                                            className="group relative aspect-[16/9] sm:aspect-[21/9] rounded-2xl overflow-hidden bg-neutral-900 border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-all duration-300 shadow-md hover:shadow-xl"
                                         >
                                             <Image
                                                 src={galleryList[0]}
@@ -458,9 +458,9 @@ export default function CourseDetailClient({
                                                 sizes="(max-width: 768px) 100vw, 800px"
                                                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                                             />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end justify-between p-4 sm:p-6">
-                                                <span className="text-white text-xs sm:text-sm font-medium flex items-center gap-1.5 bg-black/40 backdrop-blur-xs px-3 py-1 rounded-full border border-white/20">
-                                                    <ZoomIn className="w-4 h-4" /> Bấm để xem toàn màn hình
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end justify-between p-4 sm:p-6">
+                                                <span className="text-white text-xs sm:text-sm font-semibold flex items-center gap-2 bg-neutral-900/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/25 shadow-lg">
+                                                    <ZoomIn className="w-4 h-4 text-orange-400" /> Bấm để xem toàn màn hình
                                                 </span>
                                                 <span className="px-3 py-1 rounded-full bg-[var(--color-primary)] text-white text-xs font-bold shadow-md">
                                                     Không gian lớp học thực tế
@@ -474,7 +474,7 @@ export default function CourseDetailClient({
                                                 <div
                                                     key={idx}
                                                     onClick={() => setActiveGalleryIndex(idx)}
-                                                    className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-[var(--color-surface)] border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-all duration-300 hover:shadow-lg"
+                                                    className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-neutral-900 border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-all duration-300 hover:shadow-lg"
                                                 >
                                                     <Image
                                                         src={imgUrl}
@@ -483,11 +483,11 @@ export default function CourseDetailClient({
                                                         sizes="(max-width: 768px) 100vw, 400px"
                                                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                                                     />
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3.5">
-                                                        <span className="text-white text-xs font-medium flex items-center gap-1.5">
-                                                            <ZoomIn className="w-3.5 h-3.5" /> Phóng to
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3.5">
+                                                        <span className="text-white text-xs font-semibold flex items-center gap-1.5 bg-neutral-900/85 backdrop-blur-md px-3 py-1 rounded-full border border-white/25 shadow-md">
+                                                            <ZoomIn className="w-3.5 h-3.5 text-orange-400" /> Phóng to
                                                         </span>
-                                                        <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-xs text-[10px] text-white font-medium">
+                                                        <span className="px-2.5 py-1 rounded-full bg-neutral-900/85 backdrop-blur-md border border-white/25 text-[11px] text-white font-bold font-mono shadow-md">
                                                             #{idx + 1}
                                                         </span>
                                                     </div>
@@ -506,7 +506,7 @@ export default function CourseDetailClient({
                                                         <div
                                                             key={idx}
                                                             onClick={() => setActiveGalleryIndex(idx)}
-                                                            className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-[var(--color-surface)] border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-all duration-300 hover:shadow-lg"
+                                                            className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-neutral-900 border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-all duration-300 hover:shadow-lg"
                                                         >
                                                             <Image
                                                                 src={imgUrl}
@@ -518,17 +518,22 @@ export default function CourseDetailClient({
                                                             />
 
                                                             {isSixthWithMore ? (
-                                                                <div className="absolute inset-0 bg-black/75 backdrop-blur-xs flex flex-col items-center justify-center text-white p-3 text-center transition group-hover:bg-black/85">
-                                                                    <Images className="w-6 h-6 text-[var(--color-primary)] mb-1" />
-                                                                    <span className="font-heading font-bold text-base sm:text-lg">+{remainingCount} ảnh</span>
-                                                                    <span className="text-[11px] text-gray-300 mt-0.5">Xem tất cả</span>
+                                                                <div 
+                                                                    style={{ backgroundColor: "rgba(10, 10, 15, 0.88)" }}
+                                                                    className="absolute inset-0 backdrop-blur-xs flex flex-col items-center justify-center text-white p-3 text-center transition group-hover:!bg-black/95 border border-white/20"
+                                                                >
+                                                                    <Images className="w-7 h-7 text-[var(--color-primary)] mb-1.5 group-hover:scale-110 transition-transform drop-shadow" />
+                                                                    <span className="font-heading font-extrabold text-base sm:text-xl text-white drop-shadow-md">+{remainingCount} ảnh</span>
+                                                                    <span className="inline-flex items-center gap-1 mt-1.5 px-3 py-0.5 rounded-full bg-white/15 text-[11px] text-orange-200 font-semibold border border-white/20 group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors">
+                                                                        Xem tất cả <ArrowRight className="w-3 h-3" />
+                                                                    </span>
                                                                 </div>
                                                             ) : (
-                                                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3.5">
-                                                                    <span className="text-white text-xs font-medium flex items-center gap-1.5">
-                                                                        <ZoomIn className="w-3.5 h-3.5" /> Phóng to
+                                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3.5">
+                                                                    <span className="text-white text-xs font-semibold flex items-center gap-1.5 bg-neutral-900/85 backdrop-blur-md px-3 py-1 rounded-full border border-white/25 shadow-md">
+                                                                        <ZoomIn className="w-3.5 h-3.5 text-orange-400" /> Phóng to
                                                                     </span>
-                                                                    <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-xs text-[10px] text-white font-medium">
+                                                                    <span className="px-2.5 py-1 rounded-full bg-neutral-900/85 backdrop-blur-md border border-white/25 text-[11px] text-white font-bold font-mono shadow-md">
                                                                         #{idx + 1}
                                                                     </span>
                                                                 </div>
@@ -544,10 +549,10 @@ export default function CourseDetailClient({
                                                     <button
                                                         type="button"
                                                         onClick={() => setShowAllGallery(!showAllGallery)}
-                                                        className="btn btn-secondary btn-sm rounded-xl inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 hover:border-[var(--color-primary)] transition"
+                                                        className="btn btn-secondary btn-sm rounded-xl inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 hover:border-[var(--color-primary)] transition cursor-pointer shadow-xs"
                                                     >
                                                         {showAllGallery ? (
-                                                            <>
+                                                             <>
                                                                 <ChevronUp className="w-4 h-4 text-[var(--color-primary)]" />
                                                                 <span>Thu gọn bớt ảnh</span>
                                                             </>
@@ -880,30 +885,32 @@ export default function CourseDetailClient({
                 </div>
             )}
 
-            {/* Image Lightbox Modal with Next/Prev Slider */}
+            {/* Image Lightbox Modal with Next/Prev Slider & Thumbnails */}
             {activeGalleryIndex !== null && galleryList[activeGalleryIndex] && (
                 <div 
-                    className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn select-none"
+                    style={{ backgroundColor: "rgba(9, 9, 11, 0.96)", color: "#ffffff" }}
+                    className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-2 sm:p-5 animate-fadeIn select-none font-sans"
                     onClick={() => setActiveGalleryIndex(null)}
                 >
                     <div 
-                        className="relative max-w-5xl max-h-[92vh] w-full flex flex-col items-center justify-center"
+                        className="relative max-w-5xl w-full flex flex-col items-center justify-center"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Top Action Bar */}
-                        <div className="w-full flex items-center justify-between text-white/90 px-2 py-2 mb-2">
-                            <div className="flex items-center gap-2">
-                                <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-bold text-white border border-white/20">
-                                    Ảnh {activeGalleryIndex + 1} / {galleryList.length}
+                        <div className="w-full flex items-center justify-between px-2 py-2 mb-2">
+                            <div className="flex items-center gap-2.5">
+                                <span className="px-3.5 py-1.5 rounded-full bg-neutral-900/90 text-white border border-white/20 text-xs font-bold shadow-lg flex items-center gap-1.5">
+                                    <Images className="w-3.5 h-3.5 text-orange-400" />
+                                    <span>Ảnh {activeGalleryIndex + 1} / {galleryList.length}</span>
                                 </span>
-                                <span className="hidden sm:inline text-xs text-white/60">
+                                <span className="hidden sm:inline text-xs text-neutral-400 font-medium">
                                     (Dùng phím ← / → chuyển ảnh, Esc để đóng)
                                 </span>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setActiveGalleryIndex(null)}
-                                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition border border-white/20"
+                                className="w-10 h-10 rounded-full bg-neutral-900/90 hover:bg-red-600 text-white flex items-center justify-center transition border border-white/20 shadow-xl cursor-pointer hover:scale-105 active:scale-95"
                                 title="Đóng (Esc)"
                             >
                                 <X className="w-5 h-5" />
@@ -911,14 +918,14 @@ export default function CourseDetailClient({
                         </div>
 
                         {/* Main Image Stage */}
-                        <div className="relative w-full aspect-[16/10] max-h-[76vh] rounded-2xl overflow-hidden border border-white/20 shadow-2xl bg-black">
+                        <div className="relative w-full aspect-[16/10] max-h-[66vh] sm:max-h-[72vh] rounded-2xl overflow-hidden border border-white/20 shadow-2xl bg-neutral-950 flex items-center justify-center">
                             <Image
                                 src={galleryList[activeGalleryIndex]}
                                 alt={`${course.name} - Ảnh ${activeGalleryIndex + 1}`}
                                 fill
                                 priority
                                 sizes="(max-width: 1200px) 100vw, 1200px"
-                                className="object-contain"
+                                className="object-contain select-none pointer-events-none"
                             />
 
                             {/* Prev Arrow */}
@@ -929,10 +936,11 @@ export default function CourseDetailClient({
                                         e.stopPropagation();
                                         setActiveGalleryIndex((prev) => (prev !== null ? (prev - 1 + galleryList.length) % galleryList.length : 0));
                                     }}
-                                    className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center transition border border-white/20 shadow-xl"
-                                    title="Ảnh trước (←)"
+                                    style={{ backgroundColor: "rgba(20, 20, 24, 0.95)", borderColor: "rgba(255, 255, 255, 0.35)" }}
+                                    className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 sm:w-14 sm:h-14 rounded-full text-white border-2 hover:!bg-orange-600 hover:!border-orange-500 shadow-[0_4px_30px_rgba(0,0,0,0.9)] flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-md group"
+                                    title="Ảnh trước (Phím ←)"
                                 >
-                                    <ChevronLeft className="w-6 h-6" />
+                                    <ChevronLeft className="w-7 h-7 sm:w-8 sm:h-8 text-white stroke-[3] group-hover:-translate-x-0.5 transition-transform" />
                                 </button>
                             )}
 
@@ -944,18 +952,52 @@ export default function CourseDetailClient({
                                         e.stopPropagation();
                                         setActiveGalleryIndex((prev) => (prev !== null ? (prev + 1) % galleryList.length : 0));
                                     }}
-                                    className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center transition border border-white/20 shadow-xl"
-                                    title="Ảnh kế tiếp (→)"
+                                    style={{ backgroundColor: "rgba(20, 20, 24, 0.95)", borderColor: "rgba(255, 255, 255, 0.35)" }}
+                                    className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 sm:w-14 sm:h-14 rounded-full text-white border-2 hover:!bg-orange-600 hover:!border-orange-500 shadow-[0_4px_30px_rgba(0,0,0,0.9)] flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-md group"
+                                    title="Ảnh kế tiếp (Phím →)"
                                 >
-                                    <ChevronRight className="w-6 h-6" />
+                                    <ChevronRight className="w-7 h-7 sm:w-8 sm:h-8 text-white stroke-[3] group-hover:translate-x-0.5 transition-transform" />
                                 </button>
                             )}
                         </div>
 
+                        {/* Interactive Thumbnail Carousel Strip (when 2+ images) */}
+                        {galleryList.length > 1 && (
+                            <div className="w-full max-w-2xl flex items-center justify-center gap-2 overflow-x-auto py-2.5 px-2">
+                                {galleryList.map((thumbUrl, tIdx) => {
+                                    const isActive = tIdx === activeGalleryIndex;
+                                    return (
+                                        <button
+                                            key={tIdx}
+                                            type="button"
+                                            onClick={() => setActiveGalleryIndex(tIdx)}
+                                            className={`relative flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                                                isActive 
+                                                    ? "!border-orange-500 ring-2 ring-orange-500 scale-105 shadow-lg" 
+                                                    : "border-white/20 opacity-50 hover:opacity-100 hover:border-white/60"
+                                            }`}
+                                            title={`Xem ảnh #${tIdx + 1}`}
+                                        >
+                                            <Image
+                                                src={thumbUrl}
+                                                alt={`Thumbnail #${tIdx + 1}`}
+                                                fill
+                                                sizes="56px"
+                                                className="object-cover"
+                                            />
+                                            <span className="absolute bottom-0 inset-x-0 bg-black/85 text-[9px] font-bold text-center text-white py-0.5">
+                                                #{tIdx + 1}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+
                         {/* Caption Bar */}
-                        <div className="mt-3 text-center text-xs text-white/80 flex items-center justify-center gap-2">
-                            <Camera className="w-4 h-4 text-[var(--color-primary)]" />
-                            <span>{course.name} • Hình ảnh đào tạo thực tế & thành phẩm học viên tại DuaxCar Kitchen</span>
+                        <div className="mt-1.5 px-4 py-1.5 rounded-full bg-neutral-900/90 border border-white/20 text-xs text-neutral-200 flex items-center justify-center gap-2 shadow-lg max-w-xl mx-auto backdrop-blur-xs text-center">
+                            <Camera className="w-4 h-4 text-orange-400 flex-shrink-0" />
+                            <span className="truncate">{course.name} • Hình ảnh đào tạo thực tế & thành phẩm học viên</span>
                         </div>
                     </div>
                 </div>

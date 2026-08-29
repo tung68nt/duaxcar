@@ -110,17 +110,12 @@
    ============================================ */
 [data-theme="light"] {
     --color-background: #ffffff;
-    --color-surface: #f5f5f5;
-    --color-surface-light: #e5e5e5;
-    --color-text: #171717;
-    --color-text-secondary: #525252;
-    --color-text-muted: #737373;
-    --color-border: #e5e5e5;
-    --color-black: #ffffff;
-    --color-gray-900: #fafafa;
-    --color-gray-800: #f5f5f5;
-    --color-gray-700: #e5e5e5;
-    --color-gray-600: #d4d4d4;
+    --color-surface: #f8fafc;
+    --color-surface-light: #f1f5f9;
+    --color-text: #0f172a;
+    --color-text-secondary: #475569;
+    --color-text-muted: #64748b;
+    --color-border: #e2e8f0;
 }
 
 /* ============================================
