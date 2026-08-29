@@ -242,6 +242,7 @@ export function MediaPickerModal({
                         </div>
                     </div>
                     <button
+                        type="button"
                         onClick={onClose}
                         className="p-1.5 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)] hover:text-[var(--color-text)] transition"
                     >
@@ -254,6 +255,7 @@ export function MediaPickerModal({
                     {/* Navigation Tabs */}
                     <div className="flex items-center gap-1 bg-[var(--color-surface)] p-1 rounded-lg border border-[var(--color-border)]">
                         <button
+                            type="button"
                             onClick={() => setActiveTab("library")}
                             className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition ${
                                 activeTab === "library"
@@ -265,6 +267,7 @@ export function MediaPickerModal({
                             <span>Thư viện ({filteredItems.length})</span>
                         </button>
                         <button
+                            type="button"
                             onClick={() => setActiveTab("upload")}
                             className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition ${
                                 activeTab === "upload"
@@ -276,6 +279,7 @@ export function MediaPickerModal({
                             <span>Tải ảnh mới</span>
                         </button>
                         <button
+                            type="button"
                             onClick={() => setActiveTab("stock")}
                             className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition ${
                                 activeTab === "stock"

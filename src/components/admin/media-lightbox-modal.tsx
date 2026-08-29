@@ -210,6 +210,7 @@ export function MediaLightboxModal({
                     {currentItem.type === "image" && (
                         <>
                             <button
+                                type="button"
                                 onClick={zoomOut}
                                 title="Thu nhỏ (-)"
                                 disabled={zoom <= 0.5}
@@ -221,6 +222,7 @@ export function MediaLightboxModal({
                                 {Math.round(zoom * 100)}%
                             </span>
                             <button
+                                type="button"
                                 onClick={zoomIn}
                                 title="Phóng to (+)"
                                 disabled={zoom >= 4}
@@ -229,6 +231,7 @@ export function MediaLightboxModal({
                                 <ZoomIn className="w-4 h-4" />
                             </button>
                             <button
+                                type="button"
                                 onClick={resetTransform}
                                 title="Đặt lại kích thước (0)"
                                 className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 transition cursor-pointer"
@@ -236,6 +239,7 @@ export function MediaLightboxModal({
                                 <RefreshCw className="w-4 h-4" />
                             </button>
                             <button
+                                type="button"
                                 onClick={rotate}
                                 title="Xoay 90 độ"
                                 className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 transition cursor-pointer"
@@ -246,6 +250,7 @@ export function MediaLightboxModal({
                     )}
 
                     <button
+                        type="button"
                         onClick={toggleFullscreen}
                         title="Toàn màn hình"
                         className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 transition hidden sm:flex cursor-pointer"
@@ -254,6 +259,7 @@ export function MediaLightboxModal({
                     </button>
 
                     <button
+                        type="button"
                         onClick={copyUrl}
                         title="Sao chép URL"
                         className={`p-2 rounded-lg border text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
@@ -268,6 +274,7 @@ export function MediaLightboxModal({
 
                     {onSelect && (
                         <button
+                            type="button"
                             onClick={() => {
                                 onSelect(currentItem);
                                 onClose();
@@ -279,6 +286,7 @@ export function MediaLightboxModal({
                     )}
 
                     <button
+                        type="button"
                         onClick={onClose}
                         title="Đóng (Esc)"
                         className="p-2 rounded-lg bg-neutral-800 hover:bg-red-600 text-white border border-white/10 transition ml-1 cursor-pointer"
@@ -397,6 +405,7 @@ export function MediaLightboxModal({
 
                         <div className="space-y-2 pt-4 border-t border-white/10">
                             <button
+                                type="button"
                                 onClick={handleDownload}
                                 className="w-full py-2.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-semibold text-xs flex items-center justify-center gap-2 border border-white/10 transition cursor-pointer"
                             >
@@ -406,6 +415,7 @@ export function MediaLightboxModal({
 
                             {onDelete && (
                                 <button
+                                    type="button"
                                     onClick={() => {
                                         if (confirm(`Bạn có chắc chắn muốn xóa file "${currentItem.name}"?`)) {
                                             const idToDelete = currentItem.id;
@@ -441,6 +451,7 @@ export function MediaLightboxModal({
                         const isActive = idx === currentIndex;
                         return (
                             <button
+                                type="button"
                                 key={item.id || idx}
                                 onClick={() => goToIndex(idx)}
                                 className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all group cursor-pointer ${
