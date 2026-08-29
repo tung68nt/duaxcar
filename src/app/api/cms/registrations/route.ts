@@ -61,11 +61,12 @@ export async function POST(request: Request) {
             updated = [{ ...registration, id: registration.id || `reg-${Date.now()}` }, ...db.registrations];
         }
 
-        saveLocalDB({ registrations: updated });
+        const saveResult = saveLocalDB({ registrations: updated });
 
-        // Update Supabase in background
+        // Sync with Supabase
+        let supabaseWarning: string | undefined;
         try {
-            await supabase.from('registrations').upsert({
+            const { error: sbError } = await supabase.from('registrations').upsert({
                 id: registration.id,
                 name: registration.name,
                 phone: registration.phone,
@@ -74,11 +75,24 @@ export async function POST(request: Request) {
                 status: registration.status,
                 date: registration.date,
             });
+            if (sbError) {
+                console.error("[API Registrations POST] Supabase upsert error:", sbError);
+                supabaseWarning = `Supabase sync failed: ${sbError.message}`;
+            }
         } catch (sbErr) {
-            console.warn("[API Registrations POST] Supabase upsert warning:", sbErr);
+            console.error("[API Registrations POST] Supabase upsert exception:", sbErr);
+            supabaseWarning = "Supabase sync failed: connection error";
         }
 
-        return NextResponse.json({ success: true, registrations: updated });
+        if (!saveResult && supabaseWarning) {
+            return NextResponse.json({ error: 'Failed to save to both Supabase and local DB' }, { status: 500 });
+        }
+
+        return NextResponse.json({ 
+            success: true, 
+            registrations: updated,
+            ...(supabaseWarning ? { warning: supabaseWarning } : {})
+        });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }
@@ -97,14 +111,24 @@ export async function DELETE(request: Request) {
         const updated = db.registrations.filter(r => r.id !== id);
         saveLocalDB({ registrations: updated });
 
-        // Delete from Supabase in background
+        // Delete from Supabase
+        let supabaseWarning: string | undefined;
         try {
-            await supabase.from('registrations').delete().eq('id', id);
+            const { error: sbError } = await supabase.from('registrations').delete().eq('id', id);
+            if (sbError) {
+                console.error("[API Registrations DELETE] Supabase delete error:", sbError);
+                supabaseWarning = `Supabase sync failed: ${sbError.message}`;
+            }
         } catch (sbErr) {
-            console.warn("[API Registrations DELETE] Supabase delete warning:", sbErr);
+            console.error("[API Registrations DELETE] Supabase delete exception:", sbErr);
+            supabaseWarning = "Supabase sync failed: connection error";
         }
 
-        return NextResponse.json({ success: true, registrations: updated });
+        return NextResponse.json({ 
+            success: true, 
+            registrations: updated,
+            ...(supabaseWarning ? { warning: supabaseWarning } : {})
+        });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }

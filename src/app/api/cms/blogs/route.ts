@@ -54,20 +54,27 @@ export async function POST(request: Request) {
             id: postId,
             slug: finalPost.slug,
             title: finalPost.title,
-            excerpt: finalPost.excerpt,
-            content: finalPost.content,
-            image: finalPost.image,
-            author: finalPost.author,
-            author_image: finalPost.authorImage,
-            date: finalPost.date,
-            category: finalPost.category,
-            read_time: finalPost.readTime,
-            featured: finalPost.featured || false
+            excerpt: finalPost.excerpt || '',
+            content: finalPost.content || '',
+            image: finalPost.image || '/images/hero-pho.jpg',
+            author: finalPost.author || 'DuaxCar Kitchen',
+            author_image: finalPost.authorImage || '/images/instructors/nguyen-huu-tho-v3.jpg',
+            date: finalPost.date || new Date().toISOString().split('T')[0],
+            category: finalPost.category || 'kien-thuc-kinh-doanh',
+            read_time: finalPost.readTime || '5 phút đọc',
+            featured: Boolean(finalPost.featured)
         };
 
-        const { error: sbError } = await supabase.from('blog_posts').upsert(payload);
-        if (sbError) {
-            console.error("Supabase blog upsert error:", sbError);
+        let supabaseWarning: string | undefined;
+        try {
+            const { error: sbError } = await supabase.from('blog_posts').upsert(payload);
+            if (sbError) {
+                console.error("Supabase blog upsert error:", sbError);
+                supabaseWarning = `Supabase sync failed: ${sbError.message}`;
+            }
+        } catch (sbErr) {
+            console.error("Supabase blog upsert exception:", sbErr);
+            supabaseWarning = "Supabase sync failed: connection error";
         }
 
         const db = getLocalDB();
@@ -79,7 +86,11 @@ export async function POST(request: Request) {
         } else {
             updatedBlogs = [finalPost, ...db.blogs];
         }
-        saveLocalDB({ blogs: updatedBlogs });
+        const saveResult = saveLocalDB({ blogs: updatedBlogs });
+
+        if (!saveResult && supabaseWarning) {
+            return NextResponse.json({ error: 'Failed to save to both Supabase and local DB' }, { status: 500 });
+        }
 
         // Purge Next.js cache
         try {
@@ -88,7 +99,11 @@ export async function POST(request: Request) {
             revalidatePath(`/tin-tuc/${finalPost.slug}`);
         } catch {}
 
-        return NextResponse.json({ success: true, post: finalPost });
+        return NextResponse.json({ 
+            success: true, 
+            post: finalPost,
+            ...(supabaseWarning ? { warning: supabaseWarning } : {})
+        });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }
@@ -103,9 +118,16 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: 'Missing blog ID' }, { status: 400 });
         }
 
-        const { error: sbError } = await supabase.from('blog_posts').delete().eq('id', id);
-        if (sbError) {
-            console.error("Supabase blog delete error:", sbError);
+        let supabaseWarning: string | undefined;
+        try {
+            const { error: sbError } = await supabase.from('blog_posts').delete().eq('id', id);
+            if (sbError) {
+                console.error("Supabase blog delete error:", sbError);
+                supabaseWarning = `Supabase sync failed: ${sbError.message}`;
+            }
+        } catch (sbErr) {
+            console.error("Supabase blog delete exception:", sbErr);
+            supabaseWarning = "Supabase sync failed: connection error";
         }
 
         const db = getLocalDB();
@@ -117,7 +139,11 @@ export async function DELETE(request: Request) {
             revalidatePath('/tin-tuc');
         } catch {}
 
-        return NextResponse.json({ success: true, blogs: updatedBlogs });
+        return NextResponse.json({ 
+            success: true, 
+            blogs: updatedBlogs,
+            ...(supabaseWarning ? { warning: supabaseWarning } : {})
+        });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }

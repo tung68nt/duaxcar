@@ -201,23 +201,37 @@ export default function AdminSettings() {
         setConfig(prev => ({ ...prev, heroBanners: updatedBanners }));
     };
 
+    const [saveError, setSaveError] = useState<string | null>(null);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setSaveError(null);
         
         try {
-            await fetch('/api/cms/settings', {
+            const res = await fetch('/api/cms/settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ settings: config })
             });
-        } catch (err) {
-            console.warn("Could not save settings via API:", err);
-        }
+            const result = await res.json();
 
-        localStorage.setItem("admin_settings", JSON.stringify(config));
-        setSaved(true);
-        window.dispatchEvent(new Event("storage"));
-        setTimeout(() => setSaved(false), 3000);
+            if (!res.ok || result.error) {
+                setSaveError(`Lỗi lưu cấu hình: ${result.error || 'Không xác định'}. Vui lòng thử lại.`);
+                return;
+            }
+
+            if (result.warning) {
+                setSaveError(`⚠️ Cấu hình đã lưu nhưng đồng bộ Supabase thất bại. Trang công khai có thể hiển thị dữ liệu cũ.`);
+            }
+
+            localStorage.setItem("admin_settings", JSON.stringify(config));
+            setSaved(true);
+            window.dispatchEvent(new Event("storage"));
+            setTimeout(() => setSaved(false), 3000);
+        } catch (err) {
+            console.error("Could not save settings via API:", err);
+            setSaveError("Lỗi kết nối server. Vui lòng kiểm tra kết nối mạng và thử lại.");
+        }
     };
 
     return (
@@ -271,6 +285,15 @@ export default function AdminSettings() {
                 <div className="p-3 bg-green-500/10 text-green-500 border border-green-500/20 rounded-lg flex items-center gap-2 text-xs font-medium animate-fadeIn">
                     <CheckCircle className="w-4 h-4 animate-bounce" />
                     <span>Lưu cấu hình hệ thống thành công! Các thay đổi đã được áp dụng.</span>
+                </div>
+            )}
+
+            {/* Save Error Notification */}
+            {saveError && (
+                <div className={`p-3 ${saveError.startsWith('⚠️') ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'} border rounded-lg flex items-center gap-2 text-xs font-medium animate-fadeIn`}>
+                    <Info className="w-4 h-4 flex-shrink-0" />
+                    <span className="flex-1">{saveError}</span>
+                    <button onClick={() => setSaveError(null)} className="p-1 hover:opacity-70 rounded transition-colors">✕</button>
                 </div>
             )}
 

@@ -31,9 +31,14 @@ import {
     FileCode,
     Sparkles,
     AlertCircle,
-    Info
+    Info,
+    Video,
+    Play,
+    Film,
+    X
 } from "lucide-react";
 import { MediaPickerModal } from "./media-picker-modal";
+import { getVideoEmbedInfo } from "@/lib/utils";
 
 interface RichTextEditorProps {
     value: string;
@@ -56,6 +61,9 @@ export function RichTextEditor({
     const [linkModalOpen, setLinkModalOpen] = useState(false);
     const [linkUrl, setLinkUrl] = useState("");
     const [linkText, setLinkText] = useState("");
+    const [videoModalOpen, setVideoModalOpen] = useState(false);
+    const [videoInputUrl, setVideoInputUrl] = useState("");
+    const [videoCaption, setVideoCaption] = useState("");
     const [savedSelection, setSavedSelection] = useState<Range | null>(null);
     const [colorPickerOpen, setColorPickerOpen] = useState(false);
     const [highlightPickerOpen, setHighlightPickerOpen] = useState(false);
@@ -171,6 +179,54 @@ export function RichTextEditor({
         setLinkModalOpen(false);
         setLinkUrl("");
         setLinkText("");
+    };
+
+    // Insert Video (Cloudflare R2 / MP4 / YouTube / Vimeo)
+    const handleInsertVideoSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!videoInputUrl || !videoInputUrl.trim()) return;
+        restoreSelection();
+
+        const cleanUrl = videoInputUrl.trim();
+        const videoInfo = getVideoEmbedInfo(cleanUrl);
+        let videoHtml = "";
+
+        if (videoInfo.type === "youtube" || videoInfo.type === "vimeo") {
+            videoHtml = `
+                <div class="my-6 rounded-2xl overflow-hidden shadow-xl border border-[var(--color-border)] aspect-video bg-black">
+                    <iframe src="${videoInfo.embedUrl}" class="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                ${videoCaption ? `<p class="text-xs text-center text-[var(--color-text-secondary)] italic mt-2">${videoCaption}</p>` : ''}
+                <p><br></p>
+            `;
+        } else {
+            // Cloudflare R2 / MP4 / Direct Video link
+            videoHtml = `
+                <div class="my-6 rounded-2xl overflow-hidden shadow-xl border border-[var(--color-border)] bg-black">
+                    <video controls playsinline preload="metadata" class="w-full h-auto max-h-[520px] object-contain mx-auto" src="${cleanUrl}">
+                        Trình duyệt của bạn không hỗ trợ phát video HTML5.
+                    </video>
+                    ${videoCaption ? `<div class="p-2.5 text-center text-xs text-[var(--color-text-secondary)] italic bg-[var(--color-surface)] border-t border-[var(--color-border)]">${videoCaption}</div>` : ''}
+                </div>
+                <p><br></p>
+            `;
+        }
+
+        if (mode === "visual") {
+            executeCommand("insertHTML", videoHtml);
+        } else {
+            if (textareaRef.current) {
+                const start = textareaRef.current.selectionStart;
+                const end = textareaRef.current.selectionEnd;
+                const text = textareaRef.current.value;
+                const nextVal = text.substring(0, start) + `\n${videoHtml}\n` + text.substring(end);
+                onChange(nextVal);
+            }
+        }
+
+        setVideoModalOpen(false);
+        setVideoInputUrl("");
+        setVideoCaption("");
     };
 
     // Insert Table
@@ -526,6 +582,19 @@ export function RichTextEditor({
                             type="button"
                             onClick={() => {
                                 saveSelection();
+                                setVideoModalOpen(true);
+                            }}
+                            className="px-2.5 py-1 rounded-md bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-1 font-semibold transition shadow-sm"
+                            title="Chèn Video (Cloudflare R2 / YouTube / MP4)"
+                        >
+                            <Video className="w-3.5 h-3.5" />
+                            <span>Chèn Video</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                saveSelection();
                                 const sel = window.getSelection();
                                 if (sel && !sel.isCollapsed) {
                                     setLinkText(sel.toString());
@@ -666,6 +735,84 @@ export function RichTextEditor({
                                     className="btn btn-primary btn-sm px-4 text-xs rounded-lg shadow-sm"
                                 >
                                     Chèn liên kết
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Video Inserter Dialog (Cloudflare R2, YouTube, MP4) */}
+            {videoModalOpen && (
+                <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+                    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-5 w-full max-w-lg shadow-2xl space-y-4 animate-scaleIn">
+                        <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+                            <h3 className="font-heading font-bold text-sm text-[var(--color-text)] flex items-center gap-2">
+                                <Video className="w-4 h-4 text-purple-500" />
+                                <span>Chèn Video vào nội dung (Cloudflare R2 / YouTube / MP4)</span>
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={() => setVideoModalOpen(false)}
+                                className="p-1 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleInsertVideoSubmit} className="space-y-3.5">
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text)] block mb-1">
+                                    Đường dẫn Video (URL) <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={videoInputUrl}
+                                    onChange={(e) => setVideoInputUrl(e.target.value)}
+                                    placeholder="Dán link Cloudflare R2 (https://...r2.dev/video.mp4) hoặc YouTube..."
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--color-text)] focus:border-purple-500 focus:outline-none"
+                                    autoFocus
+                                    required
+                                />
+                                <div className="mt-1.5 p-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-[11px] text-purple-400 space-y-1">
+                                    <div className="font-medium flex items-center gap-1">
+                                        <Sparkles className="w-3 h-3" /> Hỗ trợ các nguồn video:
+                                    </div>
+                                    <ul className="list-disc pl-4 space-y-0.5 text-[10px] text-[var(--color-text-secondary)]">
+                                        <li><strong>Cloudflare R2:</strong> Dán link public file MP4/WebM từ R2 Bucket (e.g. <code>https://pub-xxxx.r2.dev/video.mp4</code>)</li>
+                                        <li><strong>YouTube / Shorts:</strong> Dán link video YouTube (e.g. <code>https://youtu.be/...</code> hoặc <code>youtube.com/watch?v=...</code>)</li>
+                                        <li><strong>Direct Video:</strong> Mọi link file MP4, WebM, M3U8 từ CDN hoặc server lưu trữ</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1">
+                                    Chú thích / Tiêu đề video (Tùy chọn)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={videoCaption}
+                                    onChange={(e) => setVideoCaption(e.target.value)}
+                                    placeholder="Ví dụ: Kỹ thuật hầm nước dùng phở bò thực tế tại xưởng..."
+                                    className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-3.5 py-2 text-xs text-[var(--color-text)] focus:border-purple-500 focus:outline-none"
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-end gap-2 pt-3 border-t border-[var(--color-border)]">
+                                <button
+                                    type="button"
+                                    onClick={() => setVideoModalOpen(false)}
+                                    className="btn btn-secondary btn-sm px-3 text-xs rounded-xl"
+                                >
+                                    Hủy
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="btn bg-purple-600 hover:bg-purple-700 text-white btn-sm px-4 text-xs rounded-xl shadow-md flex items-center gap-1.5"
+                                >
+                                    <Play className="w-3 h-3 fill-current" />
+                                    <span>Chèn Video vào bài</span>
                                 </button>
                             </div>
                         </form>

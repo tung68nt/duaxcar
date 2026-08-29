@@ -17,6 +17,7 @@ export interface Course {
     instructor: string;
     instructorId: string;
     image: string;
+    gallery?: string[]; // Multiple classroom and workshop photos
     highlights: string[];
     curriculum: CurriculumItem[];
     featured?: boolean;

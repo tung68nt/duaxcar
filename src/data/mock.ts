@@ -215,6 +215,16 @@ export const courses: Course[] = [
         instructor: "Nguyễn Hữu Thọ",
         instructorId: "nguyen-huu-tho",
         image: "/images/courses/pho-bo.jpg",
+        gallery: [
+            "/images/courses/pho-bo.jpg",
+            "/images/about/mission-v6.jpg",
+            "/images/courses/pho-ga-online.jpg",
+            "/images/courses/bun-bo-hue.jpg",
+            "/images/about/mission-v3.png",
+            "/images/courses/bun-cha.jpg",
+            "/images/courses/lau-nuong.jpg",
+            "/images/courses/mon-dong-que.jpg"
+        ],
         featured: true,
         highlights: [
             "Bí quyết ninh nước dùng trong vắt, thơm ngọt",
@@ -267,6 +277,11 @@ export const courses: Course[] = [
         instructor: "Nguyễn Hữu Thọ",
         instructorId: "nguyen-huu-tho",
         image: "/images/courses/pho-bo.jpg",
+        gallery: [
+            "/images/courses/pho-bo.jpg",
+            "/images/courses/bun-cha.jpg",
+            "/images/about/mission-v6.jpg"
+        ],
         videoUrl: "https://www.youtube.com/watch?v=2iZ_B7WjL10",
         highlights: [
             "Bí quyết xào bánh phở không bị nát, cháy chảo",
@@ -306,6 +321,12 @@ export const courses: Course[] = [
         instructor: "Nguyễn Hữu Thọ",
         instructorId: "nguyen-huu-tho",
         image: "/images/courses/bun-bo-hue.jpg",
+        gallery: [
+            "/images/courses/bun-bo-hue.jpg",
+            "/images/about/mission-v6.jpg",
+            "/images/courses/bun-cha.jpg",
+            "/images/courses/pho-bo.jpg"
+        ],
         highlights: [
             "Bí quyết sa tế ớt Huế",
             "Công thức tỷ lệ mắm ruốc chuẩn",

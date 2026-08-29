@@ -30,7 +30,7 @@ export function slugify(text: string): string {
         .replace(/(^-|-$)+/g, "");
 }
 
-export function getVideoEmbedInfo(url?: string): { isVideo: boolean; type: "youtube" | "direct" | "unknown"; embedUrl: string } {
+export function getVideoEmbedInfo(url?: string): { isVideo: boolean; type: "youtube" | "vimeo" | "r2" | "direct" | "unknown"; embedUrl: string } {
     if (!url || !url.trim()) return { isVideo: false, type: "unknown", embedUrl: "" };
     const cleanUrl = url.trim();
 
@@ -44,11 +44,24 @@ export function getVideoEmbedInfo(url?: string): { isVideo: boolean; type: "yout
         };
     }
 
-    // Direct MP4 / WebM / OGG or local video storage URL
-    if (cleanUrl.match(/\.(mp4|webm|ogg)($|\?)/i) || cleanUrl.startsWith("data:video/")) {
+    // Vimeo URLs: vimeo.com/123456789
+    const vimeoMatch = cleanUrl.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)/i);
+    if (vimeoMatch && vimeoMatch[3]) {
         return {
             isVideo: true,
-            type: "direct",
+            type: "vimeo",
+            embedUrl: `https://player.vimeo.com/video/${vimeoMatch[3]}?autoplay=1`,
+        };
+    }
+
+    // Cloudflare R2 object storage URLs (e.g. pub-xxx.r2.dev, *.r2.cloudflarestorage.com) or direct video files
+    const isR2 = cleanUrl.includes('.r2.dev') || cleanUrl.includes('.r2.cloudflarestorage.com');
+    const isVideoFile = Boolean(cleanUrl.match(/\.(mp4|webm|ogg|mov|m4v|m3u8)($|\?)/i)) || cleanUrl.startsWith("data:video/");
+
+    if (isR2 || isVideoFile) {
+        return {
+            isVideo: true,
+            type: isR2 ? "r2" : "direct",
             embedUrl: cleanUrl,
         };
     }

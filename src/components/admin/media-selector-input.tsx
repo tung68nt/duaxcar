@@ -40,7 +40,7 @@ export function MediaSelectorInput({
 
     const isVideoMode = mediaType === "video";
     const defaultPlaceholder = isVideoMode 
-        ? "Dán link YouTube (https://youtu.be/...) hoặc link video MP4..."
+        ? "Dán link Cloudflare R2 (https://...r2.dev/video.mp4), YouTube hoặc video MP4/WebM..."
         : "Chọn ảnh từ thư viện hoặc dán link URL...";
 
     const aspectClasses = {
@@ -55,7 +55,12 @@ export function MediaSelectorInput({
     // YouTube thumbnail detection
     const ytMatch = value ? value.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i) : null;
     const youtubeThumbnail = ytMatch && ytMatch[1] ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null;
-    const isDirectVideo = value && (value.match(/\.(mp4|webm|ogg)($|\?)/i) || value.startsWith("data:video/"));
+    const isDirectVideo = value && (
+        value.match(/\.(mp4|webm|ogg|mov|m4v|m3u8)($|\?)/i) || 
+        value.includes('.r2.dev') || 
+        value.includes('.r2.cloudflarestorage.com') ||
+        value.startsWith("data:video/")
+    );
 
     const mediaItemForLightbox: MediaItem = {
         id: "preview-single",

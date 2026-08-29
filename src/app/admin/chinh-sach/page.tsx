@@ -71,23 +71,29 @@ export default function AdminPolicyCMS() {
                 body: JSON.stringify({ policy: currentPolicy }),
             });
 
-            if (res.ok) {
-                const data = await res.json();
-                if (data.policies) {
-                    setPolicies(data.policies);
-                    localStorage.setItem("admin_policies", JSON.stringify(data.policies));
-                }
-                setSavedMessage("Đã lưu thành công nội dung chính sách!");
-                setTimeout(() => setSavedMessage(null), 4000);
-            } else {
-                throw new Error("Lỗi khi lưu dữ liệu");
+            const data = await res.json();
+
+            if (!res.ok || data.error) {
+                setSavedMessage(`❌ Lỗi lưu: ${data.error || 'Không xác định'}. Vui lòng thử lại.`);
+                setTimeout(() => setSavedMessage(null), 6000);
+                return;
             }
+
+            if (data.policies) {
+                setPolicies(data.policies);
+                localStorage.setItem("admin_policies", JSON.stringify(data.policies));
+            }
+
+            if (data.warning) {
+                setSavedMessage("⚠️ Đã lưu nhưng đồng bộ Supabase thất bại. Trang công khai có thể hiển thị dữ liệu cũ.");
+            } else {
+                setSavedMessage("Đã lưu thành công nội dung chính sách!");
+            }
+            setTimeout(() => setSavedMessage(null), 4000);
         } catch (err) {
             console.error("Save policy error:", err);
-            // Local fallback
-            localStorage.setItem("admin_policies", JSON.stringify(policies));
-            setSavedMessage("Đã lưu vào bộ nhớ cục bộ!");
-            setTimeout(() => setSavedMessage(null), 4000);
+            setSavedMessage("❌ Lỗi kết nối server. Vui lòng kiểm tra kết nối mạng và thử lại.");
+            setTimeout(() => setSavedMessage(null), 6000);
         } finally {
             setIsSaving(false);
         }

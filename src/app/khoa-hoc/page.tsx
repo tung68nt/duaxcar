@@ -6,7 +6,7 @@ import { getSupabaseCourses } from "@/lib/cms";
 import { Metadata } from "next";
 import CategoryIcon from "@/components/category-icon";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export const metadata: Metadata = {
     title: "Khóa học",
@@ -225,6 +225,14 @@ export default async function CoursesPage({ searchParams }: Props) {
                                                             </span>
                                                         )}
                                                     </div>
+
+                                                    {/* Video Indicator */}
+                                                    {course.videoUrl && (
+                                                        <div className="absolute bottom-2.5 right-2.5 z-10 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-xs text-white text-[10px] font-semibold flex items-center gap-1 border border-white/20 shadow-md">
+                                                            <Play className="w-2.5 h-2.5 text-red-500 fill-red-500" />
+                                                            <span>Có Video</span>
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 {/* Content */}

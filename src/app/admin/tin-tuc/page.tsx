@@ -172,13 +172,25 @@ export default function AdminBlogsCMS() {
         };
 
         try {
-            await fetch('/api/cms/blogs', {
+            const res = await fetch('/api/cms/blogs', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ post: newPost })
             });
+            const result = await res.json();
+
+            if (!res.ok || result.error) {
+                alert(`Lỗi lưu bài viết: ${result.error || 'Không xác định'}`);
+                return;
+            }
+
+            if (result.warning) {
+                alert(`⚠️ Bài viết đã lưu nhưng đồng bộ Supabase thất bại. Trang công khai có thể hiển thị dữ liệu cũ.`);
+            }
         } catch (err) {
-            console.warn("Could not save to /api/cms/blogs:", err);
+            console.error("Could not save to /api/cms/blogs:", err);
+            alert("Lỗi kết nối server. Vui lòng kiểm tra kết nối mạng và thử lại.");
+            return;
         }
 
         let updatedPosts: BlogPost[] = [];
@@ -200,9 +212,16 @@ export default function AdminBlogsCMS() {
     const handleDelete = async (id: string) => {
         if (confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
             try {
-                await fetch(`/api/cms/blogs?id=${id}`, { method: 'DELETE' });
+                const res = await fetch(`/api/cms/blogs?id=${id}`, { method: 'DELETE' });
+                if (!res.ok) {
+                    const result = await res.json();
+                    alert(`Lỗi xóa: ${result.error || 'Không xác định'}`);
+                    return;
+                }
             } catch (err) {
-                console.warn("Could not delete via API:", err);
+                console.error("Could not delete via API:", err);
+                alert("Lỗi kết nối server khi xóa.");
+                return;
             }
 
             const updated = posts.filter(p => p.id !== id);

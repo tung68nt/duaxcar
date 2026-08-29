@@ -27,7 +27,10 @@ import {
     Check,
     AlertCircle,
     FileText,
-    Flame
+    Flame,
+    Images,
+    Image as ImageIcon,
+    Camera
 } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
@@ -46,6 +49,8 @@ function AdminCoursesContent() {
     const [categoryFilter, setCategoryFilter] = useState<string>("all");
     const [isSaving, setIsSaving] = useState(false);
     const [copiedId, setCopiedId] = useState<string | null>(null);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [saveWarning, setSaveWarning] = useState<string | null>(null);
 
     // Modal & Form states
     const [modalOpen, setModalOpen] = useState(false);
@@ -70,6 +75,7 @@ function AdminCoursesContent() {
         instructor: "Nguyễn Hữu Thọ",
         instructorId: "1",
         image: "/images/courses/pho-bo.jpg",
+        gallery: [],
         videoUrl: "",
         highlights: [
             "Bí quyết gia truyền chuẩn hương vị kinh doanh",
@@ -198,6 +204,7 @@ function AdminCoursesContent() {
             instructor: course.instructor,
             instructorId: course.instructorId,
             image: course.image || "/images/courses/pho-bo.jpg",
+            gallery: course.gallery ? [...course.gallery] : [],
             videoUrl: course.videoUrl || "",
             highlights: course.highlights || [],
             curriculum: course.curriculum || [],
@@ -229,6 +236,7 @@ function AdminCoursesContent() {
             instructor: course.instructor,
             instructorId: course.instructorId,
             image: course.image || "/images/courses/pho-bo.jpg",
+            gallery: course.gallery ? [...course.gallery] : [],
             videoUrl: course.videoUrl || "",
             highlights: course.highlights ? [...course.highlights] : [],
             curriculum: course.curriculum ? [...course.curriculum] : [],
@@ -287,10 +295,34 @@ function AdminCoursesContent() {
         setFormState(prev => ({ ...prev, curriculum: updated }));
     };
 
+    // Gallery helpers
+    const addGalleryImage = (url: string) => {
+        if (!url || !url.trim()) return;
+        setFormState(prev => ({
+            ...prev,
+            gallery: [...(prev.gallery || []), url.trim()]
+        }));
+    };
+
+    const removeGalleryImage = (index: number) => {
+        setFormState(prev => ({
+            ...prev,
+            gallery: (prev.gallery || []).filter((_, i) => i !== index)
+        }));
+    };
+
+    const updateGalleryImage = (index: number, url: string) => {
+        const updated = [...(formState.gallery || [])];
+        updated[index] = url;
+        setFormState(prev => ({ ...prev, gallery: updated }));
+    };
+
     // Handle Form Submit
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
+        setSaveError(null);
+        setSaveWarning(null);
         
         const courseId = editingCourse && !isDuplicateMode ? editingCourse.id : `course-${Date.now()}`;
         
@@ -309,6 +341,7 @@ function AdminCoursesContent() {
             instructor: formState.instructor,
             instructorId: formState.instructorId,
             image: formState.image,
+            gallery: formState.gallery?.filter(g => g && g.trim().length > 0) || [],
             highlights: formState.highlights.filter(h => h.trim().length > 0),
             curriculum: formState.curriculum.filter(c => c.title.trim().length > 0),
             featured: formState.featured || false,
@@ -318,29 +351,49 @@ function AdminCoursesContent() {
             onlineUrl: formState.courseType === "elearning" ? formState.onlineUrl?.trim() : ""
         };
 
-        // 1. Save to server API
+        // 1. Save to server API and WAIT for result
+        let apiSuccess = false;
         try {
-            await fetch('/api/cms/courses', {
+            const res = await fetch('/api/cms/courses', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ course: courseData })
             });
+            const result = await res.json();
+            
+            if (!res.ok || result.error) {
+                setSaveError(`Lỗi lưu dữ liệu: ${result.error || 'Không xác định'}`);
+                setIsSaving(false);
+                return;
+            }
+            
+            apiSuccess = true;
+            
+            if (result.warning) {
+                setSaveWarning(`⚠️ Dữ liệu đã lưu vào server nhưng đồng bộ Supabase thất bại. Trang công khai có thể hiển thị dữ liệu cũ.`);
+            }
         } catch (err) {
-            console.warn("Could not save to /api/cms/courses:", err);
+            console.error("Could not save to /api/cms/courses:", err);
+            setSaveError("Lỗi kết nối server. Vui lòng kiểm tra kết nối mạng và thử lại.");
+            setIsSaving(false);
+            return;
         }
 
-        // 2. Update local state and localStorage
-        let updatedCourses: Course[] = [];
-        if (editingCourse && !isDuplicateMode) {
-            updatedCourses = courses.map(c => c.id === editingCourse.id ? courseData : c);
-        } else {
-            updatedCourses = [courseData, ...courses];
-        }
+        // 2. Only update local state AFTER API confirms success
+        if (apiSuccess) {
+            let updatedCourses: Course[] = [];
+            if (editingCourse && !isDuplicateMode) {
+                updatedCourses = courses.map(c => c.id === editingCourse.id ? courseData : c);
+            } else {
+                updatedCourses = [courseData, ...courses];
+            }
 
-        setCourses(updatedCourses);
-        localStorage.setItem("admin_courses", JSON.stringify(updatedCourses));
+            setCourses(updatedCourses);
+            localStorage.setItem("admin_courses", JSON.stringify(updatedCourses));
+            setModalOpen(false);
+        }
+        
         setIsSaving(false);
-        setModalOpen(false);
     };
 
     // Delete Course
@@ -440,6 +493,24 @@ function AdminCoursesContent() {
                         </button>
                     </div>
                 </div>
+
+                {/* Save Error Notification */}
+                {saveError && (
+                    <div className="p-3 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg flex items-center gap-2 text-xs font-medium animate-fadeIn">
+                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                        <span className="flex-1">{saveError}</span>
+                        <button onClick={() => setSaveError(null)} className="p-1 hover:bg-red-500/20 rounded transition-colors">✕</button>
+                    </div>
+                )}
+
+                {/* Save Warning Notification */}
+                {saveWarning && (
+                    <div className="p-3 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-lg flex items-center gap-2 text-xs font-medium animate-fadeIn">
+                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                        <span className="flex-1">{saveWarning}</span>
+                        <button onClick={() => setSaveWarning(null)} className="p-1 hover:bg-amber-500/20 rounded transition-colors">✕</button>
+                    </div>
+                )}
 
                 {/* Form Body */}
                 <form id="unified-course-form" onSubmit={handleSubmit} className="space-y-6">
@@ -975,12 +1046,12 @@ function AdminCoursesContent() {
                                 />
 
                                 <MediaSelectorInput
-                                    label="Video giới thiệu / Xem thử (Trailer/Preview Video)"
-                                    description="Dán link YouTube (https://youtu.be/...) hoặc video MP4 từ Thư viện Media. Khi bấm vào ảnh sẽ phát video này"
+                                    label="Video giới thiệu / Xem thử (Cloudflare R2, YouTube, MP4)"
+                                    description="Dán link Cloudflare R2 (https://pub-xxxx.r2.dev/video.mp4), YouTube (https://youtu.be/...) hoặc video MP4 từ Thư viện Media. Khi học viên bấm vào ảnh đại diện sẽ phát video này"
                                     value={formState.videoUrl || ""}
                                     onChange={(url) => setFormState({ ...formState, videoUrl: url })}
                                     mediaType="video"
-                                    placeholder="Dán link YouTube hoặc chọn file video MP4..."
+                                    placeholder="Dán link Cloudflare R2 (.mp4/.webm) hoặc link YouTube..."
                                 />
 
                                 <label className="flex items-center gap-2.5 p-3 rounded-xl bg-[var(--color-surface-light)]/50 border border-[var(--color-border)] cursor-pointer hover:bg-[var(--color-surface-light)] transition-colors">
@@ -998,6 +1069,71 @@ function AdminCoursesContent() {
                                         <span className="text-[11px] text-[var(--color-text-muted)]">Ghim hiển thị ưu tiên tại Trang chủ & đầu Danh mục</span>
                                     </div>
                                 </label>
+                            </div>
+
+                            {/* 6. HÌNH ẢNH LỚP HỌC & THỰC HÀNH (CLASSROOM PHOTO GALLERY) */}
+                            <div className="card p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl space-y-4 shadow-sm">
+                                <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+                                    <div>
+                                        <h3 className="font-heading font-bold text-sm text-[var(--color-text)] flex items-center gap-2">
+                                            <Images className="w-4 h-4 text-[var(--color-primary)]" />
+                                            <span>Hình ảnh lớp học & Thành phẩm thực tế ({formState.gallery?.length || 0} ảnh)</span>
+                                        </h3>
+                                        <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                                            Tải lên nhiều hình ảnh về không gian lớp học, dụng cụ, quá trình giảng viên hướng dẫn và thành phẩm của học viên.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => addGalleryImage("/images/courses/pho-bo.jpg")}
+                                        className="btn btn-secondary btn-xs flex items-center gap-1 text-[var(--color-primary)] border-[var(--color-primary)]/30 hover:bg-[var(--color-primary)]/10"
+                                    >
+                                        <Plus className="w-3.5 h-3.5" />
+                                        <span>Thêm ảnh</span>
+                                    </button>
+                                </div>
+
+                                {formState.gallery && formState.gallery.length > 0 ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {formState.gallery.map((imgUrl, gIdx) => (
+                                            <div key={gIdx} className="p-3 rounded-xl bg-[var(--color-background)] border border-[var(--color-border)] space-y-2 relative group">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-[11px] font-semibold text-[var(--color-text-muted)] flex items-center gap-1">
+                                                        <Camera className="w-3 h-3 text-[var(--color-primary)]" /> Ảnh lớp học #{gIdx + 1}
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeGalleryImage(gIdx)}
+                                                        className="p-1 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors"
+                                                        title="Xóa ảnh này"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                                <MediaSelectorInput
+                                                    value={imgUrl}
+                                                    onChange={(url) => updateGalleryImage(gIdx, url)}
+                                                    aspectRatio="video"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-6 border-2 border-dashed border-[var(--color-border)] rounded-xl bg-[var(--color-background)]/50">
+                                        <Images className="w-8 h-8 text-[var(--color-text-muted)] mx-auto mb-2 opacity-50" />
+                                        <p className="text-xs text-[var(--color-text-muted)] mb-3">
+                                            Chưa có ảnh lớp học nào. Thêm nhiều ảnh để học viên dễ dàng hình dung không gian & chất lượng đào tạo thực tế.
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={() => addGalleryImage("/images/courses/pho-bo.jpg")}
+                                            className="btn btn-primary btn-xs flex items-center gap-1 mx-auto"
+                                        >
+                                            <Plus className="w-3.5 h-3.5" />
+                                            <span>Thêm ảnh lớp học đầu tiên</span>
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                         </div>

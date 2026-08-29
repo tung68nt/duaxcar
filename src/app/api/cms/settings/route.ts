@@ -32,12 +32,23 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Missing settings payload' }, { status: 400 });
         }
 
-        const { error: sbError } = await supabase.from('site_settings').upsert({ id: 'default', data: settings });
-        if (sbError) {
-            console.error("Supabase site_settings upsert error:", sbError);
+        let supabaseWarning: string | undefined;
+        try {
+            const { error: sbError } = await supabase.from('site_settings').upsert({ id: 'default', data: settings });
+            if (sbError) {
+                console.error("Supabase site_settings upsert error:", sbError);
+                supabaseWarning = `Supabase sync failed: ${sbError.message}`;
+            }
+        } catch (sbErr) {
+            console.error("Supabase site_settings upsert exception:", sbErr);
+            supabaseWarning = "Supabase sync failed: connection error";
         }
 
-        saveLocalDB({ settings });
+        const saveResult = saveLocalDB({ settings });
+
+        if (!saveResult && supabaseWarning) {
+            return NextResponse.json({ error: 'Failed to save to both Supabase and local DB' }, { status: 500 });
+        }
 
         try {
             revalidatePath('/');
@@ -45,7 +56,11 @@ export async function POST(request: Request) {
             revalidatePath('/ve-duaxcar');
         } catch {}
 
-        return NextResponse.json({ success: true, settings });
+        return NextResponse.json({ 
+            success: true, 
+            settings,
+            ...(supabaseWarning ? { warning: supabaseWarning } : {})
+        });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }

@@ -52,10 +52,10 @@ export async function POST(request: Request) {
         const payload = {
             id: instId,
             name: finalInstructor.name,
-            role: finalInstructor.role,
-            title: finalInstructor.title,
-            image: finalInstructor.image,
-            bio: finalInstructor.bio,
+            role: finalInstructor.role || 'Giảng viên',
+            title: finalInstructor.title || 'Chuyên gia ẩm thực DuaxCar Kitchen',
+            image: finalInstructor.image || '/images/instructors/nguyen-huu-tho-v3.jpg',
+            bio: finalInstructor.bio || '',
             full_bio: finalInstructor.fullBio || null,
             achievements: finalInstructor.achievements || [],
             courses: finalInstructor.courses || [],
@@ -63,9 +63,16 @@ export async function POST(request: Request) {
             experience: finalInstructor.experience || null
         };
 
-        const { error: sbError } = await supabase.from('instructors').upsert(payload);
-        if (sbError) {
-            console.error("Supabase instructor upsert error:", sbError);
+        let supabaseWarning: string | undefined;
+        try {
+            const { error: sbError } = await supabase.from('instructors').upsert(payload);
+            if (sbError) {
+                console.error("Supabase instructor upsert error:", sbError);
+                supabaseWarning = `Supabase sync failed: ${sbError.message}`;
+            }
+        } catch (sbErr) {
+            console.error("Supabase instructor upsert exception:", sbErr);
+            supabaseWarning = "Supabase sync failed: connection error";
         }
 
         const db = getLocalDB();
@@ -77,7 +84,11 @@ export async function POST(request: Request) {
         } else {
             updatedInstructors = [finalInstructor, ...db.instructors];
         }
-        saveLocalDB({ instructors: updatedInstructors });
+        const saveResult = saveLocalDB({ instructors: updatedInstructors });
+
+        if (!saveResult && supabaseWarning) {
+            return NextResponse.json({ error: 'Failed to save to both Supabase and local DB' }, { status: 500 });
+        }
 
         // Purge Next.js cache
         try {
@@ -85,7 +96,11 @@ export async function POST(request: Request) {
             revalidatePath('/ve-duaxcar');
         } catch {}
 
-        return NextResponse.json({ success: true, instructor: finalInstructor });
+        return NextResponse.json({ 
+            success: true, 
+            instructor: finalInstructor,
+            ...(supabaseWarning ? { warning: supabaseWarning } : {})
+        });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }
@@ -100,9 +115,16 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: 'Missing instructor ID' }, { status: 400 });
         }
 
-        const { error: sbError } = await supabase.from('instructors').delete().eq('id', id);
-        if (sbError) {
-            console.error("Supabase instructor delete error:", sbError);
+        let supabaseWarning: string | undefined;
+        try {
+            const { error: sbError } = await supabase.from('instructors').delete().eq('id', id);
+            if (sbError) {
+                console.error("Supabase instructor delete error:", sbError);
+                supabaseWarning = `Supabase sync failed: ${sbError.message}`;
+            }
+        } catch (sbErr) {
+            console.error("Supabase instructor delete exception:", sbErr);
+            supabaseWarning = "Supabase sync failed: connection error";
         }
 
         const db = getLocalDB();
@@ -114,7 +136,11 @@ export async function DELETE(request: Request) {
             revalidatePath('/ve-duaxcar');
         } catch {}
 
-        return NextResponse.json({ success: true, instructors: updatedInstructors });
+        return NextResponse.json({ 
+            success: true, 
+            instructors: updatedInstructors,
+            ...(supabaseWarning ? { warning: supabaseWarning } : {})
+        });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }

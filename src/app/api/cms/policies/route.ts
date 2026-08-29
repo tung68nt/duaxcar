@@ -59,20 +59,34 @@ export async function POST(request: Request) {
         }
 
         // Save to local file store
-        saveLocalDB({ policies: newPolicies });
+        const saveResult = saveLocalDB({ policies: newPolicies });
 
-        // Sync with Supabase in background
+        // Sync with Supabase
+        let supabaseWarning: string | undefined;
         try {
-            await supabase.from('site_settings').upsert({
+            const { error: sbError } = await supabase.from('site_settings').upsert({
                 id: `policy_${updatedPolicy.id}`,
                 data: updatedPolicy,
                 updated_at: new Date().toISOString(),
             });
+            if (sbError) {
+                console.error("[API Policies POST] Supabase upsert error:", sbError);
+                supabaseWarning = `Supabase sync failed: ${sbError.message}`;
+            }
         } catch (sbErr) {
-            console.warn("[API Policies POST] Supabase upsert warning:", sbErr);
+            console.error("[API Policies POST] Supabase upsert exception:", sbErr);
+            supabaseWarning = "Supabase sync failed: connection error";
         }
 
-        return NextResponse.json({ success: true, policies: newPolicies });
+        if (!saveResult && supabaseWarning) {
+            return NextResponse.json({ error: 'Failed to save to both Supabase and local DB' }, { status: 500 });
+        }
+
+        return NextResponse.json({ 
+            success: true, 
+            policies: newPolicies,
+            ...(supabaseWarning ? { warning: supabaseWarning } : {})
+        });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }

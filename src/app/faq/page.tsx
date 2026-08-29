@@ -2,7 +2,7 @@ import React from "react";
 import FaqClient from "@/components/layout/FaqClient";
 import { getSupabaseFaqs } from "@/lib/cms";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export const metadata = {
     title: "Câu hỏi thường gặp | DuaxCar Kitchen",

@@ -1,37 +1,50 @@
+import { cache } from "react";
 import { supabase } from "@/lib/supabase";
 import { Course, Instructor, BlogPost, Testimonial } from "@/lib/types";
 import { getLocalDB, SiteSettings, FAQItem } from "@/lib/db";
 
 // Dynamic Data Fetchers with Server Database + Supabase Fallback
+// Wrapped with React.cache() to deduplicate calls within the same request
+// (e.g., generateMetadata + page component both calling getSupabaseCourses)
 
-export async function getSupabaseCourses(): Promise<Course[]> {
+export const getSupabaseCourses = cache(async (): Promise<Course[]> => {
     try {
         const { data, error } = await supabase.from('courses').select('*').order('created_at', { ascending: false });
         if (!error && data && data.length > 0) {
-            return data.map((c) => ({
-                id: c.id,
-                slug: c.slug,
-                name: c.name,
-                category: c.category,
-                courseType: c.course_type,
-                description: c.description,
-                shortDescription: c.short_description,
-                price: Number(c.price),
-                contactForPrice: c.contact_for_price,
-                duration: c.duration,
-                maxStudents: c.max_students,
-                instructor: c.instructor,
-                instructorId: c.instructor_id,
-                image: c.image,
-                highlights: c.highlights || [],
-                curriculum: c.curriculum || [],
-                featured: c.featured,
-                totalLessons: c.total_lessons,
-                totalDuration: c.total_duration,
-                accessDuration: c.access_duration,
-                onlineUrl: c.online_url,
-                videoUrl: c.video_url || c.videoUrl
-            }));
+            let localCourses: Course[] = [];
+            try {
+                const db = getLocalDB();
+                localCourses = db.courses || [];
+            } catch {}
+
+            return data.map((c) => {
+                const local = localCourses.find(x => x.id === c.id || x.slug === c.slug);
+                return {
+                    id: c.id,
+                    slug: c.slug,
+                    name: c.name,
+                    category: c.category,
+                    courseType: c.course_type,
+                    description: c.description,
+                    shortDescription: c.short_description,
+                    price: Number(c.price),
+                    contactForPrice: c.contact_for_price,
+                    duration: c.duration,
+                    maxStudents: c.max_students,
+                    instructor: c.instructor,
+                    instructorId: c.instructor_id,
+                    image: c.image,
+                    gallery: c.gallery || local?.gallery || [],
+                    highlights: c.highlights || [],
+                    curriculum: c.curriculum || [],
+                    featured: c.featured,
+                    totalLessons: c.total_lessons,
+                    totalDuration: c.total_duration,
+                    accessDuration: c.access_duration,
+                    onlineUrl: c.online_url,
+                    videoUrl: c.video_url || local?.videoUrl
+                };
+            });
         }
     } catch (e) {
         console.warn("Supabase fetch courses failed, fallback to local DB:", e);
@@ -45,9 +58,9 @@ export async function getSupabaseCourses(): Promise<Course[]> {
     } catch {}
 
     return [];
-}
+});
 
-export async function getSupabaseInstructors(): Promise<Instructor[]> {
+export const getSupabaseInstructors = cache(async (): Promise<Instructor[]> => {
     try {
         const { data, error } = await supabase.from('instructors').select('*');
         if (!error && data && data.length > 0) {
@@ -77,9 +90,9 @@ export async function getSupabaseInstructors(): Promise<Instructor[]> {
     } catch {}
 
     return [];
-}
+});
 
-export async function getSupabaseBlogPosts(): Promise<BlogPost[]> {
+export const getSupabaseBlogPosts = cache(async (): Promise<BlogPost[]> => {
     try {
         const { data, error } = await supabase.from('blog_posts').select('*').order('date', { ascending: false });
         if (!error && data && data.length > 0) {
@@ -110,9 +123,9 @@ export async function getSupabaseBlogPosts(): Promise<BlogPost[]> {
     } catch {}
 
     return [];
-}
+});
 
-export async function getSupabaseTestimonials(): Promise<Testimonial[]> {
+export const getSupabaseTestimonials = cache(async (): Promise<Testimonial[]> => {
     try {
         const { data, error } = await supabase.from('testimonials').select('*');
         if (!error && data && data.length > 0) {
@@ -138,9 +151,9 @@ export async function getSupabaseTestimonials(): Promise<Testimonial[]> {
     } catch {}
 
     return [];
-}
+});
 
-export async function getSupabaseFaqs(): Promise<FAQItem[]> {
+export const getSupabaseFaqs = cache(async (): Promise<FAQItem[]> => {
     try {
         const { data, error } = await supabase.from('site_settings').select('data').eq('id', 'default_faqs').single();
         if (!error && data && Array.isArray(data.data) && data.data.length > 0) {
@@ -154,9 +167,9 @@ export async function getSupabaseFaqs(): Promise<FAQItem[]> {
     } catch {
         return [];
     }
-}
+});
 
-export async function getSupabaseSettings(): Promise<SiteSettings | null> {
+export const getSupabaseSettings = cache(async (): Promise<SiteSettings | null> => {
     try {
         const { data, error } = await supabase.from('site_settings').select('*').eq('id', 'default').single();
         if (!error && data && data.data) {
@@ -172,11 +185,11 @@ export async function getSupabaseSettings(): Promise<SiteSettings | null> {
     } catch {
         return null;
     }
-}
+});
 
 import { defaultPolicies, PolicyData } from "@/data/default-policies";
 
-export async function getSupabasePolicy(id: "bao-mat" | "dieu-khoan" | "thanh-toan"): Promise<PolicyData> {
+export const getSupabasePolicy = cache(async (id: "bao-mat" | "dieu-khoan" | "thanh-toan"): Promise<PolicyData> => {
     const fallback = defaultPolicies.find((p) => p.id === id) || defaultPolicies[0];
 
     try {
@@ -200,5 +213,5 @@ export async function getSupabasePolicy(id: "bao-mat" | "dieu-khoan" | "thanh-to
     } catch {}
 
     return fallback;
-}
+});
 

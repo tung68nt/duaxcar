@@ -15,7 +15,16 @@ import {
     BookOpen,
     Lock,
     Award,
-    X
+    X,
+    Camera,
+    ZoomIn,
+    Images,
+    Sparkles,
+    Film,
+    ChevronLeft,
+    ChevronRight,
+    ChevronDown,
+    ChevronUp
 } from "lucide-react";
 import { CourseAccordion } from "@/components/ui/course-accordion";
 import { instructors, courseCategories } from "@/data/mock";
@@ -44,6 +53,26 @@ export default function CourseDetailClient({
     const [instructor, setInstructor] = useState(initialInstructor);
     const [category, setCategory] = useState(initialCategory);
     const [videoModalOpen, setVideoModalOpen] = useState(false);
+    const [activeGalleryIndex, setActiveGalleryIndex] = useState<number | null>(null);
+    const [showAllGallery, setShowAllGallery] = useState(false);
+
+    const galleryList = course.gallery || [];
+
+    // Keyboard navigation for Lightbox
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (activeGalleryIndex === null || galleryList.length === 0) return;
+            if (e.key === "ArrowRight") {
+                setActiveGalleryIndex((prev) => (prev !== null ? (prev + 1) % galleryList.length : 0));
+            } else if (e.key === "ArrowLeft") {
+                setActiveGalleryIndex((prev) => (prev !== null ? (prev - 1 + galleryList.length) % galleryList.length : 0));
+            } else if (e.key === "Escape") {
+                setActiveGalleryIndex(null);
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [activeGalleryIndex, galleryList.length]);
 
     useEffect(() => {
         const updateCourseData = (parsed: Course[]) => {
@@ -148,12 +177,19 @@ export default function CourseDetailClient({
                                         <button
                                             type="button"
                                             onClick={() => setVideoModalOpen(true)}
-                                            className="absolute inset-0 flex items-center justify-center group/play cursor-pointer transition-colors hover:bg-black/20"
-                                            title="Bấm để xem video giới thiệu"
+                                            className="absolute inset-0 flex flex-col items-center justify-center group/play cursor-pointer transition-colors bg-black/25 hover:bg-black/40"
+                                            title="Bấm để xem video giới thiệu khóa học"
                                         >
-                                            <div className="w-14 h-14 rounded-full bg-red-600/90 text-white flex items-center justify-center group-hover/play:scale-110 transition-transform duration-200 border-2 border-white/80 shadow-lg">
-                                                <Play className="w-6 h-6 text-white fill-white ml-0.5" />
+                                            <div className="relative flex items-center justify-center">
+                                                <div className="absolute w-16 h-16 rounded-full bg-red-500/30 animate-ping" />
+                                                <div className="relative w-14 h-14 rounded-full bg-gradient-to-tr from-red-600 to-orange-500 text-white flex items-center justify-center group-hover/play:scale-115 transition-transform duration-300 border-2 border-white/90 shadow-2xl">
+                                                    <Play className="w-6 h-6 text-white fill-white ml-0.5" />
+                                                </div>
                                             </div>
+                                            <span className="mt-2.5 px-3 py-1 rounded-full bg-black/70 backdrop-blur-xs text-white text-[11px] font-semibold flex items-center gap-1.5 border border-white/20 shadow-lg group-hover/play:bg-black/90 transition">
+                                                <Film className="w-3 h-3 text-orange-400" />
+                                                <span>Xem Video thực tế</span>
+                                            </span>
                                         </button>
                                     ) : null}
                                 </div>
@@ -384,6 +420,145 @@ export default function CourseDetailClient({
                                     type={isElearning ? "elearning" : "onsite"}
                                 />
                             </div>
+
+                            {/* Classroom & Workshop Photos Gallery */}
+                            {galleryList.length > 0 && (
+                                <div className="mb-12">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <div>
+                                            <h2 className="heading-3 text-[var(--color-text)] flex items-center gap-2.5">
+                                                <Camera className="w-6 h-6 text-[var(--color-primary)]" />
+                                                <span>Hình ảnh lớp học & Thực hành</span>
+                                            </h2>
+                                            <p className="text-small text-[var(--color-text-secondary)] mt-1">
+                                                Không gian bếp đào tạo chuẩn thực chiến, quá trình hướng dẫn 1 kèm 1 và thành phẩm của học viên.
+                                            </p>
+                                        </div>
+                                        <span className="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20">
+                                            {galleryList.length} hình ảnh
+                                        </span>
+                                    </div>
+
+                                    {/* Layout based on image count */}
+                                    {galleryList.length === 1 ? (
+                                        /* 1 Image: Large Widescreen Highlight */
+                                        <div
+                                            onClick={() => setActiveGalleryIndex(0)}
+                                            className="group relative aspect-[16/9] sm:aspect-[21/9] rounded-2xl overflow-hidden bg-[var(--color-surface)] border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-all duration-300 shadow-md hover:shadow-xl"
+                                        >
+                                            <Image
+                                                src={galleryList[0]}
+                                                alt={`${course.name} - Ảnh lớp học thực tế`}
+                                                fill
+                                                sizes="(max-width: 768px) 100vw, 800px"
+                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end justify-between p-4 sm:p-6">
+                                                <span className="text-white text-xs sm:text-sm font-medium flex items-center gap-1.5 bg-black/40 backdrop-blur-xs px-3 py-1 rounded-full border border-white/20">
+                                                    <ZoomIn className="w-4 h-4" /> Bấm để xem toàn màn hình
+                                                </span>
+                                                <span className="px-3 py-1 rounded-full bg-[var(--color-primary)] text-white text-xs font-bold shadow-md">
+                                                    Không gian lớp học thực tế
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ) : galleryList.length === 2 ? (
+                                        /* 2 Images: 2 Balanced Columns */
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {galleryList.map((imgUrl, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    onClick={() => setActiveGalleryIndex(idx)}
+                                                    className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-[var(--color-surface)] border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-all duration-300 hover:shadow-lg"
+                                                >
+                                                    <Image
+                                                        src={imgUrl}
+                                                        alt={`${course.name} - Ảnh lớp học ${idx + 1}`}
+                                                        fill
+                                                        sizes="(max-width: 768px) 100vw, 400px"
+                                                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3.5">
+                                                        <span className="text-white text-xs font-medium flex items-center gap-1.5">
+                                                            <ZoomIn className="w-3.5 h-3.5" /> Phóng to
+                                                        </span>
+                                                        <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-xs text-[10px] text-white font-medium">
+                                                            #{idx + 1}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        /* 3+ Images: Adaptive Grid with Lazy-loading & Show More overlay */
+                                        <div className="space-y-4">
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                                                {(showAllGallery ? galleryList : galleryList.slice(0, 6)).map((imgUrl, idx) => {
+                                                    const isSixthWithMore = !showAllGallery && idx === 5 && galleryList.length > 6;
+                                                    const remainingCount = galleryList.length - 5;
+
+                                                    return (
+                                                        <div
+                                                            key={idx}
+                                                            onClick={() => setActiveGalleryIndex(idx)}
+                                                            className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-[var(--color-surface)] border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-all duration-300 hover:shadow-lg"
+                                                        >
+                                                            <Image
+                                                                src={imgUrl}
+                                                                alt={`${course.name} - Ảnh lớp học ${idx + 1}`}
+                                                                fill
+                                                                loading="lazy"
+                                                                sizes="(max-width: 768px) 50vw, 300px"
+                                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                            />
+
+                                                            {isSixthWithMore ? (
+                                                                <div className="absolute inset-0 bg-black/75 backdrop-blur-xs flex flex-col items-center justify-center text-white p-3 text-center transition group-hover:bg-black/85">
+                                                                    <Images className="w-6 h-6 text-[var(--color-primary)] mb-1" />
+                                                                    <span className="font-heading font-bold text-base sm:text-lg">+{remainingCount} ảnh</span>
+                                                                    <span className="text-[11px] text-gray-300 mt-0.5">Xem tất cả</span>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3.5">
+                                                                    <span className="text-white text-xs font-medium flex items-center gap-1.5">
+                                                                        <ZoomIn className="w-3.5 h-3.5" /> Phóng to
+                                                                    </span>
+                                                                    <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-xs text-[10px] text-white font-medium">
+                                                                        #{idx + 1}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+
+                                            {/* Expand / Collapse Button for 7+ photos */}
+                                            {galleryList.length > 6 && (
+                                                <div className="text-center pt-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowAllGallery(!showAllGallery)}
+                                                        className="btn btn-secondary btn-sm rounded-xl inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 hover:border-[var(--color-primary)] transition"
+                                                    >
+                                                        {showAllGallery ? (
+                                                            <>
+                                                                <ChevronUp className="w-4 h-4 text-[var(--color-primary)]" />
+                                                                <span>Thu gọn bớt ảnh</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <ChevronDown className="w-4 h-4 text-[var(--color-primary)]" />
+                                                                <span>Xem toàn bộ {galleryList.length} ảnh lớp học</span>
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             {instructor && (
                                 <div>
@@ -670,15 +845,112 @@ export default function CourseDetailClient({
                                         />
                                     );
                                 }
+                                if (videoInfo.type === "vimeo") {
+                                    return (
+                                        <iframe
+                                            src={videoInfo.embedUrl}
+                                            className="w-full h-full"
+                                            title={course.name}
+                                            allow="autoplay; fullscreen; picture-in-picture"
+                                            allowFullScreen
+                                        />
+                                    );
+                                }
                                 return (
                                     <video
                                         src={course.videoUrl}
                                         controls
                                         autoPlay
-                                        className="w-full h-full object-contain"
-                                    />
+                                        playsInline
+                                        preload="auto"
+                                        poster={course.image}
+                                        className="w-full h-full object-contain bg-black"
+                                    >
+                                        Trình duyệt của bạn không hỗ trợ phát video HTML5.
+                                    </video>
                                 );
                             })()}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Image Lightbox Modal with Next/Prev Slider */}
+            {activeGalleryIndex !== null && galleryList[activeGalleryIndex] && (
+                <div 
+                    className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn select-none"
+                    onClick={() => setActiveGalleryIndex(null)}
+                >
+                    <div 
+                        className="relative max-w-5xl max-h-[92vh] w-full flex flex-col items-center justify-center"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Top Action Bar */}
+                        <div className="w-full flex items-center justify-between text-white/90 px-2 py-2 mb-2">
+                            <div className="flex items-center gap-2">
+                                <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-bold text-white border border-white/20">
+                                    Ảnh {activeGalleryIndex + 1} / {galleryList.length}
+                                </span>
+                                <span className="hidden sm:inline text-xs text-white/60">
+                                    (Dùng phím ← / → chuyển ảnh, Esc để đóng)
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setActiveGalleryIndex(null)}
+                                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition border border-white/20"
+                                title="Đóng (Esc)"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Main Image Stage */}
+                        <div className="relative w-full aspect-[16/10] max-h-[76vh] rounded-2xl overflow-hidden border border-white/20 shadow-2xl bg-black">
+                            <Image
+                                src={galleryList[activeGalleryIndex]}
+                                alt={`${course.name} - Ảnh ${activeGalleryIndex + 1}`}
+                                fill
+                                priority
+                                sizes="(max-width: 1200px) 100vw, 1200px"
+                                className="object-contain"
+                            />
+
+                            {/* Prev Arrow */}
+                            {galleryList.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveGalleryIndex((prev) => (prev !== null ? (prev - 1 + galleryList.length) % galleryList.length : 0));
+                                    }}
+                                    className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center transition border border-white/20 shadow-xl"
+                                    title="Ảnh trước (←)"
+                                >
+                                    <ChevronLeft className="w-6 h-6" />
+                                </button>
+                            )}
+
+                            {/* Next Arrow */}
+                            {galleryList.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveGalleryIndex((prev) => (prev !== null ? (prev + 1) % galleryList.length : 0));
+                                    }}
+                                    className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center transition border border-white/20 shadow-xl"
+                                    title="Ảnh kế tiếp (→)"
+                                >
+                                    <ChevronRight className="w-6 h-6" />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Caption Bar */}
+                        <div className="mt-3 text-center text-xs text-white/80 flex items-center justify-center gap-2">
+                            <Camera className="w-4 h-4 text-[var(--color-primary)]" />
+                            <span>{course.name} • Hình ảnh đào tạo thực tế & thành phẩm học viên tại DuaxCar Kitchen</span>
                         </div>
                     </div>
                 </div>

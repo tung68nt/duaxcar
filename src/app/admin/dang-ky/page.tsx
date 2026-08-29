@@ -87,12 +87,19 @@ export default function AdminRegistrations() {
 
         const updatedItem = { ...found, status: newStatus };
         try {
-            await fetch('/api/cms/registrations', {
+            const res = await fetch('/api/cms/registrations', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ registration: updatedItem })
             });
-        } catch {}
+            if (!res.ok) {
+                alert('Lỗi cập nhật trạng thái. Vui lòng thử lại.');
+                return;
+            }
+        } catch {
+            alert('Lỗi kết nối server.');
+            return;
+        }
 
         const updated = registrations.map(r => r.id === id ? updatedItem : r);
         setRegistrations(updated);
@@ -103,8 +110,15 @@ export default function AdminRegistrations() {
     const deleteRegistration = async (id: string) => {
         if (confirm("Bạn có chắc chắn muốn xóa đơn đăng ký này?")) {
             try {
-                await fetch(`/api/cms/registrations?id=${id}`, { method: 'DELETE' });
-            } catch {}
+                const res = await fetch(`/api/cms/registrations?id=${id}`, { method: 'DELETE' });
+                if (!res.ok) {
+                    alert('Lỗi xóa đơn đăng ký. Vui lòng thử lại.');
+                    return;
+                }
+            } catch {
+                alert('Lỗi kết nối server khi xóa.');
+                return;
+            }
 
             const updated = registrations.filter(r => r.id !== id);
             setRegistrations(updated);

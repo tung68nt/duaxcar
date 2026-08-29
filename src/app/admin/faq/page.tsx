@@ -185,13 +185,21 @@ export default function AdminFAQ() {
         };
 
         try {
-            await fetch('/api/cms/faq', {
+            const res = await fetch('/api/cms/faq', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ faq: item })
             });
+            const result = await res.json();
+
+            if (!res.ok || result.error) {
+                alert(`Lỗi lưu FAQ: ${result.error || 'Không xác định'}`);
+                return;
+            }
         } catch (err) {
-            console.warn("Could not save FAQ to API:", err);
+            console.error("Could not save FAQ to API:", err);
+            alert("Lỗi kết nối server. Vui lòng thử lại.");
+            return;
         }
 
         let updated: FAQItem[] = [];
@@ -209,9 +217,16 @@ export default function AdminFAQ() {
     const handleDelete = async (id: string) => {
         if (confirm("Bạn có chắc chắn muốn xóa câu hỏi FAQ này?")) {
             try {
-                await fetch(`/api/cms/faq?id=${id}`, { method: 'DELETE' });
+                const res = await fetch(`/api/cms/faq?id=${id}`, { method: 'DELETE' });
+                if (!res.ok) {
+                    const result = await res.json();
+                    alert(`Lỗi xóa: ${result.error || 'Không xác định'}`);
+                    return;
+                }
             } catch (err) {
-                console.warn("Could not delete FAQ via API:", err);
+                console.error("Could not delete FAQ via API:", err);
+                alert("Lỗi kết nối server khi xóa.");
+                return;
             }
 
             const updated = faqs.filter(f => f.id !== id);
@@ -226,12 +241,13 @@ export default function AdminFAQ() {
 
         const updatedItem = { ...found, visible: !found.visible };
         try {
-            await fetch('/api/cms/faq', {
+            const res = await fetch('/api/cms/faq', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ faq: updatedItem })
             });
-        } catch {}
+            if (!res.ok) return;
+        } catch { return; }
 
         const updated = faqs.map(f => f.id === id ? updatedItem : f);
         setFaqs(updated);

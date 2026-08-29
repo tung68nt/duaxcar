@@ -10,30 +10,40 @@ export async function GET() {
     try {
         const { data, error } = await supabase.from('courses').select('*').order('created_at', { ascending: false });
         if (!error && data && data.length > 0) {
-            const mappedCourses: Course[] = data.map((c) => ({
-                id: c.id,
-                slug: c.slug,
-                name: c.name,
-                category: c.category,
-                courseType: c.course_type,
-                description: c.description,
-                shortDescription: c.short_description,
-                price: Number(c.price),
-                contactForPrice: c.contact_for_price,
-                duration: c.duration,
-                maxStudents: c.max_students,
-                instructor: c.instructor,
-                instructorId: c.instructor_id,
-                image: c.image,
-                highlights: c.highlights || [],
-                curriculum: c.curriculum || [],
-                featured: c.featured,
-                totalLessons: c.total_lessons,
-                totalDuration: c.total_duration,
-                accessDuration: c.access_duration,
-                onlineUrl: c.online_url,
-                videoUrl: c.video_url || c.videoUrl
-            }));
+            let localCourses: Course[] = [];
+            try {
+                const db = getLocalDB();
+                localCourses = db.courses || [];
+            } catch {}
+
+            const mappedCourses: Course[] = data.map((c) => {
+                const local = localCourses.find(x => x.id === c.id || x.slug === c.slug);
+                return {
+                    id: c.id,
+                    slug: c.slug,
+                    name: c.name,
+                    category: c.category,
+                    courseType: c.course_type,
+                    description: c.description,
+                    shortDescription: c.short_description,
+                    price: Number(c.price),
+                    contactForPrice: c.contact_for_price,
+                    duration: c.duration,
+                    maxStudents: c.max_students,
+                    instructor: c.instructor,
+                    instructorId: c.instructor_id,
+                    image: c.image,
+                    gallery: c.gallery || local?.gallery || [],
+                    highlights: c.highlights || [],
+                    curriculum: c.curriculum || [],
+                    featured: c.featured,
+                    totalLessons: c.total_lessons,
+                    totalDuration: c.total_duration,
+                    accessDuration: c.access_duration,
+                    onlineUrl: c.online_url,
+                    videoUrl: c.video_url || local?.videoUrl
+                };
+            });
             return NextResponse.json({ courses: mappedCourses });
         }
     } catch (e) {
@@ -64,30 +74,36 @@ export async function POST(request: Request) {
             id: courseId,
             slug: finalCourse.slug,
             name: finalCourse.name,
-            category: finalCourse.category,
-            course_type: finalCourse.courseType,
-            description: finalCourse.description,
-            short_description: finalCourse.shortDescription,
-            price: finalCourse.price,
-            contact_for_price: finalCourse.contactForPrice || false,
-            duration: finalCourse.duration,
-            max_students: finalCourse.maxStudents || null,
-            instructor: finalCourse.instructor,
-            instructor_id: finalCourse.instructorId,
-            image: finalCourse.image,
+            category: finalCourse.category || 'mon-an-sang',
+            course_type: finalCourse.courseType || 'onsite',
+            description: finalCourse.description || '',
+            short_description: finalCourse.shortDescription || finalCourse.name || '',
+            price: Number(finalCourse.price) || 0,
+            contact_for_price: Boolean(finalCourse.contactForPrice),
+            duration: finalCourse.duration || 'Theo lộ trình',
+            max_students: finalCourse.maxStudents ? Number(finalCourse.maxStudents) : null,
+            instructor: finalCourse.instructor || 'Chuyên gia DuaxCar Kitchen',
+            instructor_id: finalCourse.instructorId || 'nguyen-huu-tho',
+            image: finalCourse.image || '/images/courses/pho-bo.jpg',
             highlights: finalCourse.highlights || [],
             curriculum: finalCourse.curriculum || [],
-            featured: finalCourse.featured || false,
-            total_lessons: finalCourse.totalLessons || null,
+            featured: Boolean(finalCourse.featured),
+            total_lessons: finalCourse.totalLessons ? Number(finalCourse.totalLessons) : null,
             total_duration: finalCourse.totalDuration || null,
             access_duration: finalCourse.accessDuration || null,
-            online_url: finalCourse.onlineUrl || null,
-            video_url: finalCourse.videoUrl || null
+            online_url: finalCourse.onlineUrl || null
         };
 
-        const { error: sbError } = await supabase.from('courses').upsert(payload);
-        if (sbError) {
-            console.error("Supabase course upsert error:", sbError);
+        let supabaseWarning: string | undefined;
+        try {
+            const { error: sbError } = await supabase.from('courses').upsert(payload);
+            if (sbError) {
+                console.error("Supabase course upsert error:", sbError);
+                supabaseWarning = `Supabase sync failed: ${sbError.message}`;
+            }
+        } catch (sbErr) {
+            console.error("Supabase course upsert exception:", sbErr);
+            supabaseWarning = "Supabase sync failed: connection error";
         }
 
         const db = getLocalDB();
@@ -99,7 +115,11 @@ export async function POST(request: Request) {
         } else {
             updatedCourses = [finalCourse, ...db.courses];
         }
-        saveLocalDB({ courses: updatedCourses });
+        const saveResult = saveLocalDB({ courses: updatedCourses });
+
+        if (!saveResult && supabaseWarning) {
+            return NextResponse.json({ error: 'Failed to save to both Supabase and local DB' }, { status: 500 });
+        }
 
         // Purge Next.js page cache
         try {
@@ -108,7 +128,11 @@ export async function POST(request: Request) {
             revalidatePath(`/khoa-hoc/${finalCourse.slug}`);
         } catch {}
 
-        return NextResponse.json({ success: true, course: finalCourse });
+        return NextResponse.json({ 
+            success: true, 
+            course: finalCourse,
+            ...(supabaseWarning ? { warning: supabaseWarning } : {})
+        });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }

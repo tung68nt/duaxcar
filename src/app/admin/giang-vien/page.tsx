@@ -248,18 +248,30 @@ export default function AdminInstructors() {
             courses: filteredCourses
         };
 
-        // 1. Save to server API
+        // 1. Save to server API and WAIT for result
         try {
-            await fetch('/api/cms/instructors', {
+            const res = await fetch('/api/cms/instructors', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ instructor: newIns })
             });
+            const result = await res.json();
+
+            if (!res.ok || result.error) {
+                alert(`Lỗi lưu giảng viên: ${result.error || 'Không xác định'}`);
+                return;
+            }
+
+            if (result.warning) {
+                alert(`⚠️ Dữ liệu đã lưu nhưng đồng bộ Supabase thất bại. Trang công khai có thể hiển thị dữ liệu cũ.`);
+            }
         } catch (err) {
-            console.warn("Could not save to /api/cms/instructors:", err);
+            console.error("Could not save to /api/cms/instructors:", err);
+            alert("Lỗi kết nối server. Vui lòng kiểm tra kết nối mạng và thử lại.");
+            return;
         }
 
-        // 2. Update local state and localStorage
+        // 2. Only update local state AFTER API confirms success
         let updated: Instructor[] = [];
         if (editingInstructor) {
             updated = instructors.map(ins => 
@@ -299,12 +311,13 @@ export default function AdminInstructors() {
 
         const updatedItem = { ...found, visible: !(found.visible !== false) };
         try {
-            await fetch('/api/cms/instructors', {
+            const res = await fetch('/api/cms/instructors', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ instructor: updatedItem })
             });
-        } catch {}
+            if (!res.ok) return;
+        } catch { return; }
 
         const updated = instructors.map(i => i.id === id ? updatedItem : i);
         setInstructors(updated);
@@ -314,9 +327,16 @@ export default function AdminInstructors() {
     const handleDelete = async (id: string) => {
         if (confirm("Bạn có chắc chắn muốn xóa giảng viên này?")) {
             try {
-                await fetch(`/api/cms/instructors?id=${id}`, { method: 'DELETE' });
+                const res = await fetch(`/api/cms/instructors?id=${id}`, { method: 'DELETE' });
+                if (!res.ok) {
+                    const result = await res.json();
+                    alert(`Lỗi xóa: ${result.error || 'Không xác định'}`);
+                    return;
+                }
             } catch (err) {
-                console.warn("Could not delete via API:", err);
+                console.error("Could not delete via API:", err);
+                alert("Lỗi kết nối server khi xóa.");
+                return;
             }
 
             const updated = instructors.filter(i => i.id !== id);

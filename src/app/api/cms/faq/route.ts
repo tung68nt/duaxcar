@@ -41,18 +41,34 @@ export async function POST(request: Request) {
             updatedFaqs = [{ ...faq, id: faq.id || `faq-${Date.now()}` }, ...db.faqs];
         }
 
-        saveLocalDB({ faqs: updatedFaqs });
+        const saveResult = saveLocalDB({ faqs: updatedFaqs });
 
+        let supabaseWarning: string | undefined;
         try {
-            await supabase.from('site_settings').upsert({ id: 'default_faqs', data: updatedFaqs });
-        } catch {}
+            const { error: sbError } = await supabase.from('site_settings').upsert({ id: 'default_faqs', data: updatedFaqs });
+            if (sbError) {
+                console.error("Supabase FAQ upsert error:", sbError);
+                supabaseWarning = `Supabase sync failed: ${sbError.message}`;
+            }
+        } catch (sbErr) {
+            console.error("Supabase FAQ upsert exception:", sbErr);
+            supabaseWarning = "Supabase sync failed: connection error";
+        }
+
+        if (!saveResult && supabaseWarning) {
+            return NextResponse.json({ error: 'Failed to save to both Supabase and local DB' }, { status: 500 });
+        }
 
         try {
             revalidatePath('/');
             revalidatePath('/faq');
         } catch {}
 
-        return NextResponse.json({ success: true, faqs: updatedFaqs });
+        return NextResponse.json({ 
+            success: true, 
+            faqs: updatedFaqs,
+            ...(supabaseWarning ? { warning: supabaseWarning } : {})
+        });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }
@@ -71,16 +87,28 @@ export async function DELETE(request: Request) {
         const updatedFaqs = db.faqs.filter(f => f.id !== id);
         saveLocalDB({ faqs: updatedFaqs });
 
+        let supabaseWarning: string | undefined;
         try {
-            await supabase.from('site_settings').upsert({ id: 'default_faqs', data: updatedFaqs });
-        } catch {}
+            const { error: sbError } = await supabase.from('site_settings').upsert({ id: 'default_faqs', data: updatedFaqs });
+            if (sbError) {
+                console.error("Supabase FAQ delete-sync error:", sbError);
+                supabaseWarning = `Supabase sync failed: ${sbError.message}`;
+            }
+        } catch (sbErr) {
+            console.error("Supabase FAQ delete-sync exception:", sbErr);
+            supabaseWarning = "Supabase sync failed: connection error";
+        }
 
         try {
             revalidatePath('/');
             revalidatePath('/faq');
         } catch {}
 
-        return NextResponse.json({ success: true, faqs: updatedFaqs });
+        return NextResponse.json({ 
+            success: true, 
+            faqs: updatedFaqs,
+            ...(supabaseWarning ? { warning: supabaseWarning } : {})
+        });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }

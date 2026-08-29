@@ -3,7 +3,7 @@ import { getSupabaseInstructors, getSupabaseSettings } from "@/lib/cms";
 import { Metadata } from "next";
 import AboutUsClient from "@/components/layout/AboutUsClient";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export const metadata: Metadata = {
     title: "Về DuaxCar - Giới thiệu & Đội ngũ giảng viên",

@@ -27,7 +27,7 @@ import {
 import CategoryIcon from "@/components/category-icon";
 import HeroCarousel from "@/components/layout/hero-carousel";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export default async function HomePage() {
     const liveCourses = await getSupabaseCourses();
