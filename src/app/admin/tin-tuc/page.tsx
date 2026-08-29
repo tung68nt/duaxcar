@@ -204,7 +204,9 @@ export default function AdminBlogsCMS() {
         }
 
         setPosts(updatedPosts);
-        localStorage.setItem("admin_blogs", JSON.stringify(updatedPosts));
+        try {
+            localStorage.setItem("admin_blogs", JSON.stringify(updatedPosts));
+        } catch {}
         setModalOpen(false);
     };
 

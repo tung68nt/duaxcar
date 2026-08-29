@@ -158,6 +158,29 @@ export function MediaPickerModal({
                 });
             }
 
+            // Upload directly to server to get permanent clean URL (/uploads/...)
+            try {
+                const uploadRes = await fetch("/api/cms/upload", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        base64: finalUrl,
+                        name: file.name,
+                        type: isVideo ? "video" : "image",
+                        sizeBytes: sizeInBytes,
+                        dimensions: dimensionsStr
+                    })
+                });
+                if (uploadRes.ok) {
+                    const uploadData = await uploadRes.json();
+                    if (uploadData.url) {
+                        finalUrl = uploadData.url;
+                    }
+                }
+            } catch (upErr) {
+                console.warn("Upload API error, using direct URL fallback:", upErr);
+            }
+
             const newItem: MediaItem = {
                 id: `m-${Date.now()}`,
                 name: file.name.replace(/\.[^/.]+$/, "") + (isCompressed ? ".webp" : ""),
@@ -173,18 +196,12 @@ export function MediaPickerModal({
 
             const updatedList = [newItem, ...mediaItems];
             setMediaItems(updatedList);
-            localStorage.setItem("admin_media_extended", JSON.stringify(updatedList));
-
-            // Legacy sync
-            const legacyUrls = updatedList.map(item => item.url);
-            localStorage.setItem("admin_media", JSON.stringify(legacyUrls));
-
-            // Sync API
-            fetch("/api/cms/media", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ item: newItem })
-            }).catch(() => {});
+            
+            try {
+                localStorage.setItem("admin_media_extended", JSON.stringify(updatedList.slice(0, 50)));
+                const legacyUrls = updatedList.slice(0, 50).map(item => item.url);
+                localStorage.setItem("admin_media", JSON.stringify(legacyUrls));
+            } catch {}
 
             // Auto select newly uploaded file
             setSelectedItemUrl(newItem.url);

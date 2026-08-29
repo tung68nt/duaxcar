@@ -190,6 +190,29 @@ export default function AdminMediaLibrary() {
                     totalCompBytes += file.size;
                 }
 
+                // Upload to server to get permanent clean URL (/uploads/...)
+                try {
+                    const uploadRes = await fetch("/api/cms/upload", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            base64: finalUrl,
+                            name: file.name,
+                            type: isVideo ? "video" : "image",
+                            sizeBytes: sizeInBytes,
+                            dimensions: dimensionsStr
+                        })
+                    });
+                    if (uploadRes.ok) {
+                        const uploadData = await uploadRes.json();
+                        if (uploadData.url) {
+                            finalUrl = uploadData.url;
+                        }
+                    }
+                } catch (upErr) {
+                    console.warn("Upload API error:", upErr);
+                }
+
                 newItems.push({
                     id: `m-${Date.now()}-${i}`,
                     name: file.name.replace(/\.[^/.]+$/, "") + (isCompressed ? ".webp" : ""),
@@ -210,18 +233,12 @@ export default function AdminMediaLibrary() {
         if (newItems.length > 0) {
             const updated = [...newItems, ...mediaItems];
             setMediaItems(updated);
-            localStorage.setItem("admin_media_extended", JSON.stringify(updated));
-
-            // Legacy sync
-            const legacyUrls = updated.map(item => item.url);
-            localStorage.setItem("admin_media", JSON.stringify(legacyUrls));
-
-            // Sync API
-            fetch("/api/cms/media", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ items: updated })
-            }).catch(() => {});
+            
+            try {
+                localStorage.setItem("admin_media_extended", JSON.stringify(updated.slice(0, 50)));
+                const legacyUrls = updated.slice(0, 50).map(item => item.url);
+                localStorage.setItem("admin_media", JSON.stringify(legacyUrls));
+            } catch {}
 
             const savedBytes = totalOrigBytes - totalCompBytes;
             const ratio = totalOrigBytes > 0 

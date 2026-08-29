@@ -73,7 +73,7 @@ function AdminCoursesContent() {
         accessDuration: "Trọn đời",
         onlineUrl: "",
         instructor: "Nguyễn Hữu Thọ",
-        instructorId: "1",
+        instructorId: "nguyen-huu-tho",
         image: "/images/courses/pho-bo.jpg",
         gallery: [],
         videoUrl: "",
@@ -338,10 +338,11 @@ function AdminCoursesContent() {
             contactForPrice: formState.contactForPrice || false,
             duration: formState.duration.trim(),
             maxStudents: formState.courseType === "onsite" ? Number(formState.maxStudents) || 8 : undefined,
-            instructor: formState.instructor,
-            instructorId: formState.instructorId,
-            image: formState.image,
+            instructor: formState.instructor || "Nguyễn Hữu Thọ",
+            instructorId: formState.instructorId || "nguyen-huu-tho",
+            image: formState.image || "/images/courses/pho-bo.jpg",
             gallery: formState.gallery?.filter(g => g && g.trim().length > 0) || [],
+            videoUrl: formState.videoUrl || "",
             highlights: formState.highlights.filter(h => h.trim().length > 0),
             curriculum: formState.curriculum.filter(c => c.title.trim().length > 0),
             featured: formState.featured || false,
@@ -389,7 +390,9 @@ function AdminCoursesContent() {
             }
 
             setCourses(updatedCourses);
-            localStorage.setItem("admin_courses", JSON.stringify(updatedCourses));
+            try {
+                localStorage.setItem("admin_courses", JSON.stringify(updatedCourses));
+            } catch {}
             setModalOpen(false);
         }
         

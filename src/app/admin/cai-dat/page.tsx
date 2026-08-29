@@ -224,7 +224,9 @@ export default function AdminSettings() {
                 setSaveError(`⚠️ Cấu hình đã lưu nhưng đồng bộ Supabase thất bại. Trang công khai có thể hiển thị dữ liệu cũ.`);
             }
 
-            localStorage.setItem("admin_settings", JSON.stringify(config));
+            try {
+                localStorage.setItem("admin_settings", JSON.stringify(config));
+            } catch {}
             setSaved(true);
             window.dispatchEvent(new Event("storage"));
             setTimeout(() => setSaved(false), 3000);

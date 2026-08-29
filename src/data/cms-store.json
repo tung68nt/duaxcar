@@ -3,21 +3,16 @@
     {
       "id": "course-1787812508128",
       "slug": "pho-xao",
-      "name": "Phở xào chuẩn vị",
+      "name": "Phở xào chuẩn vị kinh doanh",
       "category": "mon-an-sang",
       "courseType": "elearning",
-      "description": "Đã cập nhật video R2 Cloudflare",
-      "shortDescription": "Phở xào đặc biệt",
-      "price": 250000,
-      "duration": "3 ngày",
-      "image": "/images/courses/pho-bo.jpg",
-      "videoUrl": "https://pub-838291040582.r2.dev/courses/pho-xao-intro.mp4",
-      "onlineUrl": "https://academy.duaxcar.com/course/pho-xao-perfect",
-      "gallery": [
-        "/images/courses/pho-bo.jpg",
-        "/images/courses/bun-cha.jpg",
-        "/images/about/mission-v6.jpg"
-      ]
+      "description": "Khóa học phở xào với ảnh mới tải lên",
+      "shortDescription": "Phở xào bò gia truyền",
+      "price": 850000,
+      "duration": "14 giờ",
+      "image": "/uploads/test-logo-upload-1787974793202.png",
+      "instructor": "Nguyễn Hữu Thọ",
+      "instructorId": "nguyen-huu-tho"
     },
     {
       "id": "pho-bo-truyen-thong",
@@ -1009,7 +1004,19 @@
       "date": "2026-07-15"
     }
   ],
-  "media": [],
+  "media": [
+    {
+      "id": "m-1787974793203",
+      "name": "test-logo-upload-1787974793202",
+      "url": "/uploads/test-logo-upload-1787974793202.png",
+      "type": "image",
+      "size": "83 KB",
+      "sizeBytes": 85201,
+      "dimensions": "Ảnh HD",
+      "uploadedAt": "2026-08-29",
+      "compressed": true
+    }
+  ],
   "policies": [
     {
       "id": "bao-mat",

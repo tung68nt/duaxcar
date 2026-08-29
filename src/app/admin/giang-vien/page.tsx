@@ -284,24 +284,53 @@ export default function AdminInstructors() {
         }
 
         setInstructors(updated);
-        localStorage.setItem("admin_instructors", JSON.stringify(updated));
+        try {
+            localStorage.setItem("admin_instructors", JSON.stringify(updated));
+        } catch {}
         setModalOpen(false);
     };
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result as string;
-                setFormState(prev => ({ ...prev, image: base64String }));
-                
-                const updatedMedia = [base64String, ...uploadedMedia.filter(m => m !== base64String)].slice(0, 12);
-                setUploadedMedia(updatedMedia);
-                localStorage.setItem("admin_media", JSON.stringify(updatedMedia));
-                setMediaModalOpen(false);
-            };
-            reader.readAsDataURL(file);
+            try {
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    const base64String = reader.result as string;
+                    let finalUrl = base64String;
+
+                    try {
+                        const res = await fetch("/api/cms/upload", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                base64: base64String,
+                                name: file.name,
+                                type: "image",
+                                sizeBytes: file.size
+                            })
+                        });
+                        if (res.ok) {
+                            const json = await res.json();
+                            if (json.url) finalUrl = json.url;
+                        }
+                    } catch (err) {
+                        console.warn("Upload API error:", err);
+                    }
+
+                    setFormState(prev => ({ ...prev, image: finalUrl }));
+                    
+                    const updatedMedia = [finalUrl, ...uploadedMedia.filter(m => m !== finalUrl)].slice(0, 12);
+                    setUploadedMedia(updatedMedia);
+                    try {
+                        localStorage.setItem("admin_media", JSON.stringify(updatedMedia));
+                    } catch {}
+                    setMediaModalOpen(false);
+                };
+                reader.readAsDataURL(file);
+            } catch (err) {
+                console.error("File upload error:", err);
+            }
         }
     };
 
