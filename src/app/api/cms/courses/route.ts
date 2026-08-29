@@ -15,6 +15,39 @@ export async function GET() {
         'Expires': '0',
     };
 
+    // 1. Try fetching full course data from Supabase site_settings (authoritative full JSON store)
+    try {
+        const { data: settingData, error: settingError } = await supabase
+            .from('site_settings')
+            .select('data')
+            .eq('id', 'courses_data')
+            .single();
+
+        if (!settingError && settingData && Array.isArray(settingData.data) && settingData.data.length > 0) {
+            let localCourses: Course[] = [];
+            try {
+                const db = getLocalDB();
+                localCourses = db.courses || [];
+            } catch {}
+
+            // Merge with local courses to preserve any local edits
+            const mergedCourses: Course[] = settingData.data.map((c: any) => {
+                const local = localCourses.find(x => x.id === c.id || x.slug === c.slug);
+                return {
+                    ...c,
+                    image: local?.image || c.image,
+                    gallery: (local?.gallery && local.gallery.length > 0) ? local.gallery : (c.gallery || []),
+                    videoUrl: local?.videoUrl || c.videoUrl || c.video_url
+                };
+            });
+
+            return NextResponse.json({ courses: mergedCourses }, { headers: noCacheHeaders });
+        }
+    } catch (e) {
+        console.warn("Supabase courses_data fetch error:", e);
+    }
+
+    // 2. Fallback to Supabase relational courses table
     try {
         const { data, error } = await supabase.from('courses').select('*').order('created_at', { ascending: false });
         if (!error && data && data.length > 0) {
@@ -40,16 +73,16 @@ export async function GET() {
                     maxStudents: c.max_students,
                     instructor: c.instructor,
                     instructorId: c.instructor_id,
-                    image: c.image || local?.image,
-                    gallery: (c.gallery && Array.isArray(c.gallery) && c.gallery.length > 0) ? c.gallery : (local?.gallery || []),
-                    highlights: c.highlights || local?.highlights || [],
-                    curriculum: c.curriculum || local?.curriculum || [],
+                    image: local?.image || c.image,
+                    gallery: (local?.gallery && local.gallery.length > 0) ? local.gallery : (c.gallery || []),
+                    highlights: local?.highlights || c.highlights || [],
+                    curriculum: local?.curriculum || c.curriculum || [],
                     featured: c.featured,
                     totalLessons: c.total_lessons,
                     totalDuration: c.total_duration,
                     accessDuration: c.access_duration,
                     onlineUrl: c.online_url,
-                    videoUrl: c.video_url || local?.videoUrl
+                    videoUrl: local?.videoUrl || c.video_url
                 };
             });
             return NextResponse.json({ courses: mappedCourses }, { headers: noCacheHeaders });
@@ -58,6 +91,7 @@ export async function GET() {
         console.warn("Supabase GET courses error:", e);
     }
 
+    // 3. Fallback to local file store
     try {
         const db = getLocalDB();
         return NextResponse.json({ courses: db.courses }, { headers: noCacheHeaders });
@@ -78,6 +112,30 @@ export async function POST(request: Request) {
         const courseId = course.id || `course-${Date.now()}`;
         const finalCourse: Course = { ...course, id: courseId };
 
+        // 1. Save to local CMS DB
+        const db = getLocalDB();
+        const existingIndex = db.courses.findIndex(c => c.id === courseId);
+        let updatedCourses: Course[] = [];
+        if (existingIndex >= 0) {
+            updatedCourses = [...db.courses];
+            updatedCourses[existingIndex] = finalCourse;
+        } else {
+            updatedCourses = [finalCourse, ...db.courses];
+        }
+        saveLocalDB({ courses: updatedCourses });
+
+        // 2. Save full courses list to Supabase site_settings (JSON store)
+        try {
+            await supabase.from('site_settings').upsert({
+                id: 'courses_data',
+                data: updatedCourses,
+                updated_at: new Date().toISOString()
+            });
+        } catch (err) {
+            console.warn("Could not sync courses_data to Supabase site_settings:", err);
+        }
+
+        // 3. Also sync individual record to Supabase courses table
         const payload: any = {
             id: courseId,
             slug: finalCourse.slug,
@@ -93,8 +151,6 @@ export async function POST(request: Request) {
             instructor: finalCourse.instructor || 'Chuyên gia DuaxCar Kitchen',
             instructor_id: finalCourse.instructorId || 'nguyen-huu-tho',
             image: finalCourse.image || '/images/courses/pho-bo.jpg',
-            gallery: finalCourse.gallery || [],
-            video_url: finalCourse.videoUrl || null,
             highlights: finalCourse.highlights || [],
             curriculum: finalCourse.curriculum || [],
             featured: Boolean(finalCourse.featured),
@@ -104,53 +160,24 @@ export async function POST(request: Request) {
             online_url: finalCourse.onlineUrl || null
         };
 
-        let supabaseWarning: string | undefined;
         try {
-            const { error: sbError } = await supabase.from('courses').upsert(payload);
-            if (sbError) {
-                // If error is related to columns, attempt upsert without gallery/video_url as fallback
-                if (sbError.message.includes('gallery') || sbError.message.includes('video_url')) {
-                    const fallbackPayload = { ...payload };
-                    delete fallbackPayload.gallery;
-                    delete fallbackPayload.video_url;
-                    await supabase.from('courses').upsert(fallbackPayload);
-                } else {
-                    console.error("Supabase course upsert error:", sbError);
-                    supabaseWarning = `Supabase sync warning: ${sbError.message}`;
-                }
-            }
+            await supabase.from('courses').upsert(payload);
         } catch (sbErr) {
-            console.error("Supabase course upsert exception:", sbErr);
-            supabaseWarning = "Supabase sync warning: connection error";
+            console.warn("Supabase individual course upsert warning:", sbErr);
         }
 
-        const db = getLocalDB();
-        const existingIndex = db.courses.findIndex(c => c.id === courseId);
-        let updatedCourses: Course[] = [];
-        if (existingIndex >= 0) {
-            updatedCourses = [...db.courses];
-            updatedCourses[existingIndex] = finalCourse;
-        } else {
-            updatedCourses = [finalCourse, ...db.courses];
-        }
-        const saveResult = saveLocalDB({ courses: updatedCourses });
-
-        if (!saveResult && supabaseWarning) {
-            return NextResponse.json({ error: 'Failed to save to both Supabase and local DB' }, { status: 500 });
-        }
-
-        // Purge memory and Next.js page cache
+        // 4. Purge memory and Next.js page cache
         clearCMSCache('courses');
         try {
             revalidatePath('/');
             revalidatePath('/khoa-hoc');
             revalidatePath(`/khoa-hoc/${finalCourse.slug}`);
+            revalidatePath('/admin/khoa-hoc');
         } catch {}
 
         return NextResponse.json({ 
             success: true, 
-            course: finalCourse,
-            ...(supabaseWarning ? { warning: supabaseWarning } : {})
+            course: finalCourse
         });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
@@ -166,19 +193,32 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: 'Missing course ID' }, { status: 400 });
         }
 
-        const { error: sbError } = await supabase.from('courses').delete().eq('id', id);
-        if (sbError) {
-            console.error("Supabase course delete error:", sbError);
-        }
-
+        // 1. Delete from local DB
         const db = getLocalDB();
         const updatedCourses = db.courses.filter(c => c.id !== id);
         saveLocalDB({ courses: updatedCourses });
+
+        // 2. Delete from Supabase courses table
+        try {
+            await supabase.from('courses').delete().eq('id', id);
+        } catch (sbError) {
+            console.warn("Supabase course delete warning:", sbError);
+        }
+
+        // 3. Sync updated list to Supabase site_settings
+        try {
+            await supabase.from('site_settings').upsert({
+                id: 'courses_data',
+                data: updatedCourses,
+                updated_at: new Date().toISOString()
+            });
+        } catch {}
 
         clearCMSCache('courses');
         try {
             revalidatePath('/');
             revalidatePath('/khoa-hoc');
+            revalidatePath('/admin/khoa-hoc');
         } catch {}
 
         return NextResponse.json({ success: true, courses: updatedCourses });

@@ -42,6 +42,35 @@ export const getSupabaseCourses = cache(async (): Promise<Course[]> => {
         return cached.data;
     }
 
+    // 1. Try reading complete course list from Supabase site_settings
+    try {
+        const queryPromise = supabase.from('site_settings').select('data').eq('id', 'courses_data').single();
+        const { data: settingData, error: settingError } = (await fetchWithTimeout(queryPromise, 1500)) as any;
+        if (!settingError && settingData && Array.isArray(settingData.data) && settingData.data.length > 0) {
+            let localCourses: Course[] = [];
+            try {
+                const db = getLocalDB();
+                localCourses = db.courses || [];
+            } catch {}
+
+            const mergedCourses: Course[] = settingData.data.map((c: any) => {
+                const local = localCourses.find(x => x.id === c.id || x.slug === c.slug);
+                return {
+                    ...c,
+                    image: local?.image || c.image,
+                    gallery: (local?.gallery && local.gallery.length > 0) ? local.gallery : (c.gallery || []),
+                    videoUrl: local?.videoUrl || c.videoUrl || c.video_url
+                };
+            });
+
+            memoryCache.set('courses', { data: mergedCourses, timestamp: Date.now() });
+            return mergedCourses;
+        }
+    } catch (e) {
+        console.warn("Supabase fetch courses_data timed out/failed:", e);
+    }
+
+    // 2. Fallback to Supabase courses table
     try {
         const queryPromise = supabase.from('courses').select('*').order('created_at', { ascending: false });
         const { data, error } = (await fetchWithTimeout(queryPromise, 1500)) as any;
@@ -68,16 +97,16 @@ export const getSupabaseCourses = cache(async (): Promise<Course[]> => {
                     maxStudents: c.max_students,
                     instructor: c.instructor,
                     instructorId: c.instructor_id,
-                    image: c.image || local?.image,
-                    gallery: (c.gallery && Array.isArray(c.gallery) && c.gallery.length > 0) ? c.gallery : (local?.gallery || []),
-                    highlights: (c.highlights && c.highlights.length > 0) ? c.highlights : (local?.highlights || []),
-                    curriculum: (c.curriculum && c.curriculum.length > 0) ? c.curriculum : (local?.curriculum || []),
+                    image: local?.image || c.image,
+                    gallery: (local?.gallery && local.gallery.length > 0) ? local.gallery : (c.gallery || []),
+                    highlights: (local?.highlights && local.highlights.length > 0) ? local.highlights : (c.highlights || []),
+                    curriculum: (local?.curriculum && local.curriculum.length > 0) ? local.curriculum : (c.curriculum || []),
                     featured: c.featured,
                     totalLessons: c.total_lessons,
                     totalDuration: c.total_duration,
                     accessDuration: c.access_duration,
                     onlineUrl: c.online_url,
-                    videoUrl: c.video_url || local?.videoUrl
+                    videoUrl: local?.videoUrl || c.video_url
                 };
             });
 

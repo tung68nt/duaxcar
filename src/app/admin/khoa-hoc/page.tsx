@@ -101,7 +101,7 @@ function AdminCoursesContent() {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const res = await fetch('/api/cms/courses');
+                const res = await fetch('/api/cms/courses', { cache: 'no-store' });
                 if (res.ok) {
                     const json = await res.json();
                     if (json.courses && json.courses.length > 0) {
