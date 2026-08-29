@@ -72,160 +72,160 @@ export function MediaSelectorInput({
     };
 
     return (
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 min-w-0 w-full">
             {label && (
                 <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-[var(--color-text-secondary)]">
                         {label} {required && <span className="text-red-500">*</span>}
                     </label>
-                    <button
-                        type="button"
-                        onClick={() => setShowManualInput(!showManualInput)}
-                        className="text-[10px] text-[var(--color-text-muted)] hover:text-[var(--color-primary)] flex items-center gap-1 transition"
-                    >
-                        <LinkIcon className="w-3 h-3" />
-                        <span>{showManualInput ? "Ẩn nhập link URL" : "Nhập link URL / YouTube"}</span>
-                    </button>
                 </div>
             )}
 
             {description && (
-                <p className="text-[10px] text-[var(--color-text-muted)]">{description}</p>
+                <p className="text-[11px] text-[var(--color-text-muted)] leading-relaxed">{description}</p>
             )}
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 p-2 sm:p-2.5 bg-[var(--color-background)] rounded-lg border border-[var(--color-border)]">
-                {/* Thumbnail Preview Area */}
-                <div 
-                    onClick={() => hasMedia ? setLightboxOpen(true) : setPickerOpen(true)}
-                    className={`${aspectClasses} relative rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden flex items-center justify-center cursor-pointer group flex-shrink-0 hover:border-[var(--color-primary)] transition shadow-sm`}
-                >
-                    {hasMedia ? (
-                        <>
-                            {youtubeThumbnail ? (
-                                <>
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                        src={youtubeThumbnail}
-                                        alt={label || "YouTube Video"}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                                    />
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                        <div className="w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center shadow-md">
-                                            <span className="text-[10px] font-bold">▶</span>
-                                        </div>
-                                    </div>
-                                </>
-                            ) : isDirectVideo ? (
-                                <div className="w-full h-full relative flex items-center justify-center bg-black/90">
-                                    <video src={value} className="w-full h-full object-cover" preload="metadata" />
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                        <div className="w-7 h-7 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-md">
-                                            <span className="text-[10px] font-bold">▶</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <>
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                        src={value}
-                                        alt={label || "Preview"}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                                    />
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition duration-200">
-                                        <div className="p-1.5 rounded-lg bg-black/80 border border-white/20 text-white">
-                                            <Eye className="w-4 h-4 text-orange-400" />
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                        </>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center gap-1 text-[var(--color-text-muted)] p-2 text-center">
-                            {isVideoMode ? (
-                                <>
-                                    <span className="text-lg opacity-40">🎬</span>
-                                    <span className="text-[9px] font-medium">Chưa có video</span>
-                                </>
-                            ) : (
-                                <>
-                                    <ImageIcon className="w-6 h-6 opacity-40 group-hover:text-[var(--color-primary)] group-hover:opacity-100 transition" />
-                                    <span className="text-[9px] font-medium">Chưa có ảnh</span>
-                                </>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* Action Buttons & Info */}
-                <div className="flex-1 space-y-2.5 w-full">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <button
-                            type="button"
-                            onClick={() => setPickerOpen(true)}
-                            className="btn btn-primary btn-sm px-3 py-1.5 text-xs flex items-center gap-1.5 shadow-sm rounded-lg"
-                        >
-                            <ImageIcon className="w-3.5 h-3.5" />
-                            <span>
-                                {hasMedia 
-                                    ? (isVideoMode ? "Đổi video từ Thư viện" : "Đổi ảnh từ Thư viện") 
-                                    : (isVideoMode ? "Chọn video từ Media" : "Chọn từ Thư viện Media")}
-                            </span>
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => setShowManualInput(!showManualInput)}
-                            className="p-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] text-xs flex items-center gap-1 px-2.5 transition"
-                            title="Nhập URL trực tiếp hoặc link YouTube"
-                        >
-                            <LinkIcon className="w-3.5 h-3.5" />
-                            <span>{showManualInput ? "Đóng ô URL" : (isVideoMode ? "Dán link YouTube / MP4" : "Dán link URL")}</span>
-                        </button>
-
-                        {hasMedia && (
+            <div className="p-3 bg-[var(--color-background)] rounded-xl border border-[var(--color-border)] space-y-2.5 min-w-0 w-full overflow-hidden">
+                <div className="flex items-center gap-3 min-w-0">
+                    {/* Thumbnail Preview Area */}
+                    <div 
+                        onClick={() => hasMedia ? setLightboxOpen(true) : setPickerOpen(true)}
+                        className={`${aspectClasses} relative rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden flex items-center justify-center cursor-pointer group flex-shrink-0 hover:border-[var(--color-primary)] transition shadow-xs`}
+                    >
+                        {hasMedia ? (
                             <>
-                                <button
-                                    type="button"
-                                    onClick={() => setLightboxOpen(true)}
-                                    className="p-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] text-xs flex items-center gap-1 px-2.5 transition"
-                                    title="Xem xem trước"
-                                >
-                                    <Eye className="w-3.5 h-3.5" />
-                                    <span>Xem thử</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => onChange("")}
-                                    className="p-1.5 rounded-lg border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white text-xs flex items-center gap-1 px-2.5 transition"
-                                    title="Xóa"
-                                >
-                                    <X className="w-3.5 h-3.5" />
-                                    <span>Xóa</span>
-                                </button>
+                                {youtubeThumbnail ? (
+                                    <>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={youtubeThumbnail}
+                                            alt={label || "YouTube Video"}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                            <div className="w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center shadow-md">
+                                                <span className="text-[10px] font-bold">▶</span>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : isDirectVideo ? (
+                                    <div className="w-full h-full relative flex items-center justify-center bg-black/90">
+                                        <video src={value} className="w-full h-full object-cover" preload="metadata" />
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                            <div className="w-7 h-7 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-md">
+                                                <span className="text-[10px] font-bold">▶</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={value}
+                                            alt={label || "Preview"}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                        />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition duration-200">
+                                            <div className="p-1 rounded-lg bg-black/80 border border-white/20 text-white shadow-md">
+                                                <Eye className="w-3.5 h-3.5 text-orange-400" />
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center gap-1 text-[var(--color-text-muted)] p-2 text-center">
+                                {isVideoMode ? (
+                                    <>
+                                        <span className="text-base opacity-40">🎬</span>
+                                        <span className="text-[9px] font-medium">Chưa có video</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <ImageIcon className="w-5 h-5 opacity-40 group-hover:text-[var(--color-primary)] group-hover:opacity-100 transition" />
+                                        <span className="text-[9px] font-medium">Chưa có ảnh</span>
+                                    </>
+                                )}
+                            </div>
                         )}
                     </div>
 
-                    {/* Manual Direct Input (if toggled or no media in video mode) */}
-                    {showManualInput && (
-                        <div className="relative animate-fadeIn">
-                            <input
-                                type="text"
-                                value={value}
-                                onChange={(e) => onChange(e.target.value)}
-                                placeholder={placeholder || defaultPlaceholder}
-                                className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg pl-3 pr-3 py-1.5 text-xs font-mono text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                            />
-                        </div>
-                    )}
+                    {/* Action Controls */}
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                            <button
+                                type="button"
+                                onClick={() => setPickerOpen(true)}
+                                className="btn btn-primary btn-xs px-2.5 py-1 text-xs flex items-center gap-1 shadow-xs rounded-lg flex-shrink-0"
+                            >
+                                <ImageIcon className="w-3.5 h-3.5" />
+                                <span>
+                                    {hasMedia 
+                                        ? (isVideoMode ? "Đổi video" : "Đổi ảnh") 
+                                        : (isVideoMode ? "Chọn video" : "Chọn ảnh")}
+                                </span>
+                            </button>
 
-                    {hasMedia && !showManualInput && (
-                        <p className="text-[10px] font-mono text-[var(--color-text-muted)] truncate max-w-sm">
-                            {value}
-                        </p>
-                    )}
+                            <button
+                                type="button"
+                                onClick={() => setShowManualInput(!showManualInput)}
+                                className={`px-2 py-1 rounded-lg border text-xs flex items-center gap-1 transition flex-shrink-0 ${
+                                    showManualInput 
+                                        ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-semibold"
+                                        : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)]"
+                                }`}
+                                title="Nhập URL trực tiếp hoặc link YouTube/R2"
+                            >
+                                <LinkIcon className="w-3 h-3" />
+                                <span>{showManualInput ? "Đóng URL" : "Dán link"}</span>
+                            </button>
+
+                            {hasMedia && (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLightboxOpen(true)}
+                                        className="p-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition flex-shrink-0"
+                                        title="Xem to toàn màn hình"
+                                    >
+                                        <Eye className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => onChange("")}
+                                        className="p-1 rounded-lg border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition flex-shrink-0"
+                                        title="Xóa media này"
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                    </button>
+                                </>
+                            )}
+                        </div>
+
+                        {/* File path display badge with guaranteed truncation */}
+                        {hasMedia && !showManualInput && (
+                            <div className="flex items-center gap-1 text-[10px] text-[var(--color-text-muted)] bg-[var(--color-surface)] px-2 py-1 rounded-md border border-[var(--color-border)] min-w-0 w-full overflow-hidden">
+                                <span className="font-mono truncate w-full block" title={value}>
+                                    {value}
+                                </span>
+                            </div>
+                        )}
+                    </div>
                 </div>
+
+                {/* Manual Direct Input (if toggled) */}
+                {showManualInput && (
+                    <div className="relative animate-fadeIn pt-1 border-t border-[var(--color-border)]/60 min-w-0 w-full">
+                        <input
+                            type="text"
+                            value={value}
+                            onChange={(e) => onChange(e.target.value)}
+                            placeholder={placeholder || defaultPlaceholder}
+                            className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-xs font-mono text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                            autoFocus
+                        />
+                    </div>
+                )}
             </div>
 
             {/* Media Picker Modal */}

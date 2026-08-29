@@ -702,7 +702,7 @@ function AdminCoursesContent() {
                             {/* Card 2: Mô tả chi tiết HTML */}
                             <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-5 shadow-sm">
                                 <RichTextEditor
-                                    label="Mô tả chi tiết bài viết khóa học"
+                                    label="3. Nội dung chi tiết bài viết khóa học"
                                     value={formState.description}
                                     onChange={(html) => setFormState({ ...formState, description: html })}
                                     placeholder="Giới thiệu đầy đủ về khóa học: Mục tiêu đào tạo, đối tượng tham gia, giá trị nhận được, quyền lợi học viên..."
@@ -710,16 +710,16 @@ function AdminCoursesContent() {
                                 />
                             </div>
 
-                            {/* Card 3: Điểm nổi bật (Highlights) */}
+                            {/* Card 3: Điểm nổi bật & Lộ trình */}
                             <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-5 shadow-sm space-y-3">
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center gap-1.5">
                                             <Sparkles className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                                            Điểm nổi bật của khóa học
+                                            4. Điểm nổi bật & Lộ trình đào tạo
                                         </h3>
                                         <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
-                                            Các tiêu chí nổi bật được hiển thị dạng danh sách checkmark trên trang chi tiết
+                                            Các tiêu chí nổi bật và các chương học chi tiết theo buổi
                                         </p>
                                     </div>
                                     <button
@@ -857,13 +857,13 @@ function AdminCoursesContent() {
                                 </div>
                             </div>
 
-                            {/* 4. HÌNH ẢNH LỚP HỌC & THÀNH PHẨM THỰC TẾ (CLASSROOM PHOTO GALLERY - MAIN COLUMN) */}
+                            {/* 5. HÌNH ẢNH LỚP HỌC & THÀNH PHẨM THỰC TẾ (CLASSROOM PHOTO GALLERY - MAIN COLUMN) */}
                             <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-5 shadow-sm space-y-4">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--color-border)] pb-3">
                                     <div>
                                         <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center gap-1.5">
                                             <Images className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                                            <span>4. Hình ảnh lớp học & Thành phẩm thực tế ({formState.gallery?.length || 0} ảnh)</span>
+                                            <span>5. Hình ảnh lớp học & Thành phẩm thực tế ({formState.gallery?.length || 0} ảnh)</span>
                                         </h3>
                                         <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
                                             Tải lên nhiều hình ảnh về không gian lớp học, dụng cụ, quá trình hướng dẫn và thành phẩm thực tế của học viên.
@@ -988,7 +988,7 @@ function AdminCoursesContent() {
                                     isOnline ? "text-purple-600" : "text-green-600"
                                 }`}>
                                     {isOnline ? <Globe className="w-4 h-4" /> : <Users className="w-4 h-4" />}
-                                    3. Luồng đăng ký & Hành động (CTA)
+                                    6. Luồng đăng ký & Thiết lập CTA
                                 </h3>
 
                                 {isOnline ? (
@@ -1083,7 +1083,7 @@ function AdminCoursesContent() {
                             <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-5 shadow-sm space-y-4">
                                 <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center gap-1.5">
                                     <DollarSign className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                                    4. Học phí & Thiết lập giá
+                                    7. Học phí & Thời lượng đào tạo
                                 </h3>
 
                                 <div>
@@ -1152,7 +1152,7 @@ function AdminCoursesContent() {
                             <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-5 shadow-sm space-y-4">
                                 <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center gap-1.5">
                                     <Award className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                                    5. Giảng viên & Hình ảnh
+                                    8. Giảng viên & Media đại diện
                                 </h3>
 
                                 <div>
