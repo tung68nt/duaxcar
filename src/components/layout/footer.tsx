@@ -16,7 +16,7 @@ interface FooterProps {
 
 export default function Footer({ logo = "/images/logo.png" }: FooterProps) {
     return (
-        <footer className="bg-[var(--color-black)] border-t border-[var(--color-border)]">
+        <footer className="bg-[var(--color-surface)] border-t border-[var(--color-border)]">
             {/* Main Footer */}
             <div className="container py-8">
                 {/* Top Row: Logo */}
@@ -186,7 +186,7 @@ export default function Footer({ logo = "/images/logo.png" }: FooterProps) {
             </div>
 
             {/* Bottom Bar */}
-            <div className="border-t border-[var(--color-border)] bg-[var(--color-surface)]/30">
+            <div className="border-t border-[var(--color-border)] bg-[var(--color-background)]">
                 <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-[var(--color-text-muted)]">
                     <p className="text-center sm:text-left">
                         © {new Date().getFullYear()} DuaxCar Kitchen. Nấu từ tâm, kinh doanh từ bền vững.

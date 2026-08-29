@@ -269,7 +269,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             {/* Conversion CTA Section */}
             <section className="section bg-[var(--color-surface)] border-t border-[var(--color-border)] mt-20">
                 <div className="container max-w-4xl">
-                    <div className="p-8 md:p-12 bg-gradient-to-br from-[var(--color-gray-900)] to-[var(--color-gray-800)] text-center relative overflow-hidden rounded-[2.5rem] border border-[var(--color-border)] shadow-2xl">
+                    <div className="p-8 md:p-12 bg-gradient-to-br from-[var(--color-background)] to-[var(--color-surface)] text-center relative overflow-hidden rounded-[2.5rem] border border-[var(--color-border)] shadow-xl">
                         {/* Decorative background glow */}
                         <div className="absolute -top-24 -left-24 w-48 h-48 bg-[var(--color-primary)]/10 rounded-full blur-3xl" />
                         <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-[var(--color-primary)]/20 rounded-full blur-3xl" />

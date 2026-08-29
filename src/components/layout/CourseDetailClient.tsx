@@ -174,7 +174,7 @@ export default function CourseDetailClient({
                                             className="object-cover group-hover:scale-105 transition-transform duration-500"
                                         />
                                     ) : (
-                                        <ChefHat className="w-20 h-20 text-[var(--color-gray-600)]" />
+                                        <ChefHat className="w-20 h-20 text-[var(--color-text-muted)]" />
                                     )}
 
                                     {/* Video Play Button Overlay if videoUrl is configured */}
@@ -765,7 +765,7 @@ export default function CourseDetailClient({
                                         className="card card-glow group"
                                     >
                                         {/* Image */}
-                                        <div className="relative h-48 bg-[var(--color-gray-800)] overflow-hidden">
+                                        <div className="relative h-48 bg-[var(--color-surface-light)] overflow-hidden">
                                             <Image
                                                 src={relatedCourse.image}
                                                 alt={relatedCourse.name}

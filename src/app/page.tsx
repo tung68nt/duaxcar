@@ -181,7 +181,7 @@ export default async function HomePage() {
                                     className="card card-glow block h-full"
                                 >
                                     {/* Image */}
-                                    <div className="relative h-48 bg-[var(--color-gray-800)] overflow-hidden">
+                                    <div className="relative h-48 bg-[var(--color-surface-light)] overflow-hidden">
                                         <Image
                                             src={course.image}
                                             alt={course.name}
@@ -329,11 +329,11 @@ export default async function HomePage() {
                                     <div className="h-48 bg-gradient-to-br from-[var(--color-orange-500)]/30 to-[var(--color-orange-600)]/20 rounded-2xl flex items-center justify-center">
                                         <ChefHat className="w-16 h-16 text-[var(--color-primary)]" />
                                     </div>
-                                    <div className="h-32 bg-[var(--color-gray-700)] rounded-2xl" />
+                                    <div className="h-32 bg-[var(--color-surface-light)] rounded-2xl" />
                                 </div>
                                 <div className="space-y-4 pt-8">
-                                    <div className="h-32 bg-[var(--color-gray-700)] rounded-2xl" />
-                                    <div className="h-48 bg-gradient-to-br from-[var(--color-gray-700)] to-[var(--color-gray-800)] rounded-2xl flex items-center justify-center">
+                                    <div className="h-32 bg-[var(--color-surface-light)] rounded-2xl" />
+                                    <div className="h-48 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl flex items-center justify-center">
                                         <Award className="w-16 h-16 text-[var(--color-orange-400)]" />
                                     </div>
                                 </div>

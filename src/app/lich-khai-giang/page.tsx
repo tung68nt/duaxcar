@@ -233,20 +233,20 @@ export default function SchedulePage() {
                                 </a>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 bg-[var(--color-gray-800)]/50 rounded-xl text-center">
-                                    <div className="heading-3 text-purple-400">5+</div>
+                                <div className="p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-center shadow-xs">
+                                    <div className="heading-3 text-purple-500">5+</div>
                                     <div className="text-small text-[var(--color-text-muted)]">Khóa học</div>
                                 </div>
-                                <div className="p-4 bg-[var(--color-gray-800)]/50 rounded-xl text-center">
-                                    <div className="heading-3 text-purple-400">20+</div>
+                                <div className="p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-center shadow-xs">
+                                    <div className="heading-3 text-purple-500">20+</div>
                                     <div className="text-small text-[var(--color-text-muted)]">Video HD</div>
                                 </div>
-                                <div className="p-4 bg-[var(--color-gray-800)]/50 rounded-xl text-center">
-                                    <div className="heading-3 text-purple-400">∞</div>
+                                <div className="p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-center shadow-xs">
+                                    <div className="heading-3 text-purple-500">∞</div>
                                     <div className="text-small text-[var(--color-text-muted)]">Trọn đời</div>
                                 </div>
-                                <div className="p-4 bg-[var(--color-gray-800)]/50 rounded-xl text-center">
-                                    <div className="heading-3 text-purple-400">24/7</div>
+                                <div className="p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-center shadow-xs">
+                                    <div className="heading-3 text-purple-500">24/7</div>
                                     <div className="text-small text-[var(--color-text-muted)]">Hỗ trợ</div>
                                 </div>
                             </div>

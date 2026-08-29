@@ -90,13 +90,13 @@ export default async function CoursesPage({ searchParams }: Props) {
                             href="/khoa-hoc"
                             className={`relative p-5 rounded-2xl border-2 transition-all group ${!selectedType
                                 ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10"
-                                : "border-[var(--color-border)] hover:border-[var(--color-primary)]/50"
+                                : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary)]/50"
                                 }`}
                         >
                             <div className="flex items-center gap-4">
-                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${!selectedType ? "bg-[var(--color-primary)]" : "bg-[var(--color-gray-700)]"
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${!selectedType ? "bg-[var(--color-primary)] text-white" : "bg-[var(--color-surface-light)] text-[var(--color-text-secondary)]"
                                     }`}>
-                                    <ChefHat className={`w-6 h-6 ${!selectedType ? "text-white" : "text-[var(--color-text-muted)]"}`} />
+                                    <ChefHat className="w-6 h-6" />
                                 </div>
                                 <div>
                                     <h3 className={`font-semibold ${!selectedType ? "text-[var(--color-primary)]" : "text-[var(--color-text)]"}`}>
@@ -114,13 +114,13 @@ export default async function CoursesPage({ searchParams }: Props) {
                             href="/khoa-hoc?type=onsite"
                             className={`relative p-5 rounded-2xl border-2 transition-all group ${selectedType === "onsite"
                                 ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10"
-                                : "border-[var(--color-border)] hover:border-[var(--color-primary)]/50"
+                                : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary)]/50"
                                 }`}
                         >
                             <div className="flex items-center gap-4">
-                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${selectedType === "onsite" ? "bg-[var(--color-primary)]" : "bg-[var(--color-gray-700)]"
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${selectedType === "onsite" ? "bg-[var(--color-primary)] text-white" : "bg-[var(--color-surface-light)] text-[var(--color-text-secondary)]"
                                     }`}>
-                                    <Users className={`w-6 h-6 ${selectedType === "onsite" ? "text-white" : "text-[var(--color-text-muted)]"}`} />
+                                    <Users className="w-6 h-6" />
                                 </div>
                                 <div>
                                     <h3 className={`font-semibold ${selectedType === "onsite" ? "text-[var(--color-primary)]" : "text-[var(--color-text)]"}`}>
@@ -138,17 +138,17 @@ export default async function CoursesPage({ searchParams }: Props) {
                             href="/khoa-hoc?type=elearning"
                             className={`relative p-5 rounded-2xl border-2 transition-all group ${selectedType === "elearning"
                                 ? "border-purple-500 bg-purple-500/10 shadow-sm"
-                                : "border-[var(--color-border)] hover:border-purple-500/50"
+                                : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-purple-500/50"
                                 }`}
                         >
                             <div className="flex items-center gap-4">
                                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
-                                    selectedType === "elearning" ? "bg-purple-600 text-white" : "bg-[var(--color-gray-700)] text-[var(--color-text-muted)]"
+                                    selectedType === "elearning" ? "bg-purple-600 text-white" : "bg-[var(--color-surface-light)] text-[var(--color-text-secondary)]"
                                 }`}>
                                     <Play className="w-6 h-6 fill-current" />
                                 </div>
                                 <div>
-                                    <h3 className={`font-semibold ${selectedType === "elearning" ? "text-purple-400" : "text-[var(--color-text)]"}`}>
+                                    <h3 className={`font-semibold ${selectedType === "elearning" ? "text-purple-500" : "text-[var(--color-text)]"}`}>
                                         Khóa học Online
                                     </h3>
                                     <p className="text-small text-[var(--color-text-muted)]">
@@ -194,7 +194,7 @@ export default async function CoursesPage({ searchParams }: Props) {
                                                 className="card card-glow block h-full"
                                             >
                                                 {/* Image */}
-                                                <div className="relative h-48 bg-gradient-to-br from-[var(--color-gray-700)] to-[var(--color-gray-800)] flex items-center justify-center overflow-hidden">
+                                                <div className="relative h-48 bg-[var(--color-surface-light)] flex items-center justify-center overflow-hidden">
                                                     {course.image || courseCategories.find((c) => c.id === course.category)?.image ? (
                                                         <Image
                                                             src={course.image || courseCategories.find((c) => c.id === course.category)?.image || ""}
@@ -470,7 +470,7 @@ export default async function CoursesPage({ searchParams }: Props) {
                                                 className="card card-glow block h-full"
                                             >
                                                 {/* Image */}
-                                                <div className="relative h-48 bg-gradient-to-br from-[var(--color-gray-700)] to-[var(--color-gray-800)] flex items-center justify-center overflow-hidden">
+                                                <div className="relative h-48 bg-[var(--color-surface-light)] flex items-center justify-center overflow-hidden">
                                                     {course.image || courseCategories.find((c) => c.id === course.category)?.image ? (
                                                         <Image
                                                             src={course.image || courseCategories.find((c) => c.id === course.category)?.image || ""}

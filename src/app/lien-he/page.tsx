@@ -359,7 +359,7 @@ export default function ContactPage() {
                     <h2 className="heading-3 text-[var(--color-text)] mb-6 text-center">
                         Vị trí trung tâm
                     </h2>
-                    <div className="aspect-video bg-[var(--color-gray-800)] rounded-2xl overflow-hidden">
+                    <div className="aspect-video bg-[var(--color-surface-light)] rounded-2xl overflow-hidden">
                         <iframe
                             src={contactInfo.mapEmbed}
                             width="100%"
