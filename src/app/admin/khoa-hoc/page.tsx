@@ -1570,31 +1570,42 @@ function AdminCoursesContent() {
                                                                     href={course.onlineUrl} 
                                                                     target="_blank" 
                                                                     rel="noopener noreferrer"
-                                                                    title={course.onlineUrl}
-                                                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 hover:underline max-w-[180px] truncate text-[11px] font-mono"
+                                                                    title={`Mở liên kết đích: ${course.onlineUrl}`}
+                                                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-300 hover:bg-purple-500/20 border border-purple-500/20 max-w-[200px] min-w-0 truncate text-[11px] font-mono transition"
                                                                 >
                                                                     <Globe className="w-3 h-3 flex-shrink-0 text-purple-500" />
-                                                                    <span className="truncate">{course.onlineUrl.replace(/^https?:\/\//, '')}</span>
+                                                                    <span className="truncate">
+                                                                        {(() => {
+                                                                            try {
+                                                                                const u = new URL(course.onlineUrl);
+                                                                                const path = u.pathname + u.search;
+                                                                                return path && path !== "/" ? path : u.hostname;
+                                                                            } catch {
+                                                                                return course.onlineUrl.replace(/^https?:\/\/(?:www\.)?[^\/]+/, "") || course.onlineUrl;
+                                                                            }
+                                                                        })()}
+                                                                    </span>
                                                                     <ExternalLink className="w-2.5 h-2.5 flex-shrink-0 opacity-70" />
                                                                 </a>
                                                                 <button
+                                                                    type="button"
                                                                     onClick={() => copyToClipboard(course.onlineUrl || "", course.id)}
-                                                                    title="Sao chép liên kết E-learning"
-                                                                    className="p-1 rounded text-[var(--color-text-muted)] hover:text-purple-600 hover:bg-purple-500/10 transition-colors"
+                                                                    title="Sao chép toàn bộ liên kết E-learning"
+                                                                    className="p-1 rounded-md text-[var(--color-text-muted)] hover:text-purple-600 hover:bg-purple-500/10 transition-colors flex-shrink-0"
                                                                 >
                                                                     {copiedId === course.id ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
                                                                 </button>
                                                             </>
                                                         ) : (
                                                             <span className="text-[11px] text-amber-500 italic">
-                                                                Chưa nhập link E-learning
+                                                                Chưa gắn link đích
                                                             </span>
                                                         )}
                                                     </div>
                                                 ) : (
-                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] border border-[var(--color-border)] rounded-lg text-[11px]">
-                                                        <CheckCircle2 className="w-3 h-3 text-green-500" />
-                                                        Form thu lead tư vấn
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-500/10 text-green-600 border border-green-500/20 rounded-lg text-[11px] font-medium">
+                                                        <CheckCircle2 className="w-3 h-3 text-green-500 flex-shrink-0" />
+                                                        <span>Thu Lead {course.maxStudents ? `(Max ${course.maxStudents} HV)` : "tư vấn"}</span>
                                                     </span>
                                                 )}
                                             </td>
