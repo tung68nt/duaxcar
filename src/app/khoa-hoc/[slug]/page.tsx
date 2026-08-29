@@ -21,6 +21,7 @@ import CourseRegistrationForm from "@/components/layout/course-registration-form
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const dynamicParams = true;
 
 type Props = {
     params: Promise<{ slug: string }>;
@@ -38,14 +39,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
     const liveCourses = await getSupabaseCourses();
     const courses = liveCourses.length > 0 ? liveCourses : mockCourses;
-    const course = courses.find((c) => c.slug === slug);
+    const course = courses.find((c) => c.slug === slug || c.id === slug);
 
     if (!course) {
         return {
             title: "Không tìm thấy khóa học",
         };
     }
-
 
     return {
         title: course.name,
@@ -63,7 +63,7 @@ export default async function CourseDetailPage({ params }: Props) {
     const liveInstructors = await getSupabaseInstructors();
     const instructors = liveInstructors.length > 0 ? liveInstructors : mockInstructors;
 
-    const course = courses.find((c) => c.slug === slug);
+    const course = courses.find((c) => c.slug === slug || c.id === slug);
 
     if (!course) {
         notFound();
