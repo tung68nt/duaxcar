@@ -725,7 +725,7 @@ function AdminCoursesContent() {
                                     <button
                                         type="button"
                                         onClick={addHighlight}
-                                        className="px-2.5 py-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
+                                        className="px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] text-xs font-semibold flex items-center gap-1 transition cursor-pointer whitespace-nowrap flex-shrink-0"
                                     >
                                         <Plus className="w-3.5 h-3.5" /> Thêm điểm nổi bật
                                     </button>
@@ -738,18 +738,18 @@ function AdminCoursesContent() {
                                                 {index + 1}
                                             </span>
                                             <input
-                                                type="text"
-                                                value={hl}
-                                                onChange={(e) => updateHighlight(index, e.target.value)}
-                                                className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                                                placeholder={`Ví dụ: Bí quyết nêm nếm gia truyền chuẩn tỷ lệ vàng...`}
-                                                required
+                                                 type="text"
+                                                 value={hl}
+                                                 onChange={(e) => updateHighlight(index, e.target.value)}
+                                                 className="flex-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
+                                                 placeholder={`Ví dụ: Bí quyết nêm nếm gia truyền chuẩn tỷ lệ vàng...`}
+                                                 required
                                             />
                                             <button
-                                                type="button"
-                                                onClick={() => removeHighlight(index)}
-                                                className="p-2 text-[var(--color-text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
-                                                title="Xóa dòng này"
+                                                 type="button"
+                                                 onClick={() => removeHighlight(index)}
+                                                 className="p-2 text-[var(--color-text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
+                                                 title="Xóa dòng này"
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
@@ -759,9 +759,9 @@ function AdminCoursesContent() {
                                         <div className="text-center py-4 bg-[var(--color-surface-light)]/40 rounded-xl border border-dashed border-[var(--color-border)]">
                                             <p className="text-xs text-[var(--color-text-muted)]">Chưa thêm điểm nổi bật nào.</p>
                                             <button
-                                                type="button"
-                                                onClick={addHighlight}
-                                                className="text-xs text-[var(--color-primary)] font-semibold mt-1 hover:underline"
+                                                 type="button"
+                                                 onClick={addHighlight}
+                                                 className="text-xs text-[var(--color-primary)] font-semibold mt-1 hover:underline"
                                             >
                                                 + Thêm điểm nổi bật đầu tiên
                                             </button>
@@ -785,7 +785,7 @@ function AdminCoursesContent() {
                                     <button
                                         type="button"
                                         onClick={addChapter}
-                                        className="px-2.5 py-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
+                                        className="px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] text-xs font-semibold flex items-center gap-1 transition cursor-pointer whitespace-nowrap flex-shrink-0"
                                     >
                                         <Plus className="w-3.5 h-3.5" /> Thêm chương mới
                                     </button>
@@ -872,7 +872,7 @@ function AdminCoursesContent() {
                                     <button
                                         type="button"
                                         onClick={() => setIsAddingNewGalleryImage(true)}
-                                        className="px-3 py-1.5 rounded-lg bg-[var(--color-primary)] text-white hover:opacity-90 text-xs font-semibold flex items-center gap-1.5 shadow-xs transition cursor-pointer self-start sm:self-auto h-fit"
+                                        className="px-3.5 py-2 rounded-xl bg-[var(--color-primary)] text-white hover:opacity-90 text-xs font-semibold flex items-center gap-1.5 shadow-xs transition cursor-pointer self-start sm:self-auto h-fit whitespace-nowrap flex-shrink-0"
                                     >
                                         <Plus className="w-3.5 h-3.5" />
                                         <span>Thêm ảnh mới</span>
