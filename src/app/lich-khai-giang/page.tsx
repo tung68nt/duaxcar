@@ -90,9 +90,10 @@ export default function SchedulePage() {
     return (
         <>
             {/* Hero Section */}
-            <section className="relative py-24 md:py-32 overflow-hidden pattern-plus">
-                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-gray-900)] via-[var(--color-gray-800)] to-[var(--color-gray-900)]" />
-                <div className="absolute top-20 right-10 w-72 h-72 bg-[var(--color-orange-500)]/20 rounded-full blur-3xl" />
+            <section className="relative py-16 md:py-24 overflow-hidden border-b border-[var(--color-border)]">
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-background)] via-[var(--color-surface)] to-[var(--color-background)]" />
+                <div className="absolute top-10 right-10 w-72 h-72 bg-[var(--color-orange-500)]/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute inset-0 pattern-plus pointer-events-none opacity-50" />
 
                 <div className="container relative z-10">
                     <div className="max-w-3xl">
@@ -111,7 +112,7 @@ export default function SchedulePage() {
             </section>
 
             {/* Schedule List */}
-            <section className="section pattern-dots">
+            <section className="section bg-[var(--color-surface)]">
                 <div className="container">
                     <div className="space-y-6">
                         {scheduleData.map((schedule) => {

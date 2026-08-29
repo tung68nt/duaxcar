@@ -393,7 +393,7 @@ export default function CourseDetailClient({
             </section>
 
             {/* Course Details */}
-            <section className="section pattern-dots">
+            <section className="section bg-[var(--color-background)]">
                 <div className="container">
                     <div className="grid lg:grid-cols-3 gap-12">
                         <div className="lg:col-span-2">
@@ -545,11 +545,11 @@ export default function CourseDetailClient({
 
                                             {/* Expand / Collapse Button for 7+ photos */}
                                             {galleryList.length > 6 && (
-                                                <div className="text-center pt-2">
+                                                <div className="text-center pt-3">
                                                     <button
                                                         type="button"
                                                         onClick={() => setShowAllGallery(!showAllGallery)}
-                                                        className="btn btn-secondary btn-sm rounded-xl inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 hover:border-[var(--color-primary)] transition cursor-pointer shadow-xs"
+                                                        className="inline-flex items-center gap-2 text-xs font-semibold px-5 py-2.5 rounded-xl bg-[var(--color-surface)] hover:bg-[var(--color-surface-light)] border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text)] hover:text-[var(--color-primary)] transition-all cursor-pointer shadow-sm hover:shadow-md"
                                                     >
                                                         {showAllGallery ? (
                                                              <>

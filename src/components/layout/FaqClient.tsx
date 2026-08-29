@@ -114,9 +114,10 @@ export default function FaqClient({ initialFaqs }: FaqClientProps) {
     return (
         <main className="min-h-screen pb-20">
             {/* Hero Section */}
-            <section className="relative py-24 md:py-32 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-gray-900)] via-[var(--color-gray-800)] to-[var(--color-gray-900)]" />
-                <div className="absolute top-20 right-10 w-72 h-72 bg-[var(--color-orange-500)]/20 rounded-full blur-3xl" />
+            <section className="relative py-16 md:py-24 overflow-hidden border-b border-[var(--color-border)]">
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-background)] via-[var(--color-surface)] to-[var(--color-background)]" />
+                <div className="absolute top-10 right-10 w-72 h-72 bg-[var(--color-orange-500)]/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute inset-0 pattern-plus opacity-50 pointer-events-none" />
 
                 <div className="container relative z-10">
                     <div className="max-w-3xl">

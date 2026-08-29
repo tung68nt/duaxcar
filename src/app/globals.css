@@ -124,25 +124,37 @@
 
 /* Subtle dot grid pattern */
 .pattern-dots {
-    background-image: radial-gradient(circle, var(--color-gray-600) 1px, transparent 1px);
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1.2px, transparent 1.2px);
+    background-size: 24px 24px;
+}
+
+[data-theme="light"] .pattern-dots {
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.05) 1.2px, transparent 1.2px);
     background-size: 24px 24px;
 }
 
 /* Cross/Plus grid pattern */
 .pattern-grid {
     background-image:
-        linear-gradient(var(--color-gray-700) 1px, transparent 1px),
-        linear-gradient(90deg, var(--color-gray-700) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
     background-size: 40px 40px;
 }
 
-/* Subtle plus pattern like user example */
+[data-theme="light"] .pattern-grid {
+    background-image:
+        linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* Subtle plus pattern */
 .pattern-plus {
-    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23404040' fill-opacity='0.15'%3E%3Cpath d='M20 18h-2v-2h-1v2h-2v1h2v2h1v-2h2z'/%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M20 18h-2v-2h-1v2h-2v1h2v2h1v-2h2z'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 [data-theme="light"] .pattern-plus {
-    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d4d4d4' fill-opacity='0.5'%3E%3Cpath d='M20 18h-2v-2h-1v2h-2v1h2v2h1v-2h2z'/%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.04'%3E%3Cpath d='M20 18h-2v-2h-1v2h-2v1h2v2h1v-2h2z'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* Light pattern for colored backgrounds (e.g., orange CTA) */
@@ -280,12 +292,14 @@ body {
 }
 
 .btn-secondary {
-    background: transparent;
+    background: var(--color-surface);
     color: var(--color-text);
-    border: 2px solid var(--color-border);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .btn-secondary:hover {
+    background: var(--color-surface-light);
     border-color: var(--color-primary);
     color: var(--color-primary);
 }

@@ -49,10 +49,10 @@ export default async function CoursesPage({ searchParams }: Props) {
     return (
         <>
             {/* Hero Section */}
-            <section className="relative py-20 md:py-28 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-gray-900)] via-[var(--color-gray-800)] to-[var(--color-gray-900)]" />
-                <div className="absolute top-20 right-10 w-72 h-72 bg-[var(--color-orange-500)]/20 rounded-full blur-3xl" />
-                <div className="absolute inset-0 pattern-plus opacity-50" />
+            <section className="relative py-16 md:py-24 overflow-hidden border-b border-[var(--color-border)]">
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-background)] via-[var(--color-surface)] to-[var(--color-background)]" />
+                <div className="absolute top-10 right-10 w-72 h-72 bg-[var(--color-orange-500)]/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute inset-0 pattern-plus pointer-events-none opacity-50" />
 
                 <div className="container relative z-10">
                     <div className="max-w-3xl">
@@ -165,7 +165,7 @@ export default async function CoursesPage({ searchParams }: Props) {
             {selectedType === "onsite" ? (
                 <>
                     {/* Courses */}
-                    <section className="section bg-[var(--color-surface)] pattern-dots">
+                    <section className="section bg-[var(--color-surface)]">
                         <div className="container">
                             {/* Results Header */}
                             <div className="flex items-center justify-between mb-8">
@@ -441,7 +441,7 @@ export default async function CoursesPage({ searchParams }: Props) {
                     </section>
 
                     {/* Courses */}
-                    <section className="section bg-[var(--color-surface)] pattern-dots">
+                    <section className="section bg-[var(--color-surface)]">
                         <div className="container">
                             {/* Results Header */}
                             <div className="flex items-center justify-between mb-8">
