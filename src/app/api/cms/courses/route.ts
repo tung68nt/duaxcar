@@ -24,24 +24,7 @@ export async function GET() {
             .single();
 
         if (!settingError && settingData && Array.isArray(settingData.data) && settingData.data.length > 0) {
-            let localCourses: Course[] = [];
-            try {
-                const db = getLocalDB();
-                localCourses = db.courses || [];
-            } catch {}
-
-            // Merge with local courses to preserve any local edits
-            const mergedCourses: Course[] = settingData.data.map((c: any) => {
-                const local = localCourses.find(x => x.id === c.id || x.slug === c.slug);
-                return {
-                    ...c,
-                    image: local?.image || c.image,
-                    gallery: (local?.gallery && local.gallery.length > 0) ? local.gallery : (c.gallery || []),
-                    videoUrl: local?.videoUrl || c.videoUrl || c.video_url
-                };
-            });
-
-            return NextResponse.json({ courses: mergedCourses }, { headers: noCacheHeaders });
+            return NextResponse.json({ courses: settingData.data }, { headers: noCacheHeaders });
         }
     } catch (e) {
         console.warn("Supabase courses_data fetch error:", e);

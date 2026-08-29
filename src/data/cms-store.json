@@ -132,7 +132,7 @@
       "maxStudents": null,
       "instructor": "Nguyễn Hữu Thọ",
       "instructorId": "nguyen-huu-tho",
-      "image": "/images/courses/bun-bo-hue-online.jpg",
+      "image": "/images/courses/bun-bo-hue.jpg",
       "gallery": [
         "/images/courses/bun-bo-hue.jpg",
         "/images/about/mission-v6.jpg",
@@ -200,11 +200,12 @@
       "maxStudents": null,
       "instructor": "Nguyễn Hữu Thọ",
       "instructorId": "nguyen-huu-tho",
-      "image": "/images/courses/pho-bo-online.jpg",
+      "image": "/images/courses/pho-bo.jpg",
       "gallery": [
-        "/images/courses/pho-bo-online.jpg",
+        "/images/courses/pho-bo.jpg",
         "/images/about/mission-v6.jpg",
-        "/images/courses/bun-cha.jpg"
+        "/images/courses/bun-cha.jpg",
+        "/uploads/test-logo-upload-1787974793202.png"
       ],
       "highlights": [
         "10 video HD chất lượng cao",
@@ -330,9 +331,9 @@
       "maxStudents": null,
       "instructor": "Phạm Tuấn Hải",
       "instructorId": "pham-tuan-hai",
-      "image": "/images/courses/bun-rieu.jpg",
+      "image": "/images/courses/bun-cha.jpg",
       "gallery": [
-        "/images/courses/bun-rieu.jpg",
+        "/images/courses/bun-cha.jpg",
         "/images/about/mission-v6.jpg",
         "/images/courses/bun-cha.jpg"
       ],

@@ -47,24 +47,8 @@ export const getSupabaseCourses = cache(async (): Promise<Course[]> => {
         const queryPromise = supabase.from('site_settings').select('data').eq('id', 'courses_data').single();
         const { data: settingData, error: settingError } = (await fetchWithTimeout(queryPromise, 1500)) as any;
         if (!settingError && settingData && Array.isArray(settingData.data) && settingData.data.length > 0) {
-            let localCourses: Course[] = [];
-            try {
-                const db = getLocalDB();
-                localCourses = db.courses || [];
-            } catch {}
-
-            const mergedCourses: Course[] = settingData.data.map((c: any) => {
-                const local = localCourses.find(x => x.id === c.id || x.slug === c.slug);
-                return {
-                    ...c,
-                    image: local?.image || c.image,
-                    gallery: (local?.gallery && local.gallery.length > 0) ? local.gallery : (c.gallery || []),
-                    videoUrl: local?.videoUrl || c.videoUrl || c.video_url
-                };
-            });
-
-            memoryCache.set('courses', { data: mergedCourses, timestamp: Date.now() });
-            return mergedCourses;
+            memoryCache.set('courses', { data: settingData.data, timestamp: Date.now() });
+            return settingData.data;
         }
     } catch (e) {
         console.warn("Supabase fetch courses_data timed out/failed:", e);
