@@ -58,6 +58,11 @@ export default function CourseDetailClient({
 
     const galleryList = course.gallery || [];
 
+    // Ensure page always starts at top on initial render & slug changes
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, [slug]);
+
     // Keyboard navigation for Lightbox
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {

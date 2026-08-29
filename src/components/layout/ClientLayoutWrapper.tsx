@@ -18,6 +18,17 @@ export default function ClientLayoutWrapper({
         favicon: "/images/logo.png"
     });
 
+    // Reset scroll to top on every page transition
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        if (document.documentElement) {
+            document.documentElement.scrollTop = 0;
+        }
+        if (document.body) {
+            document.body.scrollTop = 0;
+        }
+    }, [pathname]);
+
     useEffect(() => {
         // Load initial from localStorage if present
         try {
