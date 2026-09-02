@@ -167,7 +167,7 @@ export default function CourseRegistrationForm({ courseName, courseType = "onsit
                                         id="name"
                                         name="name"
                                         required
-                                        className="input bg-[var(--color-bg)] border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-4 py-3"
+                                        className="input rounded-xl px-4 py-3"
                                         placeholder="Ví dụ: Nguyễn Văn A"
                                     />
                                 </div>
@@ -181,7 +181,7 @@ export default function CourseRegistrationForm({ courseName, courseType = "onsit
                                         id="phone"
                                         name="phone"
                                         required
-                                        className="input bg-[var(--color-bg)] border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-4 py-3"
+                                        className="input rounded-xl px-4 py-3"
                                         placeholder="Ví dụ: 0909 123 456"
                                     />
                                 </div>
@@ -196,7 +196,7 @@ export default function CourseRegistrationForm({ courseName, courseType = "onsit
                                         type="email"
                                         id="email"
                                         name="email"
-                                        className="input bg-[var(--color-bg)] border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-4 py-3"
+                                        className="input rounded-xl px-4 py-3"
                                         placeholder="name@example.com"
                                     />
                                 </div>
@@ -209,7 +209,7 @@ export default function CourseRegistrationForm({ courseName, courseType = "onsit
                                         type="text"
                                         id="course-placeholder"
                                         disabled
-                                        className="input bg-[var(--color-border)]/50 border-[var(--color-border)] text-[var(--color-text-secondary)] rounded-xl px-4 py-3 cursor-not-allowed font-medium"
+                                        className="input rounded-xl px-4 py-3 cursor-not-allowed font-medium"
                                         value={`${courseName} ${isElearning ? "(Khóa Online)" : "(Khóa Trực tiếp)"}`}
                                     />
                                 </div>
@@ -227,7 +227,7 @@ export default function CourseRegistrationForm({ courseName, courseType = "onsit
                                     name="note"
                                     rows={4}
                                     required={isElearning}
-                                    className="input bg-[var(--color-bg)] border-[var(--color-border)] text-[var(--color-text)] rounded-xl px-4 py-3 resize-none"
+                                    className="input rounded-xl px-4 py-3 resize-none"
                                     placeholder={isElearning 
                                         ? "Ví dụ: Tôi muốn hỏi thêm về tài liệu giáo trình, cách học và hỗ trợ sau khóa học..." 
                                         : "Tôi muốn học vào cuối tuần..."

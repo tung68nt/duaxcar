@@ -216,7 +216,7 @@ export default function AdminPolicyCMS() {
                             type="text"
                             value={currentPolicy.title || ""}
                             onChange={(e) => handleFieldChange("title", e.target.value)}
-                            className="input text-xs w-full rounded-lg px-3 py-2 bg-[var(--color-bg)] border-[var(--color-border)]"
+                            className="input text-xs w-full rounded-lg px-3 py-2"
                             placeholder="Ví dụ: Chính Sách Bảo Mật Thông Tin"
                         />
                     </div>
@@ -229,7 +229,7 @@ export default function AdminPolicyCMS() {
                             type="text"
                             value={currentPolicy.badge || ""}
                             onChange={(e) => handleFieldChange("badge", e.target.value)}
-                            className="input text-xs w-full rounded-lg px-3 py-2 bg-[var(--color-bg)] border-[var(--color-border)]"
+                            className="input text-xs w-full rounded-lg px-3 py-2"
                             placeholder="Ví dụ: Bảo Mật & Quyền Riêng Tư"
                         />
                     </div>
@@ -243,7 +243,7 @@ export default function AdminPolicyCMS() {
                             type="text"
                             value={currentPolicy.lastUpdated || ""}
                             onChange={(e) => handleFieldChange("lastUpdated", e.target.value)}
-                            className="input text-xs w-full rounded-lg px-3 py-2 bg-[var(--color-bg)] border-[var(--color-border)]"
+                            className="input text-xs w-full rounded-lg px-3 py-2"
                             placeholder="Ví dụ: 18/08/2026"
                         />
                     </div>
@@ -256,7 +256,7 @@ export default function AdminPolicyCMS() {
                             rows={2}
                             value={currentPolicy.subtitle || ""}
                             onChange={(e) => handleFieldChange("subtitle", e.target.value)}
-                            className="input text-xs w-full rounded-lg px-3 py-2 bg-[var(--color-bg)] border-[var(--color-border)] leading-relaxed"
+                            className="input text-xs w-full rounded-lg px-3 py-2 leading-relaxed"
                             placeholder="Tóm tắt ngắn gọn phạm vi và cam kết pháp lý của văn bản..."
                         />
                     </div>
