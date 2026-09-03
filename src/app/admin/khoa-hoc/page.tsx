@@ -311,6 +311,15 @@ function AdminCoursesContent() {
         }));
     };
 
+    const addGalleryImages = (urls: string[]) => {
+        const cleanUrls = urls.map(u => u.trim()).filter(Boolean);
+        if (cleanUrls.length === 0) return;
+        setFormState(prev => ({
+            ...prev,
+            gallery: [...(prev.gallery || []), ...cleanUrls]
+        }));
+    };
+
     const removeGalleryImage = (index: number) => {
         setFormState(prev => ({
             ...prev,
@@ -361,6 +370,7 @@ function AdminCoursesContent() {
 
         // 1. Save to server API and WAIT for result
         let apiSuccess = false;
+        let savedCourse: Course = courseData;
         try {
             const res = await fetch('/api/cms/courses', {
                 method: 'POST',
@@ -376,6 +386,9 @@ function AdminCoursesContent() {
             }
             
             apiSuccess = true;
+            if (result.course) {
+                savedCourse = result.course;
+            }
             
             if (result.warning) {
                 setSaveWarning(`⚠️ Dữ liệu đã lưu vào server nhưng đồng bộ Supabase thất bại. Trang công khai có thể hiển thị dữ liệu cũ.`);
@@ -391,9 +404,11 @@ function AdminCoursesContent() {
         if (apiSuccess) {
             let updatedCourses: Course[] = [];
             if (editingCourse && !isDuplicateMode) {
-                updatedCourses = courses.map(c => c.id === editingCourse.id ? courseData : c);
+                updatedCourses = courses.map(c => 
+                    (c.id === editingCourse.id || (editingCourse.slug && c.slug === editingCourse.slug)) ? savedCourse : c
+                );
             } else {
-                updatedCourses = [courseData, ...courses];
+                updatedCourses = [savedCourse, ...courses];
             }
 
             setCourses(updatedCourses);
@@ -1235,11 +1250,16 @@ function AdminCoursesContent() {
                     <MediaPickerModal
                         isOpen={isAddingNewGalleryImage}
                         onClose={() => setIsAddingNewGalleryImage(false)}
+                        allowMultiple={true}
                         onSelect={(url) => {
                             addGalleryImage(url);
                             setIsAddingNewGalleryImage(false);
                         }}
-                        title="Thêm ảnh lớp học vào khóa học"
+                        onSelectMultiple={(urls) => {
+                            addGalleryImages(urls);
+                            setIsAddingNewGalleryImage(false);
+                        }}
+                        title="Thêm ảnh lớp học & thành phẩm thực tế"
                     />
 
                     {/* Modal: Replace Existing Gallery Image */}

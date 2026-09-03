@@ -42,13 +42,39 @@ export const getSupabaseCourses = cache(async (): Promise<Course[]> => {
         return cached.data;
     }
 
+    let localCourses: Course[] = [];
+    try {
+        const db = getLocalDB();
+        localCourses = db.courses || [];
+    } catch {}
+
     // 1. Try reading complete course list from Supabase site_settings
     try {
         const queryPromise = supabase.from('site_settings').select('data').eq('id', 'courses_data').single();
         const { data: settingData, error: settingError } = (await fetchWithTimeout(queryPromise, 1500)) as any;
         if (!settingError && settingData && Array.isArray(settingData.data) && settingData.data.length > 0) {
-            memoryCache.set('courses', { data: settingData.data, timestamp: Date.now() });
-            return settingData.data;
+            // Supabase courses_data is the authoritative production database.
+            // Local data is only a fallback for missing fields.
+            const mergedCourses: Course[] = settingData.data.map((c: Course) => {
+                const local = localCourses.find(x => x.id === c.id || (x.slug && x.slug === c.slug));
+                return {
+                    ...local,
+                    ...c,
+                    image: c.image || local?.image || '/images/courses/pho-bo.jpg',
+                    gallery: (c.gallery && Array.isArray(c.gallery)) ? c.gallery : (local?.gallery || []),
+                    videoUrl: c.videoUrl !== undefined ? c.videoUrl : (local?.videoUrl || '')
+                };
+            });
+
+            // Append any courses that exist locally but not yet in Supabase site_settings
+            for (const loc of localCourses) {
+                if (!mergedCourses.some(c => c.id === loc.id || (c.slug && c.slug === loc.slug))) {
+                    mergedCourses.unshift(loc);
+                }
+            }
+
+            memoryCache.set('courses', { data: mergedCourses, timestamp: Date.now() });
+            return mergedCourses;
         }
     } catch (e) {
         console.warn("Supabase fetch courses_data timed out/failed:", e);
@@ -59,40 +85,41 @@ export const getSupabaseCourses = cache(async (): Promise<Course[]> => {
         const queryPromise = supabase.from('courses').select('*').order('created_at', { ascending: false });
         const { data, error } = (await fetchWithTimeout(queryPromise, 1500)) as any;
         if (!error && data && data.length > 0) {
-            let localCourses: Course[] = [];
-            try {
-                const db = getLocalDB();
-                localCourses = db.courses || [];
-            } catch {}
-
             const mappedCourses: Course[] = data.map((c: any) => {
-                const local = localCourses.find(x => x.id === c.id || x.slug === c.slug);
+                const local = localCourses.find(x => x.id === c.id || (x.slug && x.slug === c.slug));
                 return {
                     id: c.id,
-                    slug: c.slug,
-                    name: c.name,
-                    category: c.category,
-                    courseType: c.course_type,
-                    description: c.description,
-                    shortDescription: c.short_description,
-                    price: Number(c.price),
-                    contactForPrice: c.contact_for_price,
-                    duration: c.duration,
-                    maxStudents: c.max_students,
-                    instructor: c.instructor,
-                    instructorId: c.instructor_id,
+                    slug: local?.slug || c.slug,
+                    name: local?.name || c.name,
+                    category: local?.category || c.category,
+                    courseType: local?.courseType || c.course_type,
+                    description: local?.description !== undefined ? local.description : c.description,
+                    shortDescription: local?.shortDescription || c.short_description,
+                    price: local?.price !== undefined ? Number(local.price) : Number(c.price),
+                    contactForPrice: local?.contactForPrice !== undefined ? Boolean(local.contactForPrice) : Boolean(c.contact_for_price),
+                    duration: local?.duration || c.duration,
+                    maxStudents: local?.maxStudents !== undefined ? local.maxStudents : c.max_students,
+                    instructor: local?.instructor || c.instructor,
+                    instructorId: local?.instructorId || c.instructor_id,
                     image: local?.image || c.image,
                     gallery: (local?.gallery && local.gallery.length > 0) ? local.gallery : (c.gallery || []),
                     highlights: (local?.highlights && local.highlights.length > 0) ? local.highlights : (c.highlights || []),
                     curriculum: (local?.curriculum && local.curriculum.length > 0) ? local.curriculum : (c.curriculum || []),
-                    featured: c.featured,
-                    totalLessons: c.total_lessons,
-                    totalDuration: c.total_duration,
-                    accessDuration: c.access_duration,
-                    onlineUrl: c.online_url,
+                    featured: local?.featured !== undefined ? local.featured : c.featured,
+                    totalLessons: local?.totalLessons || c.total_lessons,
+                    totalDuration: local?.totalDuration || c.total_duration,
+                    accessDuration: local?.accessDuration || c.access_duration,
+                    onlineUrl: local?.onlineUrl || c.online_url,
                     videoUrl: local?.videoUrl || c.video_url
                 };
             });
+
+            // Append any courses that exist locally but not yet in Supabase courses table
+            for (const loc of localCourses) {
+                if (!mappedCourses.some(c => c.id === loc.id || (c.slug && c.slug === loc.slug))) {
+                    mappedCourses.unshift(loc);
+                }
+            }
 
             memoryCache.set('courses', { data: mappedCourses, timestamp: Date.now() });
             return mappedCourses;
@@ -101,13 +128,10 @@ export const getSupabaseCourses = cache(async (): Promise<Course[]> => {
         console.warn("Supabase fetch courses failed/timed out, using local DB:", e);
     }
 
-    try {
-        const db = getLocalDB();
-        if (db.courses && db.courses.length > 0) {
-            memoryCache.set('courses', { data: db.courses, timestamp: Date.now() });
-            return db.courses;
-        }
-    } catch {}
+    if (localCourses.length > 0) {
+        memoryCache.set('courses', { data: localCourses, timestamp: Date.now() });
+        return localCourses;
+    }
 
     return [];
 });

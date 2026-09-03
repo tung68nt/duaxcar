@@ -168,9 +168,10 @@ export default function CourseDetailClient({
                                 <div className="relative aspect-[4/3] flex items-center justify-center overflow-hidden">
                                     {course.image || category?.image ? (
                                         <Image
-                                            src={course.image || category?.image || ""}
+                                            src={course.image || category?.image || "/images/courses/pho-bo.jpg"}
                                             alt={course.name}
                                             fill
+                                            unoptimized={Boolean(course.image && (course.image.startsWith('data:') || course.image.startsWith('blob:')))}
                                             className="object-cover group-hover:scale-105 transition-transform duration-500"
                                         />
                                     ) : (
@@ -513,6 +514,7 @@ export default function CourseDetailClient({
                                                                 alt={`${course.name} - Ảnh lớp học ${idx + 1}`}
                                                                 fill
                                                                 loading="lazy"
+                                                                unoptimized={Boolean(imgUrl && (imgUrl.startsWith('data:') || imgUrl.startsWith('blob:') || imgUrl.startsWith('/api/')))}
                                                                 sizes="(max-width: 768px) 50vw, 300px"
                                                                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                                                             />
@@ -767,9 +769,10 @@ export default function CourseDetailClient({
                                         {/* Image */}
                                         <div className="relative h-48 bg-[var(--color-surface-light)] overflow-hidden">
                                             <Image
-                                                src={relatedCourse.image}
+                                                src={relatedCourse.image || "/images/courses/pho-bo.jpg"}
                                                 alt={relatedCourse.name}
                                                 fill
+                                                unoptimized={Boolean(relatedCourse.image && (relatedCourse.image.startsWith('data:') || relatedCourse.image.startsWith('blob:')))}
                                                 className="object-cover group-hover:scale-110 transition-transform duration-500"
                                             />
                                             {/* Tags */}
@@ -924,6 +927,7 @@ export default function CourseDetailClient({
                                 alt={`${course.name} - Ảnh ${activeGalleryIndex + 1}`}
                                 fill
                                 priority
+                                unoptimized={Boolean(galleryList[activeGalleryIndex] && (galleryList[activeGalleryIndex].startsWith('data:') || galleryList[activeGalleryIndex].startsWith('blob:') || galleryList[activeGalleryIndex].startsWith('/api/')))}
                                 sizes="(max-width: 1200px) 100vw, 1200px"
                                 className="object-contain select-none pointer-events-none"
                             />

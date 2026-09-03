@@ -183,9 +183,10 @@ export default async function HomePage() {
                                     {/* Image */}
                                     <div className="relative h-48 bg-[var(--color-surface-light)] overflow-hidden">
                                         <Image
-                                            src={course.image}
+                                            src={course.image || "/images/courses/pho-bo.jpg"}
                                             alt={course.name}
                                             fill
+                                            unoptimized={Boolean(course.image && (course.image.startsWith('data:') || course.image.startsWith('blob:')))}
                                             className="object-cover group-hover:scale-110 transition-transform duration-500"
                                         />
                                         {/* Category Badge */}

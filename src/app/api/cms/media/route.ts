@@ -7,31 +7,21 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        // Try fetching from supabase if table exists
+        // 1. Try fetching from Supabase site_settings (media_data)
         const { data, error } = await supabase
-            .from('media_library')
-            .select('*')
-            .order('uploaded_at', { ascending: false });
+            .from('site_settings')
+            .select('data')
+            .eq('id', 'media_data')
+            .single();
 
-        if (!error && data && data.length > 0) {
-            const mapped: MediaItem[] = data.map((item: any) => ({
-                id: item.id,
-                name: item.name,
-                url: item.url,
-                type: item.type || "image",
-                size: item.size || "150 KB",
-                sizeBytes: item.size_bytes,
-                dimensions: item.dimensions,
-                uploadedAt: item.uploaded_at || new Date().toISOString().split('T')[0],
-                compressed: item.compressed,
-                originalSize: item.original_size
-            }));
-            return NextResponse.json({ media: mapped });
+        if (!error && data && Array.isArray(data.data) && data.data.length > 0) {
+            return NextResponse.json({ media: data.data });
         }
     } catch (e) {
-        console.warn("Supabase GET media error:", e);
+        console.warn("Supabase GET media_data error:", e);
     }
 
+    // 2. Fallback to local file store
     try {
         const db = getLocalDB();
         const media = (db.media && db.media.length > 0) ? db.media : DEFAULT_MEDIA_ITEMS;
@@ -46,8 +36,26 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { items, item } = body;
 
-        const db = getLocalDB();
-        let currentMedia = db.media || [...DEFAULT_MEDIA_ITEMS];
+        let currentMedia: MediaItem[] = [];
+
+        // 1. Load current media from Supabase site_settings
+        try {
+            const { data } = await supabase
+                .from('site_settings')
+                .select('data')
+                .eq('id', 'media_data')
+                .single();
+            if (data && Array.isArray(data.data)) {
+                currentMedia = data.data;
+            }
+        } catch {}
+
+        if (currentMedia.length === 0) {
+            try {
+                const db = getLocalDB();
+                currentMedia = db.media || [...DEFAULT_MEDIA_ITEMS];
+            } catch {}
+        }
 
         if (Array.isArray(items)) {
             currentMedia = items;
@@ -60,27 +68,21 @@ export async function POST(request: Request) {
             }
         }
 
-        saveLocalDB({ media: currentMedia });
-
-        // Attempt Supabase sync if single item
-        if (item) {
-            try {
-                await supabase.from('media_library').upsert({
-                    id: item.id,
-                    name: item.name,
-                    url: item.url,
-                    type: item.type,
-                    size: item.size,
-                    size_bytes: item.sizeBytes,
-                    dimensions: item.dimensions,
-                    uploaded_at: item.uploadedAt,
-                    compressed: item.compressed,
-                    original_size: item.originalSize
-                });
-            } catch (e) {
-                console.warn("Supabase upsert media warning:", e);
-            }
+        // 2. Save to Supabase site_settings
+        try {
+            await supabase.from('site_settings').upsert({
+                id: 'media_data',
+                data: currentMedia,
+                updated_at: new Date().toISOString()
+            });
+        } catch (e) {
+            console.warn("Supabase upsert media_data warning:", e);
         }
+
+        // 3. Save to local DB as backup
+        try {
+            saveLocalDB({ media: currentMedia });
+        } catch {}
 
         return NextResponse.json({ success: true, media: currentMedia });
     } catch (e: any) {
@@ -94,25 +96,48 @@ export async function DELETE(request: Request) {
         const id = searchParams.get('id');
         const idsParam = searchParams.get('ids');
 
-        const db = getLocalDB();
-        let currentMedia = db.media || [...DEFAULT_MEDIA_ITEMS];
+        let currentMedia: MediaItem[] = [];
+        try {
+            const { data } = await supabase
+                .from('site_settings')
+                .select('data')
+                .eq('id', 'media_data')
+                .single();
+            if (data && Array.isArray(data.data)) {
+                currentMedia = data.data;
+            }
+        } catch {}
 
-        if (idsParam) {
-            const idsToDelete = idsParam.split(',');
-            currentMedia = currentMedia.filter(m => !idsToDelete.includes(m.id));
+        if (currentMedia.length === 0) {
             try {
-                await supabase.from('media_library').delete().in('id', idsToDelete);
+                const db = getLocalDB();
+                currentMedia = db.media || [...DEFAULT_MEDIA_ITEMS];
             } catch {}
-        } else if (id) {
-            currentMedia = currentMedia.filter(m => m.id !== id);
-            try {
-                await supabase.from('media_library').delete().eq('id', id);
-            } catch {}
-        } else {
-            return NextResponse.json({ error: 'Missing media ID(s)' }, { status: 400 });
         }
 
-        saveLocalDB({ media: currentMedia });
+        if (idsParam) {
+            const idsToDelete = idsParam.split(',').map(s => s.trim()).filter(Boolean);
+            currentMedia = currentMedia.filter(m => !idsToDelete.includes(m.id));
+        } else if (id) {
+            currentMedia = currentMedia.filter(m => m.id !== id);
+        }
+
+        // Save to Supabase
+        try {
+            await supabase.from('site_settings').upsert({
+                id: 'media_data',
+                data: currentMedia,
+                updated_at: new Date().toISOString()
+            });
+        } catch (e) {
+            console.warn("Supabase delete media_data warning:", e);
+        }
+
+        // Save to local DB
+        try {
+            saveLocalDB({ media: currentMedia });
+        } catch {}
+
         return NextResponse.json({ success: true, media: currentMedia });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });

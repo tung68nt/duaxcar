@@ -20,7 +20,9 @@ import {
     Eye,
     UploadCloud,
     SlidersHorizontal,
-    CheckCircle2
+    CheckCircle2,
+    Loader2,
+    AlertCircle
 } from "lucide-react";
 import { 
     MediaItem, 
@@ -56,6 +58,13 @@ export default function AdminMediaLibrary() {
         compressedSize: number;
         ratio: number;
     } | null>(null);
+    const [uploadProgress, setUploadProgress] = useState<{
+        current: number;
+        total: number;
+        fileName: string;
+        percent: number;
+    } | null>(null);
+    const [uploadErrors, setUploadErrors] = useState<string[]>([]);
 
     // Fetch media on mount
     const loadMedia = async () => {
@@ -146,8 +155,17 @@ export default function AdminMediaLibrary() {
     const handleFilesUpload = async (files: FileList | null) => {
         if (!files || files.length === 0) return;
         setIsUploading(true);
+        setUploadErrors([]);
+        setLastUploadStats(null);
+        setUploadProgress({
+            current: 0,
+            total: files.length,
+            fileName: files[0].name,
+            percent: 0
+        });
 
         const newItems: MediaItem[] = [];
+        const errors: string[] = [];
         let totalOrigBytes = 0;
         let totalCompBytes = 0;
 
@@ -155,13 +173,19 @@ export default function AdminMediaLibrary() {
             const file = files[i];
             const isVideo = file.type.startsWith("video/");
 
+            setUploadProgress({
+                current: i + 1,
+                total: files.length,
+                fileName: file.name,
+                percent: Math.round((i / files.length) * 100)
+            });
+
             try {
-                let finalUrl = "";
-                let finalSize = `${(file.size / 1024).toFixed(0)} KB`;
-                let isCompressed = false;
-                let originalSizeStr = `${(file.size / 1024).toFixed(0)} KB`;
+                let uploadBody: FormData;
                 let sizeInBytes = file.size;
                 let dimensionsStr = "";
+                let isCompressed = false;
+                let originalSizeStr = formatBytes(file.size);
 
                 if (!isVideo && file.type.startsWith("image/")) {
                     const result = await compressImage(file, {
@@ -171,63 +195,70 @@ export default function AdminMediaLibrary() {
                         format: "image/webp"
                     });
 
-                    finalUrl = result.base64;
-                    finalSize = formatBytes(result.compressedSize);
                     sizeInBytes = result.compressedSize;
-                    isCompressed = true;
-                    originalSizeStr = formatBytes(result.originalSize);
                     dimensionsStr = `${result.width}x${result.height}`;
-
+                    isCompressed = true;
                     totalOrigBytes += result.originalSize;
                     totalCompBytes += result.compressedSize;
+
+                    const formData = new FormData();
+                    const webpFile = new File(
+                        [result.file],
+                        file.name.replace(/\.[^/.]+$/, ".webp"),
+                        { type: "image/webp" }
+                    );
+                    formData.append("file", webpFile);
+                    uploadBody = formData;
                 } else {
-                    const reader = new FileReader();
-                    finalUrl = await new Promise((resolve) => {
-                        reader.onloadend = () => resolve(reader.result as string);
-                        reader.readAsDataURL(file);
-                    });
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    uploadBody = formData;
                     totalOrigBytes += file.size;
                     totalCompBytes += file.size;
                 }
 
-                // Upload to server to get permanent clean URL (/uploads/...)
-                try {
-                    const uploadRes = await fetch("/api/cms/upload", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            base64: finalUrl,
-                            name: file.name,
-                            type: isVideo ? "video" : "image",
-                            sizeBytes: sizeInBytes,
-                            dimensions: dimensionsStr
-                        })
-                    });
-                    if (uploadRes.ok) {
-                        const uploadData = await uploadRes.json();
-                        if (uploadData.url) {
-                            finalUrl = uploadData.url;
-                        }
-                    }
-                } catch (upErr) {
-                    console.warn("Upload API error:", upErr);
+                // Upload to server using FormData
+                const uploadRes = await fetch("/api/cms/upload", {
+                    method: "POST",
+                    body: uploadBody
+                });
+
+                if (!uploadRes.ok) {
+                    const errData = await uploadRes.json().catch(() => ({}));
+                    errors.push(`Upload "${file.name}" thất bại: ${errData.error || uploadRes.statusText}`);
+                    continue;
                 }
 
+                const uploadData = await uploadRes.json();
+                const finalUrl = uploadData.url || uploadData.item?.url || "";
+
                 newItems.push({
-                    id: `m-${Date.now()}-${i}`,
+                    id: uploadData.item?.id || `m-${Date.now()}-${i}`,
                     name: file.name.replace(/\.[^/.]+$/, "") + (isCompressed ? ".webp" : ""),
                     url: finalUrl,
                     type: isVideo ? "video" : "image",
-                    size: finalSize,
+                    size: formatBytes(sizeInBytes),
                     sizeBytes: sizeInBytes,
-                    dimensions: dimensionsStr,
+                    dimensions: dimensionsStr || (isVideo ? "Video HD" : "Ảnh HD"),
                     uploadedAt: new Date().toISOString().split("T")[0],
                     compressed: isCompressed,
                     originalSize: isCompressed ? originalSizeStr : undefined
                 });
-            } catch (err) {
-                console.error("Error compressing file:", file.name, err);
+            } catch (err: any) {
+                console.error("Error processing file:", file.name, err);
+                errors.push(`Lỗi "${file.name}": ${err?.message || "Không thể xử lý"}`);
             }
+        }
+
+        setUploadProgress({
+            current: files.length,
+            total: files.length,
+            fileName: "Hoàn tất xử lý!",
+            percent: 100
+        });
+
+        if (errors.length > 0) {
+            setUploadErrors(errors);
         }
 
         if (newItems.length > 0) {
@@ -235,8 +266,8 @@ export default function AdminMediaLibrary() {
             setMediaItems(updated);
             
             try {
-                localStorage.setItem("admin_media_extended", JSON.stringify(updated.slice(0, 50)));
-                const legacyUrls = updated.slice(0, 50).map(item => item.url);
+                localStorage.setItem("admin_media_extended", JSON.stringify(updated.slice(0, 100)));
+                const legacyUrls = updated.slice(0, 100).map(item => item.url);
                 localStorage.setItem("admin_media", JSON.stringify(legacyUrls));
             } catch {}
 
@@ -697,7 +728,11 @@ export default function AdminMediaLibrary() {
                                 className="hidden"
                             />
                             <div className="p-3 rounded-lg bg-orange-500/10 text-[var(--color-primary)] mb-2.5">
-                                <UploadCloud className="w-6 h-6" />
+                                {isUploading ? (
+                                    <Loader2 className="w-6 h-6 animate-spin" />
+                                ) : (
+                                    <UploadCloud className="w-6 h-6" />
+                                )}
                             </div>
                             <h4 className="font-heading font-bold text-sm text-[var(--color-text)]">
                                 {isUploading ? "Đang xử lý nén WebP & lưu trữ..." : "Chọn hoặc kéo thả tập tin vào đây"}
@@ -706,6 +741,27 @@ export default function AdminMediaLibrary() {
                                 Hỗ trợ chọn nhiều file cùng lúc (PNG, JPG, WEBP, MP4). Tự động nén WebP siêu nhẹ.
                             </p>
                         </label>
+
+                        {/* Progress Bar */}
+                        {isUploading && uploadProgress && (
+                            <div className="p-3.5 rounded-xl bg-[var(--color-background)] border border-[var(--color-border)] space-y-2 animate-fadeIn">
+                                <div className="flex items-center justify-between text-xs">
+                                    <span className="font-bold text-[var(--color-text)] flex items-center gap-1.5">
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin text-orange-500" />
+                                        Đang tải lên {uploadProgress.current}/{uploadProgress.total} file ({uploadProgress.percent}%)
+                                    </span>
+                                    <span className="text-[var(--color-text-muted)] truncate max-w-[180px]">
+                                        {uploadProgress.fileName}
+                                    </span>
+                                </div>
+                                <div className="w-full bg-[var(--color-surface)] rounded-full h-2 overflow-hidden border border-[var(--color-border)]">
+                                    <div 
+                                        className="bg-gradient-to-r from-orange-500 to-amber-500 h-2 rounded-full transition-all duration-300"
+                                        style={{ width: `${Math.max(5, uploadProgress.percent)}%` }}
+                                    />
+                                </div>
+                            </div>
+                        )}
 
                         {/* Compression Quality Selection */}
                         <div className="bg-[var(--color-background)] p-3.5 rounded-lg border border-[var(--color-border)] space-y-2.5">
@@ -758,6 +814,21 @@ export default function AdminMediaLibrary() {
                                 </button>
                             </div>
                         </div>
+
+                        {/* Error Messages */}
+                        {uploadErrors.length > 0 && (
+                            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-xs space-y-1">
+                                <div className="flex items-center gap-1.5 font-bold">
+                                    <AlertCircle className="w-4 h-4" />
+                                    <span>Có lỗi xảy ra khi tải file:</span>
+                                </div>
+                                <ul className="list-disc list-inside space-y-0.5">
+                                    {uploadErrors.map((err, idx) => (
+                                        <li key={idx}>{err}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
 
                         {/* Last Upload Report */}
                         {lastUploadStats && (

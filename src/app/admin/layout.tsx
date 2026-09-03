@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import ThemeToggle from "@/components/theme-toggle";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { 
     LayoutDashboard, 
     BookOpen, 
@@ -33,12 +34,22 @@ export default function AdminLayout({
     const [logoUrl, setLogoUrl] = useState("/images/logo.png");
 
     useEffect(() => {
-        const loggedIn = localStorage.getItem("admin_logged_in");
-        if (loggedIn !== "true") {
-            router.push("/login");
-        } else {
+        // Verify Supabase Auth session
+        const checkAuth = async () => {
+            try {
+                const supabase = getSupabaseBrowserClient();
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    router.push("/login");
+                    return;
+                }
+            } catch {
+                router.push("/login");
+                return;
+            }
             setIsLoading(false);
-        }
+        };
+        checkAuth();
 
         // Fetch settings for logo and favicon
         try {
@@ -77,9 +88,15 @@ export default function AdminLayout({
             .catch(() => {});
     }, [router]);
 
-    const handleLogout = () => {
-        localStorage.removeItem("admin_logged_in");
+    const handleLogout = async () => {
+        try {
+            const supabase = getSupabaseBrowserClient();
+            await supabase.auth.signOut();
+        } catch {
+            // Ignore sign-out errors
+        }
         router.push("/login");
+        router.refresh();
     };
 
     const menuItems = [

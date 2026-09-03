@@ -200,6 +200,7 @@ export default async function CoursesPage({ searchParams }: Props) {
                                                             src={course.image || courseCategories.find((c) => c.id === course.category)?.image || ""}
                                                             alt={course.name}
                                                             fill
+                                                            unoptimized={Boolean(course.image && (course.image.startsWith('data:') || course.image.startsWith('blob:')))}
                                                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                                                         />
                                                     ) : (
@@ -476,6 +477,7 @@ export default async function CoursesPage({ searchParams }: Props) {
                                                             src={course.image || courseCategories.find((c) => c.id === course.category)?.image || ""}
                                                             alt={course.name}
                                                             fill
+                                                            unoptimized={Boolean(course.image && (course.image.startsWith('data:') || course.image.startsWith('blob:')))}
                                                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                                                         />
                                                     ) : (

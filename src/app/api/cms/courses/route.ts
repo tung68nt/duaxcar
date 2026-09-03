@@ -24,7 +24,32 @@ export async function GET() {
             .single();
 
         if (!settingError && settingData && Array.isArray(settingData.data) && settingData.data.length > 0) {
-            return NextResponse.json({ courses: settingData.data }, { headers: noCacheHeaders });
+            let localCourses: Course[] = [];
+            try {
+                const db = getLocalDB();
+                localCourses = db.courses || [];
+            } catch {}
+
+            // Supabase is authoritative in production. Fallback to local only for missing fields.
+            const mergedCourses: Course[] = settingData.data.map((c: Course) => {
+                const local = localCourses.find(x => x.id === c.id || (x.slug && x.slug === c.slug));
+                return {
+                    ...local,
+                    ...c,
+                    image: c.image || local?.image || '/images/courses/pho-bo.jpg',
+                    gallery: (c.gallery && Array.isArray(c.gallery)) ? c.gallery : (local?.gallery || []),
+                    videoUrl: c.videoUrl !== undefined ? c.videoUrl : (local?.videoUrl || '')
+                };
+            });
+
+            // Append any courses that exist locally but not yet in Supabase
+            for (const loc of localCourses) {
+                if (!mergedCourses.some(c => c.id === loc.id || (c.slug && c.slug === loc.slug))) {
+                    mergedCourses.unshift(loc);
+                }
+            }
+
+            return NextResponse.json({ courses: mergedCourses }, { headers: noCacheHeaders });
         }
     } catch (e) {
         console.warn("Supabase courses_data fetch error:", e);
@@ -41,30 +66,30 @@ export async function GET() {
             } catch {}
 
             const mappedCourses: Course[] = data.map((c) => {
-                const local = localCourses.find(x => x.id === c.id || x.slug === c.slug);
+                const local = localCourses.find(x => x.id === c.id || (x.slug && x.slug === c.slug));
                 return {
                     id: c.id,
-                    slug: c.slug,
-                    name: c.name,
-                    category: c.category,
-                    courseType: c.course_type,
-                    description: c.description,
-                    shortDescription: c.short_description,
-                    price: Number(c.price),
-                    contactForPrice: c.contact_for_price,
-                    duration: c.duration,
-                    maxStudents: c.max_students,
-                    instructor: c.instructor,
-                    instructorId: c.instructor_id,
-                    image: local?.image || c.image,
+                    slug: c.slug || local?.slug,
+                    name: c.name || local?.name,
+                    category: c.category || local?.category,
+                    courseType: c.course_type || local?.courseType,
+                    description: c.description !== undefined ? c.description : local?.description,
+                    shortDescription: c.short_description || local?.shortDescription,
+                    price: c.price !== undefined ? Number(c.price) : Number(local?.price || 0),
+                    contactForPrice: c.contact_for_price !== undefined ? Boolean(c.contact_for_price) : Boolean(local?.contactForPrice),
+                    duration: c.duration || local?.duration,
+                    maxStudents: c.max_students !== undefined ? local?.maxStudents : c.max_students,
+                    instructor: c.instructor || local?.instructor,
+                    instructorId: c.instructor_id || local?.instructorId,
+                    image: c.image || local?.image || '/images/courses/pho-bo.jpg',
                     gallery: (local?.gallery && local.gallery.length > 0) ? local.gallery : (c.gallery || []),
-                    highlights: local?.highlights || c.highlights || [],
-                    curriculum: local?.curriculum || c.curriculum || [],
-                    featured: c.featured,
-                    totalLessons: c.total_lessons,
-                    totalDuration: c.total_duration,
-                    accessDuration: c.access_duration,
-                    onlineUrl: c.online_url,
+                    highlights: c.highlights || local?.highlights || [],
+                    curriculum: c.curriculum || local?.curriculum || [],
+                    featured: c.featured !== undefined ? c.featured : local?.featured,
+                    totalLessons: c.total_lessons || local?.totalLessons,
+                    totalDuration: c.total_duration || local?.totalDuration,
+                    accessDuration: c.access_duration || local?.accessDuration,
+                    onlineUrl: c.online_url || local?.onlineUrl,
                     videoUrl: local?.videoUrl || c.video_url
                 };
             });
@@ -95,32 +120,73 @@ export async function POST(request: Request) {
         const courseId = course.id || `course-${Date.now()}`;
         const finalCourse: Course = { ...course, id: courseId };
 
-        // 1. Save to local CMS DB
-        const db = getLocalDB();
-        const existingIndex = db.courses.findIndex(c => c.id === courseId);
+        // 1. Fetch CURRENT authoritative courses list from Supabase site_settings first
+        let currentCourses: Course[] = [];
+        try {
+            const { data: settingData, error: settingError } = await supabase
+                .from('site_settings')
+                .select('data')
+                .eq('id', 'courses_data')
+                .single();
+            if (!settingError && settingData && Array.isArray(settingData.data) && settingData.data.length > 0) {
+                currentCourses = settingData.data;
+            }
+        } catch (e) {
+            console.warn("Could not read site_settings.courses_data before update:", e);
+        }
+
+        // Fallback to local DB if Supabase courses_data is empty
+        if (currentCourses.length === 0) {
+            try {
+                const db = getLocalDB();
+                currentCourses = db.courses || [];
+            } catch {}
+        }
+
+        // 2. Update existing course or append
+        const existingIndex = currentCourses.findIndex(c => 
+            c.id === courseId || (c.slug && c.slug === finalCourse.slug)
+        );
+
         let updatedCourses: Course[] = [];
         if (existingIndex >= 0) {
-            updatedCourses = [...db.courses];
+            updatedCourses = [...currentCourses];
+            finalCourse.id = currentCourses[existingIndex].id; // Retain canonical ID
             updatedCourses[existingIndex] = finalCourse;
         } else {
-            updatedCourses = [finalCourse, ...db.courses];
+            updatedCourses = [finalCourse, ...currentCourses];
         }
-        saveLocalDB({ courses: updatedCourses });
 
-        // 2. Save full courses list to Supabase site_settings (JSON store)
+        // 3. Save to Supabase site_settings (Primary Source of Truth in production)
         try {
-            await supabase.from('site_settings').upsert({
+            const { error: sbSettingsErr } = await supabase.from('site_settings').upsert({
                 id: 'courses_data',
                 data: updatedCourses,
                 updated_at: new Date().toISOString()
             });
-        } catch (err) {
-            console.warn("Could not sync courses_data to Supabase site_settings:", err);
+            if (sbSettingsErr) {
+                console.error("Supabase site_settings upsert error:", sbSettingsErr);
+                return NextResponse.json({ 
+                    error: `Lỗi đồng bộ Supabase: ${sbSettingsErr.message || 'Không thể ghi dữ liệu'}` 
+                }, { status: 500 });
+            }
+        } catch (err: any) {
+            console.error("Could not sync courses_data to Supabase site_settings:", err);
+            return NextResponse.json({ 
+                error: `Lỗi kết nối Supabase: ${err?.message || 'Không xác định'}` 
+            }, { status: 500 });
         }
 
-        // 3. Also sync individual record to Supabase courses table
+        // 4. Save to local CMS DB as backup (ignore read-only errors on serverless Vercel)
+        try {
+            saveLocalDB({ courses: updatedCourses });
+        } catch (e) {
+            console.warn("Local DB save ignored (read-only filesystem on Vercel):", e);
+        }
+
+        // 5. Also sync individual record to Supabase relational courses table
         const payload: any = {
-            id: courseId,
+            id: finalCourse.id,
             slug: finalCourse.slug,
             name: finalCourse.name,
             category: finalCourse.category || 'mon-an-sang',
@@ -144,18 +210,21 @@ export async function POST(request: Request) {
         };
 
         try {
-            await supabase.from('courses').upsert(payload);
+            const { error: sbCourseErr } = await supabase.from('courses').upsert(payload);
+            if (sbCourseErr) {
+                console.warn("Supabase individual course upsert warning:", sbCourseErr);
+            }
         } catch (sbErr) {
             console.warn("Supabase individual course upsert warning:", sbErr);
         }
 
-        // 4. Purge memory and Next.js page cache
+        // 6. Purge memory and Next.js page cache
         clearCMSCache('courses');
         try {
-            revalidatePath('/');
-            revalidatePath('/khoa-hoc');
-            revalidatePath(`/khoa-hoc/${finalCourse.slug}`);
-            revalidatePath('/admin/khoa-hoc');
+            revalidatePath('/', 'page');
+            revalidatePath('/khoa-hoc', 'page');
+            revalidatePath(`/khoa-hoc/${finalCourse.slug}`, 'page');
+            revalidatePath('/admin/khoa-hoc', 'page');
         } catch {}
 
         return NextResponse.json({ 
@@ -176,35 +245,51 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: 'Missing course ID' }, { status: 400 });
         }
 
-        // 1. Delete from local DB
-        const db = getLocalDB();
-        const updatedCourses = db.courses.filter(c => c.id !== id);
-        saveLocalDB({ courses: updatedCourses });
-
-        // 2. Delete from Supabase courses table
+        // 1. Fetch CURRENT courses from Supabase
+        let currentCourses: Course[] = [];
         try {
-            await supabase.from('courses').delete().eq('id', id);
-        } catch (sbError) {
-            console.warn("Supabase course delete warning:", sbError);
+            const { data } = await supabase.from('site_settings').select('data').eq('id', 'courses_data').single();
+            if (data && Array.isArray(data.data)) {
+                currentCourses = data.data;
+            }
+        } catch {}
+
+        if (currentCourses.length === 0) {
+            try {
+                const db = getLocalDB();
+                currentCourses = db.courses || [];
+            } catch {}
         }
 
-        // 3. Sync updated list to Supabase site_settings
+        const filtered = currentCourses.filter(c => c.id !== id);
+
+        // 2. Delete from Supabase site_settings
+        await supabase.from('site_settings').upsert({
+            id: 'courses_data',
+            data: filtered,
+            updated_at: new Date().toISOString()
+        });
+
+        // 3. Delete from Supabase courses table
         try {
-            await supabase.from('site_settings').upsert({
-                id: 'courses_data',
-                data: updatedCourses,
-                updated_at: new Date().toISOString()
-            });
+            await supabase.from('courses').delete().eq('id', id);
+        } catch (e) {
+            console.warn("Could not delete from Supabase courses table:", e);
+        }
+
+        // 4. Save to local DB as backup
+        try {
+            saveLocalDB({ courses: filtered });
         } catch {}
 
         clearCMSCache('courses');
         try {
-            revalidatePath('/');
-            revalidatePath('/khoa-hoc');
-            revalidatePath('/admin/khoa-hoc');
+            revalidatePath('/', 'page');
+            revalidatePath('/khoa-hoc', 'page');
+            revalidatePath('/admin/khoa-hoc', 'page');
         } catch {}
 
-        return NextResponse.json({ success: true, courses: updatedCourses });
+        return NextResponse.json({ success: true, courses: filtered });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }

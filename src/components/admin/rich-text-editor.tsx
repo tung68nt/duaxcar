@@ -161,6 +161,27 @@ export function RichTextEditor({
         setMediaPickerOpen(false);
     };
 
+    const handleInsertImages = (urls: string[]) => {
+        if (!urls || urls.length === 0) return;
+        restoreSelection();
+        const htmlBlock = urls.map(url => 
+            `<figure class="my-5 text-center"><img src="${url}" alt="Hình ảnh bài viết" class="rounded-xl shadow-md mx-auto max-w-full h-auto object-cover" /><figcaption class="text-xs text-gray-500 mt-2 italic">Chú thích ảnh: DuaxCar Kitchen</figcaption></figure>`
+        ).join("\n") + "<p><br></p>";
+
+        if (mode === "visual") {
+            executeCommand("insertHTML", htmlBlock);
+        } else {
+            if (textareaRef.current) {
+                const start = textareaRef.current.selectionStart;
+                const end = textareaRef.current.selectionEnd;
+                const text = textareaRef.current.value;
+                const nextVal = text.substring(0, start) + "\n" + htmlBlock + "\n" + text.substring(end);
+                onChange(nextVal);
+            }
+        }
+        setMediaPickerOpen(false);
+    };
+
     // Insert Link
     const handleInsertLinkSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -685,8 +706,10 @@ export function RichTextEditor({
             <MediaPickerModal
                 isOpen={mediaPickerOpen}
                 onClose={() => setMediaPickerOpen(false)}
+                allowMultiple={true}
                 onSelect={(url) => handleInsertImage(url)}
-                title="Chọn hình ảnh chèn vào bài viết"
+                onSelectMultiple={(urls) => handleInsertImages(urls)}
+                title="Chọn hoặc tải ảnh chèn vào bài viết"
             />
 
             {/* Link Inserter Dialog */}

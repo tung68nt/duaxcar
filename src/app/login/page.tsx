@@ -1,55 +1,104 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { 
-    Mail, 
-    Lock, 
-    Eye, 
-    EyeOff, 
-    ChefHat, 
+import {
+    Mail,
+    Lock,
+    Eye,
+    EyeOff,
+    ChefHat,
     ArrowRight,
     AlertCircle,
-    CheckCircle2
+    CheckCircle2,
 } from "lucide-react";
 import ThemeToggle from "@/components/theme-toggle";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+function LoginForm() {
     const router = useRouter();
-    const [email, setEmail] = useState("admin@duaxcar.vn");
-    const [password, setPassword] = useState("admin");
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirect") || "/admin";
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [checkingSession, setCheckingSession] = useState(true);
 
+    // Check existing session — redirect if already logged in
     useEffect(() => {
-        // If already logged in, redirect to admin immediately
-        const loggedIn = localStorage.getItem("admin_logged_in");
-        if (loggedIn === "true") {
-            router.push("/admin");
-        }
-    }, [router]);
+        const checkSession = async () => {
+            try {
+                const supabase = getSupabaseBrowserClient();
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    router.push(redirectTo);
+                    return;
+                }
+            } catch {
+                // Not authenticated — show login form
+            }
+            setCheckingSession(false);
+        };
+        checkSession();
+    }, [router, redirectTo]);
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setLoading(true);
 
-        setTimeout(() => {
-            if (email === "admin@duaxcar.vn" && password === "admin") {
-                setSuccess(true);
-                localStorage.setItem("admin_logged_in", "true");
-                setTimeout(() => {
-                    router.push("/admin");
-                }, 1000);
-            } else {
-                setError("Email hoặc mật khẩu quản trị không chính xác!");
+        try {
+            const supabase = getSupabaseBrowserClient();
+
+            const { data, error: authError } = await supabase.auth.signInWithPassword({
+                email: email.trim(),
+                password,
+            });
+
+            if (authError) {
+                // Map Supabase auth errors to Vietnamese messages
+                const errorMessages: Record<string, string> = {
+                    "Invalid login credentials": "Email hoặc mật khẩu không chính xác!",
+                    "Email not confirmed": "Tài khoản chưa được xác thực email.",
+                    "Too many requests": "Quá nhiều lần thử. Vui lòng đợi 1 phút.",
+                };
+
+                setError(
+                    errorMessages[authError.message] ||
+                    `Lỗi đăng nhập: ${authError.message}`
+                );
                 setLoading(false);
+                return;
             }
-        }, 1200); // Premium login delay simulation
+
+            if (data.user) {
+                setSuccess(true);
+                // Small delay for success animation
+                setTimeout(() => {
+                    router.push(redirectTo);
+                    router.refresh(); // Refresh to update middleware session
+                }, 800);
+            }
+        } catch (err) {
+            console.error("[Login] Unexpected error:", err);
+            setError("Đã xảy ra lỗi kết nối. Vui lòng thử lại.");
+            setLoading(false);
+        }
     };
+
+    // Show nothing while checking existing session
+    if (checkingSession) {
+        return (
+            <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full border-2 border-[var(--color-primary)] border-t-transparent animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)] flex items-center justify-center relative overflow-hidden px-4">
@@ -67,7 +116,7 @@ export default function LoginPage() {
                 <div className="w-14 h-14 rounded-xl bg-[var(--color-primary)] flex items-center justify-center mb-5 shadow-sm">
                     <ChefHat className="w-8 h-8 text-white" />
                 </div>
-                
+
                 <h1 className="font-heading font-bold text-2xl text-[var(--color-text)] text-center mb-2">
                     DuaxCar Admin
                 </h1>
@@ -93,7 +142,9 @@ export default function LoginPage() {
                 {/* Login Form */}
                 <form onSubmit={handleLogin} className="w-full space-y-4">
                     <div>
-                        <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5 pl-1">Email quản trị</label>
+                        <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5 pl-1">
+                            Email quản trị
+                        </label>
                         <div className="relative">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
                             <input
@@ -103,13 +154,16 @@ export default function LoginPage() {
                                 className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg pl-10 pr-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-colors"
                                 placeholder="name@duaxcar.vn"
                                 required
+                                autoComplete="email"
                                 disabled={loading || success}
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5 pl-1">Mật khẩu</label>
+                        <label className="text-xs font-semibold text-[var(--color-text-secondary)] block mb-1.5 pl-1">
+                            Mật khẩu
+                        </label>
                         <div className="relative">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
                             <input
@@ -119,6 +173,7 @@ export default function LoginPage() {
                                 className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg pl-10 pr-10 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-colors"
                                 placeholder="••••••••"
                                 required
+                                autoComplete="current-password"
                                 disabled={loading || success}
                             />
                             <button
@@ -133,13 +188,6 @@ export default function LoginPage() {
                                 )}
                             </button>
                         </div>
-                    </div>
-
-                    {/* Helper text info */}
-                    <div className="bg-[var(--color-surface-light)]/40 border border-[var(--color-border)] rounded-lg p-3.5 text-[10px] text-[var(--color-text-muted)] leading-relaxed">
-                        <span className="font-bold text-[var(--color-primary)] block mb-1">Tài khoản trải nghiệm CMS:</span>
-                        <div>Email: <strong className="text-[var(--color-text)]">admin@duaxcar.vn</strong></div>
-                        <div>Mật khẩu: <strong className="text-[var(--color-text)]">admin</strong></div>
                     </div>
 
                     {/* Submit Button */}
@@ -168,5 +216,17 @@ export default function LoginPage() {
                 </Link>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)]">
+                <div className="w-8 h-8 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
+            </div>
+        }>
+            <LoginForm />
+        </Suspense>
     );
 }

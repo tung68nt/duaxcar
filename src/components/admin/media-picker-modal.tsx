@@ -1,30 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect, useId } from "react";
 import { 
-    X, 
-    Search, 
-    UploadCloud, 
     Image as ImageIcon, 
-    Sparkles, 
+    X, 
     Check, 
+    UploadCloud, 
+    Search, 
     Folder, 
-    Film, 
-    Plus,
-    CheckCircle2,
-    Eye
+    Sparkles, 
+    CheckCircle2, 
+    Film,
+    Eye,
+    CheckSquare,
+    Square,
+    AlertCircle,
+    Loader2
 } from "lucide-react";
 import { MediaItem, DEFAULT_MEDIA_ITEMS, STOCK_IMAGES } from "@/lib/media-store";
 import { compressImage, formatBytes } from "@/lib/image-compressor";
 import { MediaLightboxModal } from "./media-lightbox-modal";
 
-interface MediaPickerModalProps {
+export interface MediaPickerModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSelect: (url: string, item?: MediaItem) => void;
     selectedUrl?: string;
     title?: string;
     allowedType?: "all" | "image" | "video";
+    allowMultiple?: boolean;
+    onSelectMultiple?: (urls: string[], items?: MediaItem[]) => void;
 }
 
 export function MediaPickerModal({
@@ -33,20 +38,36 @@ export function MediaPickerModal({
     onSelect,
     selectedUrl,
     title = "Chọn ảnh từ Thư viện Media",
-    allowedType = "image"
+    allowedType = "image",
+    allowMultiple = false,
+    onSelectMultiple
 }: MediaPickerModalProps) {
+    const fileInputId = useId();
     const [activeTab, setActiveTab] = useState<"library" | "upload" | "stock">("library");
     const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
+    
+    // Single select state
     const [selectedItemUrl, setSelectedItemUrl] = useState<string>(selectedUrl || "");
     const [currentSelectedItem, setCurrentSelectedItem] = useState<MediaItem | null>(null);
+
+    // Multi-select state
+    const [selectedUrls, setSelectedUrls] = useState<string[]>(selectedUrl ? [selectedUrl] : []);
 
     // Upload & compression states
     const [isUploading, setIsUploading] = useState(false);
     const [compressionQuality, setCompressionQuality] = useState<number>(0.82);
-    const [lastCompressedInfo, setLastCompressedInfo] = useState<{
-        orig: string;
-        comp: string;
+    const [uploadProgress, setUploadProgress] = useState<{
+        current: number;
+        total: number;
+        fileName: string;
+        percent: number;
+    } | null>(null);
+    const [uploadErrors, setUploadErrors] = useState<string[]>([]);
+    const [lastUploadStats, setLastUploadStats] = useState<{
+        count: number;
+        originalSize: number;
+        compressedSize: number;
         ratio: number;
     } | null>(null);
 
@@ -58,7 +79,6 @@ export function MediaPickerModal({
         if (!isOpen) return;
 
         const loadMedia = async () => {
-            // First check local storage
             const stored = localStorage.getItem("admin_media_extended");
             if (stored) {
                 try {
@@ -70,7 +90,6 @@ export function MediaPickerModal({
                 setMediaItems(DEFAULT_MEDIA_ITEMS);
             }
 
-            // Sync with backend API
             try {
                 const res = await fetch("/api/cms/media");
                 if (res.ok) {
@@ -91,6 +110,7 @@ export function MediaPickerModal({
     useEffect(() => {
         if (selectedUrl) {
             setSelectedItemUrl(selectedUrl);
+            setSelectedUrls([selectedUrl]);
         }
     }, [selectedUrl]);
 
@@ -106,6 +126,34 @@ export function MediaPickerModal({
         return true;
     });
 
+    // Toggle multi-select
+    const toggleItemSelection = (url: string, item: MediaItem) => {
+        if (allowMultiple) {
+            setSelectedUrls(prev => {
+                if (prev.includes(url)) {
+                    return prev.filter(u => u !== url);
+                } else {
+                    return [...prev, url];
+                }
+            });
+            setCurrentSelectedItem(item);
+        } else {
+            setSelectedItemUrl(url);
+            setCurrentSelectedItem(item);
+        }
+    };
+
+    const handleSelectAllFiltered = () => {
+        const urls = filteredItems.map(i => i.url);
+        setSelectedUrls(urls);
+    };
+
+    const handleDeselectAll = () => {
+        setSelectedUrls([]);
+        setSelectedItemUrl("");
+    };
+
+    // Multi-file upload handler
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement> | React.DragEvent) => {
         let files: FileList | null = null;
         if ("dataTransfer" in e) {
@@ -116,128 +164,203 @@ export function MediaPickerModal({
         }
 
         if (!files || files.length === 0) return;
-        const file = files[0];
+
         setIsUploading(true);
+        setUploadErrors([]);
+        setLastUploadStats(null);
+        setUploadProgress({
+            current: 0,
+            total: files.length,
+            fileName: files[0].name,
+            percent: 0
+        });
 
-        try {
+        const newItems: MediaItem[] = [];
+        const errors: string[] = [];
+        let totalOrigBytes = 0;
+        let totalCompBytes = 0;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
             const isVideo = file.type.startsWith("video/");
-            let finalUrl = "";
-            let finalSize = `${(file.size / 1024).toFixed(0)} KB`;
-            let isCompressed = false;
-            let originalSizeStr = `${(file.size / 1024).toFixed(0)} KB`;
-            let sizeInBytes = file.size;
-            let dimensionsStr = "";
 
-            if (!isVideo && file.type.startsWith("image/")) {
-                // Perform smart compression
-                const result = await compressImage(file, {
-                    maxWidth: 1920,
-                    maxHeight: 1920,
-                    quality: compressionQuality,
-                    format: "image/webp"
-                });
+            setUploadProgress({
+                current: i + 1,
+                total: files.length,
+                fileName: file.name,
+                percent: Math.round(((i) / files.length) * 100)
+            });
 
-                finalUrl = result.base64;
-                finalSize = formatBytes(result.compressedSize);
-                sizeInBytes = result.compressedSize;
-                isCompressed = true;
-                originalSizeStr = formatBytes(result.originalSize);
-                dimensionsStr = `${result.width}x${result.height}`;
-
-                setLastCompressedInfo({
-                    orig: formatBytes(result.originalSize),
-                    comp: formatBytes(result.compressedSize),
-                    ratio: result.compressionRatio
-                });
-            } else {
-                // Video read as base64
-                const reader = new FileReader();
-                finalUrl = await new Promise((resolve) => {
-                    reader.onloadend = () => resolve(reader.result as string);
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            // Upload directly to server to get permanent clean URL (/uploads/...)
             try {
+                let uploadBody: FormData;
+                let sizeInBytes = file.size;
+                let dimensionsStr = "";
+                let isCompressed = false;
+                let originalSizeStr = formatBytes(file.size);
+
+                if (!isVideo && file.type.startsWith("image/")) {
+                    // Smart client-side compression to WebP
+                    const result = await compressImage(file, {
+                        maxWidth: 1920,
+                        maxHeight: 1920,
+                        quality: compressionQuality,
+                        format: "image/webp"
+                    });
+
+                    sizeInBytes = result.compressedSize;
+                    dimensionsStr = `${result.width}x${result.height}`;
+                    isCompressed = true;
+                    totalOrigBytes += result.originalSize;
+                    totalCompBytes += result.compressedSize;
+
+                    const formData = new FormData();
+                    const webpFile = new File(
+                        [result.file],
+                        file.name.replace(/\.[^/.]+$/, ".webp"),
+                        { type: "image/webp" }
+                    );
+                    formData.append("file", webpFile);
+                    uploadBody = formData;
+                } else {
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    uploadBody = formData;
+                    totalOrigBytes += file.size;
+                    totalCompBytes += file.size;
+                }
+
+                // Upload to server via FormData
                 const uploadRes = await fetch("/api/cms/upload", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        base64: finalUrl,
-                        name: file.name,
-                        type: isVideo ? "video" : "image",
-                        sizeBytes: sizeInBytes,
-                        dimensions: dimensionsStr
-                    })
+                    body: uploadBody
                 });
-                if (uploadRes.ok) {
-                    const uploadData = await uploadRes.json();
-                    if (uploadData.url) {
-                        finalUrl = uploadData.url;
-                    }
+
+                if (!uploadRes.ok) {
+                    const errData = await uploadRes.json().catch(() => ({}));
+                    errors.push(`Upload "${file.name}" thất bại: ${errData.error || uploadRes.statusText}`);
+                    continue;
                 }
-            } catch (upErr) {
-                console.warn("Upload API error, using direct URL fallback:", upErr);
+
+                const uploadData = await uploadRes.json();
+                const finalUrl = uploadData.url || uploadData.item?.url || "";
+
+                const newItem: MediaItem = {
+                    id: uploadData.item?.id || `m-${Date.now()}-${i}`,
+                    name: file.name.replace(/\.[^/.]+$/, "") + (isCompressed ? ".webp" : ""),
+                    url: finalUrl,
+                    type: isVideo ? "video" : "image",
+                    size: formatBytes(sizeInBytes),
+                    sizeBytes: sizeInBytes,
+                    dimensions: dimensionsStr || (isVideo ? "Video HD" : "Ảnh HD"),
+                    uploadedAt: new Date().toISOString().split("T")[0],
+                    compressed: isCompressed,
+                    originalSize: isCompressed ? originalSizeStr : undefined
+                };
+
+                newItems.push(newItem);
+            } catch (fileErr: any) {
+                console.error("File upload error:", file.name, fileErr);
+                errors.push(`Lỗi "${file.name}": ${fileErr?.message || "Không thể xử lý"}`);
             }
+        }
 
-            const newItem: MediaItem = {
-                id: `m-${Date.now()}`,
-                name: file.name.replace(/\.[^/.]+$/, "") + (isCompressed ? ".webp" : ""),
-                url: finalUrl,
-                type: isVideo ? "video" : "image",
-                size: finalSize,
-                sizeBytes: sizeInBytes,
-                dimensions: dimensionsStr,
-                uploadedAt: new Date().toISOString().split("T")[0],
-                compressed: isCompressed,
-                originalSize: isCompressed ? originalSizeStr : undefined
-            };
+        setUploadProgress({
+            current: files.length,
+            total: files.length,
+            fileName: "Hoàn tất xử lý!",
+            percent: 100
+        });
 
-            const updatedList = [newItem, ...mediaItems];
-            setMediaItems(updatedList);
-            
+        if (errors.length > 0) {
+            setUploadErrors(errors);
+        }
+
+        if (newItems.length > 0) {
+            const updated = [...newItems, ...mediaItems];
+            setMediaItems(updated);
+
             try {
-                localStorage.setItem("admin_media_extended", JSON.stringify(updatedList.slice(0, 50)));
-                const legacyUrls = updatedList.slice(0, 50).map(item => item.url);
+                localStorage.setItem("admin_media_extended", JSON.stringify(updated.slice(0, 100)));
+                const legacyUrls = updated.slice(0, 100).map(item => item.url);
                 localStorage.setItem("admin_media", JSON.stringify(legacyUrls));
             } catch {}
 
-            // Auto select newly uploaded file
-            setSelectedItemUrl(newItem.url);
-            setCurrentSelectedItem(newItem);
-            setActiveTab("library");
-        } catch (err) {
-            console.error("Upload error:", err);
-            alert("Có lỗi xảy ra khi xử lý file ảnh.");
-        } finally {
-            setIsUploading(false);
+            const savedBytes = totalOrigBytes - totalCompBytes;
+            const ratio = totalOrigBytes > 0 
+                ? Math.max(0, Math.round((savedBytes / totalOrigBytes) * 1000) / 10) 
+                : 0;
+
+            setLastUploadStats({
+                count: newItems.length,
+                originalSize: totalOrigBytes,
+                compressedSize: totalCompBytes,
+                ratio
+            });
+
+            // If multi-select is enabled, auto-select all newly uploaded items
+            if (allowMultiple) {
+                const newUrls = newItems.map(i => i.url);
+                setSelectedUrls(prev => [...newUrls, ...prev]);
+                setCurrentSelectedItem(newItems[0]);
+            } else {
+                // Single select: select first newly uploaded item
+                setSelectedItemUrl(newItems[0].url);
+                setCurrentSelectedItem(newItems[0]);
+            }
+
+            // Automatically switch back to library tab to show newly uploaded media
+            setTimeout(() => {
+                setActiveTab("library");
+            }, 600);
         }
+
+        setIsUploading(false);
     };
 
     const handleConfirmSelection = () => {
-        if (selectedItemUrl) {
-            onSelect(selectedItemUrl, currentSelectedItem || undefined);
-            onClose();
+        if (allowMultiple) {
+            if (selectedUrls.length > 0) {
+                const selectedItems = mediaItems.filter(i => selectedUrls.includes(i.url));
+                if (onSelectMultiple) {
+                    onSelectMultiple(selectedUrls, selectedItems);
+                } else {
+                    onSelect(selectedUrls[0], selectedItems[0]);
+                }
+                onClose();
+            }
+        } else {
+            if (selectedItemUrl) {
+                onSelect(selectedItemUrl, currentSelectedItem || undefined);
+                onClose();
+            }
         }
     };
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
                 
                 {/* Modal Header */}
-                <div className="px-6 py-4 border-b border-[var(--color-border)] flex items-center justify-between bg-[var(--color-surface)]">
+                <div className="px-5 py-3.5 border-b border-[var(--color-border)] flex items-center justify-between bg-[var(--color-surface)]">
                     <div className="flex items-center gap-3">
                         <div className="p-2 rounded-lg bg-orange-500/10 text-[var(--color-primary)]">
                             <ImageIcon className="w-5 h-5" />
                         </div>
                         <div>
-                            <h3 className="font-heading font-bold text-base text-[var(--color-text)]">
-                                {title}
-                            </h3>
+                            <div className="flex items-center gap-2">
+                                <h3 className="font-heading font-bold text-base text-[var(--color-text)]">
+                                    {title}
+                                </h3>
+                                {allowMultiple && (
+                                    <span className="text-[10px] bg-orange-500/15 text-[var(--color-primary)] font-bold px-2 py-0.5 rounded-full border border-orange-500/20">
+                                        Chọn nhiều ảnh
+                                    </span>
+                                )}
+                            </div>
                             <p className="text-xs text-[var(--color-text-muted)]">
-                                Chọn ảnh có sẵn hoặc tải ảnh mới lên (tự động nén WebP siêu nhẹ)
+                                {allowMultiple 
+                                    ? "Chọn nhiều ảnh từ thư viện hoặc tải lên nhiều ảnh cùng lúc" 
+                                    : "Chọn ảnh có sẵn hoặc tải ảnh mới lên (tự động nén WebP siêu nhẹ)"}
                             </p>
                         </div>
                     </div>
@@ -250,8 +373,8 @@ export function MediaPickerModal({
                     </button>
                 </div>
 
-                {/* Tabs & Search Bar */}
-                <div className="px-6 py-2.5 border-b border-[var(--color-border)] bg-[var(--color-background)]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                {/* Tabs & Toolbar */}
+                <div className="px-5 py-2.5 border-b border-[var(--color-border)] bg-[var(--color-background)]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     {/* Navigation Tabs */}
                     <div className="flex items-center gap-1 bg-[var(--color-surface)] p-1 rounded-lg border border-[var(--color-border)]">
                         <button
@@ -277,6 +400,7 @@ export function MediaPickerModal({
                         >
                             <UploadCloud className="w-3.5 h-3.5" />
                             <span>Tải ảnh mới</span>
+                            {allowMultiple && <span className="text-[10px] opacity-80">(nhiều ảnh)</span>}
                         </button>
                         <button
                             type="button"
@@ -288,48 +412,78 @@ export function MediaPickerModal({
                             }`}
                         >
                             <Sparkles className="w-3.5 h-3.5" />
-                            <span>Ảnh mẫu có sẵn</span>
+                            <span>Ảnh mẫu</span>
                         </button>
                     </div>
 
-                    {/* Search inside library */}
+                    {/* Search & Multi-Select Quick Actions */}
                     {activeTab === "library" && (
-                        <div className="relative w-full sm:w-64">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-text-muted)]" />
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm tập tin..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg pl-9 pr-3 py-1.5 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-                            />
+                        <div className="flex items-center gap-2">
+                            {allowMultiple && (
+                                <div className="flex items-center gap-1.5 mr-1">
+                                    <button
+                                        type="button"
+                                        onClick={handleSelectAllFiltered}
+                                        className="text-[11px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] px-2 py-1 rounded bg-[var(--color-surface)] border border-[var(--color-border)]"
+                                    >
+                                        Chọn tất cả
+                                    </button>
+                                    {selectedUrls.length > 0 && (
+                                        <button
+                                            type="button"
+                                            onClick={handleDeselectAll}
+                                            className="text-[11px] font-medium text-red-500 hover:text-red-600 px-2 py-1 rounded bg-[var(--color-surface)] border border-red-500/20"
+                                        >
+                                            Bỏ chọn
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                            <div className="relative w-full sm:w-56">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-text-muted)]" />
+                                <input
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder="Tìm theo tên file..."
+                                    className="w-full pl-8 pr-3 py-1.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-primary)] placeholder-[var(--color-text-muted)]"
+                                />
+                            </div>
                         </div>
                     )}
                 </div>
 
-                {/* Tab Content */}
-                <div className="flex-1 overflow-y-auto p-6 min-h-[350px] max-h-[500px]">
-                    {/* TAB 1: LIBRARY */}
+                {/* Modal Body */}
+                <div className="p-5 flex-1 overflow-y-auto">
+                    {/* TAB 1: MEDIA LIBRARY */}
                     {activeTab === "library" && (
                         <div>
                             {filteredItems.length === 0 ? (
-                                <div className="text-center py-16 space-y-3">
-                                    <ImageIcon className="w-12 h-12 text-[var(--color-text-muted)] mx-auto opacity-40" />
+                                <div className="text-center py-16">
+                                    <div className="w-14 h-14 rounded-full bg-orange-500/10 text-[var(--color-primary)] flex items-center justify-center mx-auto mb-3">
+                                        <Folder className="w-7 h-7" />
+                                    </div>
+                                    <h4 className="font-heading font-semibold text-sm text-[var(--color-text)] mb-1">
+                                        Không tìm thấy media phù hợp
+                                    </h4>
                                     <p className="text-xs text-[var(--color-text-muted)]">
-                                        Chưa có tập tin nào phù hợp. Hãy chuyển sang tab Tải ảnh mới hoặc Ảnh mẫu.
+                                        Hãy chuyển sang tab &quot;Tải ảnh mới&quot; để thêm ảnh lên hệ thống
                                     </p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                                     {filteredItems.map((item, idx) => {
-                                        const isSelected = selectedItemUrl === item.url;
+                                        const isSelected = allowMultiple 
+                                            ? selectedUrls.includes(item.url)
+                                            : selectedItemUrl === item.url;
+                                        const selectedIndex = allowMultiple 
+                                            ? selectedUrls.indexOf(item.url) 
+                                            : -1;
+
                                         return (
                                             <div
                                                 key={item.id}
-                                                onClick={() => {
-                                                    setSelectedItemUrl(item.url);
-                                                    setCurrentSelectedItem(item);
-                                                }}
+                                                onClick={() => toggleItemSelection(item.url, item)}
                                                 className={`group relative rounded-xl border overflow-hidden cursor-pointer flex flex-col justify-between transition-all ${
                                                     isSelected
                                                         ? "border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/40 shadow-md bg-[var(--color-primary)]/5"
@@ -349,10 +503,16 @@ export function MediaPickerModal({
                                                         <Film className="w-8 h-8 text-[var(--color-text-muted)]" />
                                                     )}
 
-                                                    {/* Selected overlay */}
+                                                    {/* Selection Indicator */}
                                                     {isSelected && (
-                                                        <div className="absolute top-2 right-2 p-1 rounded-full bg-[var(--color-primary)] text-white shadow-lg z-10 animate-scaleIn">
-                                                            <Check className="w-3.5 h-3.5" />
+                                                        <div className="absolute top-2 right-2 p-1 rounded-full bg-[var(--color-primary)] text-white shadow-lg z-10 animate-scaleIn flex items-center justify-center min-w-[22px] min-h-[22px]">
+                                                            {allowMultiple && selectedIndex >= 0 ? (
+                                                                <span className="text-[11px] font-bold px-0.5 leading-none">
+                                                                    {selectedIndex + 1}
+                                                                </span>
+                                                            ) : (
+                                                                <Check className="w-3.5 h-3.5" />
+                                                            )}
                                                         </div>
                                                     )}
 
@@ -363,8 +523,8 @@ export function MediaPickerModal({
                                                             e.stopPropagation();
                                                             setPreviewIndex(idx);
                                                         }}
-                                                        title="Xem to toàn màn hình"
-                                                        className="absolute top-2 left-2 p-1.5 rounded-lg bg-black/85 text-white border border-white/30 opacity-0 group-hover:opacity-100 transition z-10 hover:bg-orange-600 hover:border-orange-500 shadow-xl cursor-pointer"
+                                                        title="Xem ảnh toàn màn hình"
+                                                        className="absolute top-2 left-2 p-1.5 rounded-lg bg-black/80 text-white border border-white/20 opacity-0 group-hover:opacity-100 transition z-10 hover:bg-orange-600 shadow-xl cursor-pointer"
                                                     >
                                                         <Eye className="w-3.5 h-3.5 text-white" />
                                                     </button>
@@ -392,35 +552,69 @@ export function MediaPickerModal({
 
                     {/* TAB 2: UPLOAD & AUTO COMPRESSION */}
                     {activeTab === "upload" && (
-                        <div className="max-w-xl mx-auto space-y-5 py-3">
+                        <div className="max-w-xl mx-auto space-y-4 py-2">
                             {/* Drag & Drop Area */}
                             <label 
+                                htmlFor={fileInputId}
                                 onDragOver={(e) => e.preventDefault()}
                                 onDrop={handleFileUpload}
-                                className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
+                                className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
                                     isUploading 
-                                        ? "border-[var(--color-primary)] bg-[var(--color-primary)]/5 opacity-70"
-                                        : "border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-background)]/50"
+                                        ? "border-[var(--color-primary)] bg-[var(--color-primary)]/5 opacity-80"
+                                        : "border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-background)]/50 hover:bg-[var(--color-surface)]"
                                 }`}
                             >
                                 <input
+                                    id={fileInputId}
                                     type="file"
                                     accept="image/*,video/*"
+                                    multiple
                                     onChange={handleFileUpload}
                                     disabled={isUploading}
                                     className="hidden"
                                 />
 
-                                <div className="p-3 rounded-lg bg-orange-500/10 text-[var(--color-primary)] mb-2.5">
-                                    <UploadCloud className="w-7 h-7" />
+                                <div className="p-3.5 rounded-xl bg-orange-500/10 text-[var(--color-primary)] mb-3">
+                                    {isUploading ? (
+                                        <Loader2 className="w-8 h-8 animate-spin" />
+                                    ) : (
+                                        <UploadCloud className="w-8 h-8" />
+                                    )}
                                 </div>
-                                <h4 className="font-heading font-bold text-sm text-[var(--color-text)]">
-                                    {isUploading ? "Đang xử lý & nén ảnh WebP..." : "Kéo thả ảnh vào đây hoặc bấm để chọn"}
+
+                                <h4 className="font-heading font-bold text-sm sm:text-base text-[var(--color-text)]">
+                                    {isUploading ? "Đang xử lý nén WebP & tải lên..." : "Kéo thả nhiều ảnh vào đây hoặc bấm để chọn"}
                                 </h4>
-                                <p className="text-xs text-[var(--color-text-muted)] mt-1 max-w-sm">
-                                    Hỗ trợ PNG, JPG, JPEG, WEBP. Ảnh sẽ được tự động nén và tối ưu chuẩn WebP trước khi lưu.
+                                
+                                <p className="text-xs text-[var(--color-text-muted)] mt-1.5 max-w-md">
+                                    Hỗ trợ chọn <b>nhiều ảnh cùng lúc</b> (PNG, JPG, JPEG, WEBP, MP4). Toàn bộ ảnh sẽ được tự động nén tối ưu chuẩn WebP siêu nhẹ.
                                 </p>
+
+                                <div className="mt-4 px-3 py-1 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-xs font-semibold">
+                                    Chọn từ thiết bị (Hỗ trợ chọn nhiều file)
+                                </div>
                             </label>
+
+                            {/* Progress bar during multi-upload */}
+                            {isUploading && uploadProgress && (
+                                <div className="p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] space-y-2.5 animate-fadeIn">
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="font-bold text-[var(--color-text)] flex items-center gap-2">
+                                            <Loader2 className="w-3.5 h-3.5 animate-spin text-orange-500" />
+                                            Đang tải lên {uploadProgress.current}/{uploadProgress.total} file ({uploadProgress.percent}%)
+                                        </span>
+                                        <span className="text-[var(--color-text-muted)] truncate max-w-[200px]">
+                                            {uploadProgress.fileName}
+                                        </span>
+                                    </div>
+                                    <div className="w-full bg-[var(--color-background)] rounded-full h-2.5 overflow-hidden">
+                                        <div 
+                                            className="bg-gradient-to-r from-orange-500 to-amber-500 h-2.5 rounded-full transition-all duration-300"
+                                            style={{ width: `${Math.max(5, uploadProgress.percent)}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Compression Options */}
                             <div className="bg-[var(--color-background)] p-3.5 rounded-lg border border-[var(--color-border)] space-y-2.5">
@@ -474,22 +668,37 @@ export function MediaPickerModal({
                                         <div className="text-[10px] text-[var(--color-text-muted)]">WebP 72% - Siêu nhanh</div>
                                     </button>
                                 </div>
+                            </div>
 
-                                {/* Last Compression Report */}
-                                {lastCompressedInfo && (
-                                    <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-between text-xs">
-                                        <div className="flex items-center gap-2">
-                                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                                            <span>
-                                                Đã nén từ <b>{lastCompressedInfo.orig}</b> xuống <b>{lastCompressedInfo.comp}</b>
-                                            </span>
-                                        </div>
-                                        <span className="font-bold bg-emerald-500/20 px-2 py-0.5 rounded-md text-[10px]">
-                                            Tiết kiệm {lastCompressedInfo.ratio}% dung lượng
+                            {/* Errors */}
+                            {uploadErrors.length > 0 && (
+                                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-xs space-y-1">
+                                    <div className="flex items-center gap-1.5 font-bold">
+                                        <AlertCircle className="w-4 h-4" />
+                                        <span>Có lỗi xảy ra khi tải file:</span>
+                                    </div>
+                                    <ul className="list-disc list-inside space-y-0.5">
+                                        {uploadErrors.map((err, idx) => (
+                                            <li key={idx}>{err}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {/* Batch Upload Report */}
+                            {lastUploadStats && (
+                                <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-between text-xs animate-scaleIn">
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                        <span>
+                                            Đã tải lên thành công <b>{lastUploadStats.count}</b> file: <b>{formatBytes(lastUploadStats.originalSize)}</b> ➔ <b>{formatBytes(lastUploadStats.compressedSize)}</b>
                                         </span>
                                     </div>
-                                )}
-                            </div>
+                                    <span className="font-bold bg-emerald-500/20 px-2 py-0.5 rounded-md text-[10px]">
+                                        Tiết kiệm {lastUploadStats.ratio}%
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -497,20 +706,23 @@ export function MediaPickerModal({
                     {activeTab === "stock" && (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
                             {STOCK_IMAGES.map((img) => {
-                                const isSelected = selectedItemUrl === img.url;
+                                const isSelected = allowMultiple
+                                    ? selectedUrls.includes(img.url)
+                                    : selectedItemUrl === img.url;
+
                                 return (
                                     <div
                                         key={img.url}
                                         onClick={() => {
-                                            setSelectedItemUrl(img.url);
-                                            setCurrentSelectedItem({
+                                            const stockItem: MediaItem = {
                                                 id: `stock-${img.name}`,
                                                 name: img.name,
                                                 url: img.url,
                                                 type: "image",
                                                 size: "150 KB",
                                                 uploadedAt: "Kho ảnh mẫu"
-                                            });
+                                            };
+                                            toggleItemSelection(img.url, stockItem);
                                         }}
                                         className={`group relative rounded-xl border overflow-hidden cursor-pointer flex flex-col justify-between transition-all ${
                                             isSelected
@@ -547,9 +759,21 @@ export function MediaPickerModal({
                 </div>
 
                 {/* Modal Footer */}
-                <div className="px-6 py-3.5 border-t border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-between gap-4">
+                <div className="px-5 py-3 border-t border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
-                        {selectedItemUrl ? (
+                        {allowMultiple ? (
+                            selectedUrls.length > 0 ? (
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-bold text-[var(--color-primary)] bg-orange-500/10 px-2.5 py-1 rounded-lg border border-orange-500/20">
+                                        Đã chọn {selectedUrls.length} ảnh
+                                    </span>
+                                </div>
+                            ) : (
+                                <span className="text-xs text-[var(--color-text-muted)]">
+                                    Chưa chọn ảnh nào (chọn một hoặc nhiều ảnh)
+                                </span>
+                            )
+                        ) : selectedItemUrl ? (
                             <div className="flex items-center gap-2 min-w-0">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
@@ -561,7 +785,7 @@ export function MediaPickerModal({
                                     <span className="text-xs font-semibold text-[var(--color-text)] block truncate">
                                         Đã chọn ảnh
                                     </span>
-                                    <span className="text-[10px] text-[var(--color-text-muted)] font-mono truncate block max-w-[200px] sm:max-w-xs">
+                                    <span className="text-[10px] text-[var(--color-text-muted)] font-mono truncate block max-w-[180px] sm:max-w-xs">
                                         {selectedItemUrl}
                                     </span>
                                 </div>
@@ -584,25 +808,28 @@ export function MediaPickerModal({
                         <button
                             type="button"
                             onClick={handleConfirmSelection}
-                            disabled={!selectedItemUrl}
+                            disabled={allowMultiple ? selectedUrls.length === 0 : !selectedItemUrl}
                             className="btn btn-primary btn-sm px-4 rounded-lg flex items-center gap-1.5 shadow-sm disabled:opacity-40 disabled:pointer-events-none"
                         >
                             <Check className="w-4 h-4" />
-                            <span>Xác nhận chọn</span>
+                            <span>
+                                {allowMultiple 
+                                    ? `Xác nhận (${selectedUrls.length} ảnh)`
+                                    : "Xác nhận chọn"}
+                            </span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* Fullscreen Lightbox Preview if opened from picker */}
+            {/* Fullscreen Lightbox Preview */}
             {previewIndex !== null && (
                 <MediaLightboxModal
                     items={filteredItems}
                     initialIndex={previewIndex}
                     onClose={() => setPreviewIndex(null)}
                     onSelect={(item) => {
-                        setSelectedItemUrl(item.url);
-                        setCurrentSelectedItem(item);
+                        toggleItemSelection(item.url, item);
                         setPreviewIndex(null);
                     }}
                 />

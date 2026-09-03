@@ -529,12 +529,23 @@ export default function AdminBlogsCMS() {
                 isOpen={insertImageModalOpen}
                 onClose={() => setInsertImageModalOpen(false)}
                 title="Chèn ảnh vào nội dung bài viết"
+                allowMultiple={true}
                 onSelect={(url, item) => {
                     const altText = item?.name || formState.title || "Hình ảnh bài viết";
                     const imageHtml = `\n<figure class="my-6">\n  <img src="${url}" alt="${altText}" class="rounded-2xl w-full object-cover max-h-[500px] shadow-lg" />\n  <figcaption class="text-xs text-center text-gray-500 mt-2 italic">${altText}</figcaption>\n</figure>\n`;
                     setFormState(prev => ({
                         ...prev,
                         content: prev.content ? `${prev.content}\n${imageHtml}` : imageHtml
+                    }));
+                }}
+                onSelectMultiple={(urls, items) => {
+                    const block = urls.map((url, i) => {
+                        const altText = items?.[i]?.name || formState.title || `Hình ảnh bài viết ${i + 1}`;
+                        return `<figure class="my-6">\n  <img src="${url}" alt="${altText}" class="rounded-2xl w-full object-cover max-h-[500px] shadow-lg" />\n  <figcaption class="text-xs text-center text-gray-500 mt-2 italic">${altText}</figcaption>\n</figure>`;
+                    }).join("\n");
+                    setFormState(prev => ({
+                        ...prev,
+                        content: prev.content ? `${prev.content}\n${block}` : block
                     }));
                 }}
             />
