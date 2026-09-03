@@ -34,28 +34,13 @@ export default function AdminLayout({
     const [logoUrl, setLogoUrl] = useState("/images/logo.png");
 
     useEffect(() => {
-        // Verify authentication (localStorage admin_logged_in or Supabase Auth session)
-        const checkAuth = async () => {
-            const localAuth = typeof window !== "undefined" && localStorage.getItem("admin_logged_in") === "true";
-            if (localAuth) {
-                setIsLoading(false);
-                return;
-            }
-
-            try {
-                const supabase = getSupabaseBrowserClient();
-                const { data: { user } } = await supabase.auth.getUser();
-                if (user) {
-                    localStorage.setItem("admin_logged_in", "true");
-                    document.cookie = "admin_logged_in=true; path=/; max-age=2592000; SameSite=Lax";
-                    setIsLoading(false);
-                    return;
-                }
-            } catch {}
-
+        // Verify authentication
+        const localAuth = typeof window !== "undefined" && localStorage.getItem("admin_logged_in") === "true";
+        if (!localAuth) {
             router.push("/login");
-        };
-        checkAuth();
+            return;
+        }
+        setIsLoading(false);
 
         // Fetch settings for logo and favicon
         try {
@@ -94,17 +79,12 @@ export default function AdminLayout({
             .catch(() => {});
     }, [router]);
 
-    const handleLogout = async () => {
-        localStorage.removeItem("admin_logged_in");
-        document.cookie = "admin_logged_in=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    const handleLogout = () => {
         try {
-            const supabase = getSupabaseBrowserClient();
-            await supabase.auth.signOut();
-        } catch {
-            // Ignore sign-out errors
-        }
+            localStorage.removeItem("admin_logged_in");
+            document.cookie = "admin_logged_in=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        } catch {}
         router.push("/login");
-        router.refresh();
     };
 
     const menuItems = [

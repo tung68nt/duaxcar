@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -14,7 +14,6 @@ import {
     CheckCircle2,
 } from "lucide-react";
 import ThemeToggle from "@/components/theme-toggle";
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 function LoginForm() {
     const router = useRouter();
@@ -27,104 +26,32 @@ function LoginForm() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [checkingSession, setCheckingSession] = useState(true);
 
-    // Check existing session — redirect if already logged in
-    useEffect(() => {
-        const checkSession = async () => {
-            const localAuth = typeof window !== "undefined" && localStorage.getItem("admin_logged_in") === "true";
-            if (localAuth) {
-                router.push(redirectTo);
-                return;
-            }
-
-            try {
-                const supabase = getSupabaseBrowserClient();
-                const { data: { user } } = await supabase.auth.getUser();
-                if (user) {
-                    localStorage.setItem("admin_logged_in", "true");
-                    document.cookie = "admin_logged_in=true; path=/; max-age=2592000; SameSite=Lax";
-                    router.push(redirectTo);
-                    return;
-                }
-            } catch {
-                // Not authenticated — show login form
-            }
-            setCheckingSession(false);
-        };
-        checkSession();
-    }, [router, redirectTo]);
-
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setLoading(true);
 
         const cleanEmail = email.trim().toLowerCase();
 
-        // 1. Support standard CMS admin credentials (admin@duaxcar.vn / admin)
         if (
             (cleanEmail === "admin@duaxcar.vn" || cleanEmail === "admin") &&
             password === "admin"
         ) {
             setSuccess(true);
-            localStorage.setItem("admin_logged_in", "true");
-            document.cookie = "admin_logged_in=true; path=/; max-age=2592000; SameSite=Lax";
-            setTimeout(() => {
-                router.push(redirectTo);
-                router.refresh();
-            }, 600);
-            return;
-        }
-
-        // 2. Also support Supabase Auth credentials if configured
-        try {
-            const supabase = getSupabaseBrowserClient();
-            const { data, error: authError } = await supabase.auth.signInWithPassword({
-                email: cleanEmail,
-                password,
-            });
-
-            if (!authError && data.user) {
-                setSuccess(true);
+            try {
                 localStorage.setItem("admin_logged_in", "true");
                 document.cookie = "admin_logged_in=true; path=/; max-age=2592000; SameSite=Lax";
-                setTimeout(() => {
-                    router.push(redirectTo);
-                    router.refresh();
-                }, 600);
-                return;
-            }
-
-            if (authError) {
-                const errorMessages: Record<string, string> = {
-                    "Invalid login credentials": "Email hoặc mật khẩu không chính xác!",
-                    "Email not confirmed": "Tài khoản chưa được xác thực email.",
-                    "Too many requests": "Quá nhiều lần thử. Vui lòng đợi 1 phút.",
-                };
-                setError(
-                    errorMessages[authError.message] ||
-                    "Email hoặc mật khẩu quản trị không chính xác!"
-                );
-                setLoading(false);
-                return;
-            }
-        } catch (err) {
-            console.error("[Login] Unexpected error:", err);
+            } catch {}
+            setTimeout(() => {
+                router.push(redirectTo);
+            }, 600);
+            return;
         }
 
         setError("Email hoặc mật khẩu quản trị không chính xác!");
         setLoading(false);
     };
-
-    // Show nothing while checking existing session
-    if (checkingSession) {
-        return (
-            <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center">
-                <div className="w-8 h-8 rounded-full border-2 border-[var(--color-primary)] border-t-transparent animate-spin" />
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)] flex items-center justify-center relative overflow-hidden px-4">
@@ -179,7 +106,7 @@ function LoginForm() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg pl-10 pr-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-colors"
-                                placeholder="name@duaxcar.vn"
+                                placeholder="admin@duaxcar.vn"
                                 required
                                 autoComplete="email"
                                 disabled={loading || success}
@@ -206,7 +133,7 @@ function LoginForm() {
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] focus:outline-none"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] focus:outline-none cursor-pointer"
                             >
                                 {showPassword ? (
                                     <EyeOff className="w-4 h-4" />
@@ -257,11 +184,7 @@ function LoginForm() {
 
 export default function LoginPage() {
     return (
-        <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)]">
-                <div className="w-8 h-8 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
-            </div>
-        }>
+        <Suspense fallback={null}>
             <LoginForm />
         </Suspense>
     );
