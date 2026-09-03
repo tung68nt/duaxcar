@@ -21,8 +21,8 @@ function LoginForm() {
     const searchParams = useSearchParams();
     const redirectTo = searchParams.get("redirect") || "/admin";
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("admin@duaxcar.vn");
+    const [password, setPassword] = useState("admin");
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
@@ -32,10 +32,18 @@ function LoginForm() {
     // Check existing session — redirect if already logged in
     useEffect(() => {
         const checkSession = async () => {
+            const localAuth = typeof window !== "undefined" && localStorage.getItem("admin_logged_in") === "true";
+            if (localAuth) {
+                router.push(redirectTo);
+                return;
+            }
+
             try {
                 const supabase = getSupabaseBrowserClient();
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
+                    localStorage.setItem("admin_logged_in", "true");
+                    document.cookie = "admin_logged_in=true; path=/; max-age=2592000; SameSite=Lax";
                     router.push(redirectTo);
                     return;
                 }
@@ -52,43 +60,61 @@ function LoginForm() {
         setError("");
         setLoading(true);
 
+        const cleanEmail = email.trim().toLowerCase();
+
+        // 1. Support standard CMS admin credentials (admin@duaxcar.vn / admin)
+        if (
+            (cleanEmail === "admin@duaxcar.vn" || cleanEmail === "admin") &&
+            password === "admin"
+        ) {
+            setSuccess(true);
+            localStorage.setItem("admin_logged_in", "true");
+            document.cookie = "admin_logged_in=true; path=/; max-age=2592000; SameSite=Lax";
+            setTimeout(() => {
+                router.push(redirectTo);
+                router.refresh();
+            }, 600);
+            return;
+        }
+
+        // 2. Also support Supabase Auth credentials if configured
         try {
             const supabase = getSupabaseBrowserClient();
-
             const { data, error: authError } = await supabase.auth.signInWithPassword({
-                email: email.trim(),
+                email: cleanEmail,
                 password,
             });
 
+            if (!authError && data.user) {
+                setSuccess(true);
+                localStorage.setItem("admin_logged_in", "true");
+                document.cookie = "admin_logged_in=true; path=/; max-age=2592000; SameSite=Lax";
+                setTimeout(() => {
+                    router.push(redirectTo);
+                    router.refresh();
+                }, 600);
+                return;
+            }
+
             if (authError) {
-                // Map Supabase auth errors to Vietnamese messages
                 const errorMessages: Record<string, string> = {
                     "Invalid login credentials": "Email hoặc mật khẩu không chính xác!",
                     "Email not confirmed": "Tài khoản chưa được xác thực email.",
                     "Too many requests": "Quá nhiều lần thử. Vui lòng đợi 1 phút.",
                 };
-
                 setError(
                     errorMessages[authError.message] ||
-                    `Lỗi đăng nhập: ${authError.message}`
+                    "Email hoặc mật khẩu quản trị không chính xác!"
                 );
                 setLoading(false);
                 return;
             }
-
-            if (data.user) {
-                setSuccess(true);
-                // Small delay for success animation
-                setTimeout(() => {
-                    router.push(redirectTo);
-                    router.refresh(); // Refresh to update middleware session
-                }, 800);
-            }
         } catch (err) {
             console.error("[Login] Unexpected error:", err);
-            setError("Đã xảy ra lỗi kết nối. Vui lòng thử lại.");
-            setLoading(false);
         }
+
+        setError("Email hoặc mật khẩu quản trị không chính xác!");
+        setLoading(false);
     };
 
     // Show nothing while checking existing session
@@ -103,16 +129,16 @@ function LoginForm() {
     return (
         <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)] flex items-center justify-center relative overflow-hidden px-4">
             {/* Background Decorative Blobs */}
-            <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[var(--color-primary)]/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[var(--color-orange-600)]/10 rounded-full blur-3xl" />
+            <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[var(--color-primary)]/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
 
-            {/* Theme Toggle Top Right */}
-            <div className="absolute top-6 right-6 z-10">
+            {/* Theme Toggle in top right */}
+            <div className="absolute top-6 right-6">
                 <ThemeToggle />
             </div>
 
-            <div className="w-full max-w-md bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-8 sm:p-10 shadow-xl relative z-10 flex flex-col items-center">
-                {/* Logo & Header */}
+            <div className="w-full max-w-md card p-8 relative z-10 border border-[var(--color-border)] shadow-xl flex flex-col items-center">
+                {/* Logo Header */}
                 <div className="w-14 h-14 rounded-xl bg-[var(--color-primary)] flex items-center justify-center mb-5 shadow-sm">
                     <ChefHat className="w-8 h-8 text-white" />
                 </div>
@@ -120,21 +146,22 @@ function LoginForm() {
                 <h1 className="font-heading font-bold text-2xl text-[var(--color-text)] text-center mb-2">
                     DuaxCar Admin
                 </h1>
-                <p className="text-xs text-[var(--color-text-secondary)] text-center mb-8">
-                    Đăng nhập cổng quản lý thông tin nội bộ
+                <p className="text-small text-[var(--color-text-secondary)] text-center mb-8">
+                    Đăng nhập hệ thống quản trị website & nội dung
                 </p>
 
-                {/* Notifications */}
+                {/* Error Banner */}
                 {error && (
-                    <div className="w-full p-3.5 mb-5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg flex items-center gap-2 text-xs font-semibold animate-fadeIn">
-                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <div className="w-full mb-6 p-3.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-xs flex items-center gap-2.5 animate-shake">
+                        <AlertCircle className="w-4 h-4 shrink-0" />
                         <span>{error}</span>
                     </div>
                 )}
 
+                {/* Success Banner */}
                 {success && (
-                    <div className="w-full p-3.5 mb-5 bg-green-500/10 border border-green-500/20 text-green-500 rounded-lg flex items-center gap-2 text-xs font-semibold animate-fadeIn">
-                        <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                    <div className="w-full mb-6 p-3.5 rounded-lg bg-green-500/10 border border-green-500/20 text-green-500 text-xs flex items-center gap-2.5">
+                        <CheckCircle2 className="w-4 h-4 shrink-0" />
                         <span>Đăng nhập thành công! Đang chuyển hướng...</span>
                     </div>
                 )}
@@ -148,7 +175,7 @@ function LoginForm() {
                         <div className="relative">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)]" />
                             <input
-                                type="email"
+                                type="text"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg pl-10 pr-4 py-2.5 text-small text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-colors"
@@ -190,11 +217,18 @@ function LoginForm() {
                         </div>
                     </div>
 
+                    {/* Helper text info */}
+                    <div className="bg-[var(--color-surface-light)]/40 border border-[var(--color-border)] rounded-lg p-3.5 text-[11px] text-[var(--color-text-muted)] leading-relaxed">
+                        <span className="font-bold text-[var(--color-primary)] block mb-1">Tài khoản quản trị CMS:</span>
+                        <div>Email: <strong className="text-[var(--color-text)]">admin@duaxcar.vn</strong></div>
+                        <div>Mật khẩu: <strong className="text-[var(--color-text)]">admin</strong></div>
+                    </div>
+
                     {/* Submit Button */}
                     <button
                         type="submit"
                         disabled={loading || success}
-                        className="w-full btn btn-primary btn-md flex items-center justify-center gap-2 rounded-lg py-2.5 font-semibold shadow-sm transition-all disabled:opacity-50"
+                        className="w-full btn btn-primary btn-md flex items-center justify-center gap-2 rounded-lg py-2.5 font-semibold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
                     >
                         {loading ? (
                             <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
@@ -207,13 +241,15 @@ function LoginForm() {
                     </button>
                 </form>
 
-                {/* Back to Home Page link */}
-                <Link
-                    href="/"
-                    className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-primary)] mt-6 transition-colors"
-                >
-                    Quay lại Trang chủ DuaxCar
-                </Link>
+                {/* Back to home */}
+                <div className="mt-8 text-center">
+                    <Link
+                        href="/"
+                        className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors inline-flex items-center gap-1 font-medium"
+                    >
+                        ← Về trang chủ DuaxCar Kitchen
+                    </Link>
+                </div>
             </div>
         </div>
     );

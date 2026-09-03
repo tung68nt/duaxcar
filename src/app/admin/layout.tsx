@@ -34,20 +34,26 @@ export default function AdminLayout({
     const [logoUrl, setLogoUrl] = useState("/images/logo.png");
 
     useEffect(() => {
-        // Verify Supabase Auth session
+        // Verify authentication (localStorage admin_logged_in or Supabase Auth session)
         const checkAuth = async () => {
+            const localAuth = typeof window !== "undefined" && localStorage.getItem("admin_logged_in") === "true";
+            if (localAuth) {
+                setIsLoading(false);
+                return;
+            }
+
             try {
                 const supabase = getSupabaseBrowserClient();
                 const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
-                    router.push("/login");
+                if (user) {
+                    localStorage.setItem("admin_logged_in", "true");
+                    document.cookie = "admin_logged_in=true; path=/; max-age=2592000; SameSite=Lax";
+                    setIsLoading(false);
                     return;
                 }
-            } catch {
-                router.push("/login");
-                return;
-            }
-            setIsLoading(false);
+            } catch {}
+
+            router.push("/login");
         };
         checkAuth();
 
@@ -89,6 +95,8 @@ export default function AdminLayout({
     }, [router]);
 
     const handleLogout = async () => {
+        localStorage.removeItem("admin_logged_in");
+        document.cookie = "admin_logged_in=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         try {
             const supabase = getSupabaseBrowserClient();
             await supabase.auth.signOut();

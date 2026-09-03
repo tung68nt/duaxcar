@@ -117,42 +117,33 @@ export async function middleware(request: NextRequest) {
 
     // === Protected Routes: Require Authentication ===
     if (isAdminRoute(pathname) || isProtectedApiRoute(pathname)) {
+        // 1. Allow if admin_logged_in cookie is set
+        const adminCookie = request.cookies.get('admin_logged_in')?.value;
+        if (adminCookie === 'true') {
+            return response;
+        }
+
+        // 2. Allow if Supabase Auth session exists
         try {
             const supabase = createSupabaseMiddlewareClient(request, response);
             const { data: { user }, error } = await supabase.auth.getUser();
 
-            if (error || !user) {
-                // Not authenticated
-                if (isProtectedApiRoute(pathname)) {
-                    // API route → return 401 JSON
-                    return NextResponse.json(
-                        { error: 'Unauthorized — Vui lòng đăng nhập quản trị.' },
-                        { status: 401 }
-                    );
-                }
-
-                // Admin page → redirect to login
-                const loginUrl = new URL('/login', request.url);
-                loginUrl.searchParams.set('redirect', pathname);
-                return NextResponse.redirect(loginUrl);
+            if (!error && user) {
+                return response;
             }
+        } catch {}
 
-            // User is authenticated → allow through
-            return response;
-        } catch (err) {
-            console.error('[Middleware] Auth check error:', err);
-
-            if (isProtectedApiRoute(pathname)) {
-                return NextResponse.json(
-                    { error: 'Authentication service unavailable' },
-                    { status: 503 }
-                );
-            }
-
-            // Fallback: redirect to login on error
-            const loginUrl = new URL('/login', request.url);
-            return NextResponse.redirect(loginUrl);
+        // 3. Not authenticated
+        if (isProtectedApiRoute(pathname)) {
+            return NextResponse.json(
+                { error: 'Unauthorized — Vui lòng đăng nhập quản trị.' },
+                { status: 401 }
+            );
         }
+
+        const loginUrl = new URL('/login', request.url);
+        loginUrl.searchParams.set('redirect', pathname);
+        return NextResponse.redirect(loginUrl);
     }
 
     return response;
