@@ -146,23 +146,87 @@ export default function AboutUsClient({ initialStats, initialInstructors, initia
     return (
         <div className="space-y-12 md:space-y-16 pb-16">
             {/* Hero Section */}
-            <section className="relative pt-12 pb-14 md:pt-16 md:pb-16 overflow-hidden border-b border-[var(--color-border)] mb-8">
+            <section className="relative pt-10 pb-12 md:pt-16 md:pb-16 overflow-hidden border-b border-[var(--color-border)] mb-8">
                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-background)] via-[var(--color-surface)] to-[var(--color-background)]" />
-                <div className="absolute top-10 right-10 w-72 h-72 bg-[var(--color-orange-500)]/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-10 right-10 w-80 h-80 bg-[var(--color-orange-500)]/15 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute inset-0 pattern-plus opacity-50 pointer-events-none" />
 
                 <div className="container relative z-10">
-                    <div className="max-w-3xl">
-                        <div className="inline-flex items-center gap-2 badge badge-primary mb-3">
-                            <Users className="w-3.5 h-3.5" />
-                            <span>Về DuaxCar Kitchen</span>
+                    <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                        {/* Text Content */}
+                        <div className="lg:col-span-7">
+                            <div className="inline-flex items-center gap-2 badge badge-primary mb-3">
+                                <Users className="w-3.5 h-3.5" />
+                                <span>Về DuaxCar Kitchen</span>
+                            </div>
+                            <h1 className="heading-1 text-[var(--color-text)] mb-3 leading-tight">
+                                {aboutContent.aboutHeroTitle}
+                            </h1>
+                            <p className="text-small sm:text-base text-[var(--color-text-secondary)] leading-relaxed mb-6">
+                                {aboutContent.aboutHeroSubtitle}
+                            </p>
+
+                            {/* Trust Badges */}
+                            <div className="flex flex-wrap gap-2.5 mb-6">
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] shadow-xs">
+                                    <Award className="w-3.5 h-3.5 text-[var(--color-primary)]" />
+                                    <span>Nghệ nhân vinh danh</span>
+                                </div>
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] shadow-xs">
+                                    <ChefHat className="w-3.5 h-3.5 text-amber-500" />
+                                    <span>100% Thực chiến bếp nghề</span>
+                                </div>
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] shadow-xs">
+                                    <HeartHandshake className="w-3.5 h-3.5 text-emerald-500" />
+                                    <span>Hỗ trợ mở quán trọn đời</span>
+                                </div>
+                            </div>
+
+                            {/* CTA Action Buttons */}
+                            <div className="flex flex-wrap items-center gap-3">
+                                <Link href="/khoa-hoc" className="btn btn-primary btn-sm">
+                                    Xem các khóa học <ArrowRight className="w-4 h-4" />
+                                </Link>
+                                <Link href="#giang-vien" className="btn btn-secondary btn-sm">
+                                    Gặp gỡ giảng viên
+                                </Link>
+                            </div>
                         </div>
-                        <h1 className="heading-1 text-[var(--color-text)] mb-3 leading-tight">
-                            {aboutContent.aboutHeroTitle}
-                        </h1>
-                        <p className="text-small sm:text-base text-[var(--color-text-secondary)] max-w-2xl leading-relaxed">
-                            {aboutContent.aboutHeroSubtitle}
-                        </p>
+
+                        {/* Hero Visual Image */}
+                        <div className="lg:col-span-5">
+                            <div className="relative mx-auto max-w-lg lg:max-w-none">
+                                <div className="relative aspect-[16/10] sm:aspect-[4/3] rounded-3xl overflow-hidden border-2 border-[var(--color-border)] shadow-xl group">
+                                    <Image
+                                        src={aboutContent.aboutStoryImage || "/images/about/mission-v6.jpg"}
+                                        alt={aboutContent.aboutHeroTitle}
+                                        fill
+                                        priority
+                                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                        unoptimized={Boolean(aboutContent.aboutStoryImage?.startsWith('data:') || aboutContent.aboutStoryImage?.startsWith('blob:'))}
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
+
+                                    {/* Bottom Floating Bar */}
+                                    <div className="absolute bottom-3 left-3 right-3 p-3 rounded-2xl bg-black/50 backdrop-blur-md border border-white/20 text-white flex items-center justify-between">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)] flex items-center justify-center text-white shrink-0">
+                                                <Award className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <div className="text-xs font-bold leading-tight">Trung tâm đào tạo DuaxCar</div>
+                                                <div className="text-[10px] text-white/80">Khởi nghiệp ẩm thực chuyên sâu</div>
+                                            </div>
+                                        </div>
+                                        <span className="text-[10px] font-semibold bg-white/20 px-2 py-0.5 rounded-full border border-white/30 shrink-0">
+                                            25+ năm
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-[var(--color-primary)]/20 rounded-full blur-2xl -z-10" />
+                                <div className="absolute -top-4 -left-4 w-32 h-32 bg-[var(--color-orange-500)]/20 rounded-full blur-2xl -z-10" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

@@ -161,369 +161,103 @@ export default async function CoursesPage({ searchParams }: Props) {
                 </div>
             </section>
 
-            {/* Category Section - Cleaner Chip Style */}
-            {selectedType === "onsite" ? (
-                <>
-                    {/* Courses */}
-                    <section className="section bg-[var(--color-surface)]">
-                        <div className="container">
-                            {/* Results Header */}
-                            <div className="flex items-center justify-between mb-8">
-                                <div>
-                                    <h2 className="heading-4 text-[var(--color-text)]">{pageTitle}</h2>
-                                    <p className="text-small text-[var(--color-text-secondary)] mt-1">
-                                        Hiển thị {filteredCourses.length} khóa học
-                                        {selectedCategory && (
-                                            <> trong danh mục <span className="text-[var(--color-primary)]">
-                                                {courseCategories.find((c) => c.id === selectedCategory)?.name}
-                                            </span></>
-                                        )}
-                                    </p>
-                                </div>
-                            </div>
+                        {/* Courses Section - Always placed first (categories placed below as in onsite courses) */}
+            <section className="section bg-[var(--color-surface)]">
+                <div className="container">
+                    {/* Results Header */}
+                    <div className="flex items-center justify-between mb-6 md:mb-8">
+                        <div>
+                            <h2 className="heading-4 text-[var(--color-text)]">{pageTitle}</h2>
+                            <p className="text-small text-[var(--color-text-secondary)] mt-1">
+                                Hiển thị {filteredCourses.length} khóa học
+                                {selectedCategory && (
+                                    <> trong danh mục <span className="text-[var(--color-primary)]">
+                                        {courseCategories.find((c) => c.id === selectedCategory)?.name}
+                                    </span></>
+                                )}
+                            </p>
+                        </div>
+                    </div>
 
-                            {/* Course Grid */}
-                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {filteredCourses.map((course) => {
-                                    const isElearning = course.courseType === "elearning";
-                                    return (
-                                        <div key={course.id} className="relative group">
-                                            <Link
-                                                key={course.id}
-                                                href={`/khoa-hoc/${course.slug}`}
-                                                className="card card-glow block h-full"
-                                            >
-                                                {/* Image */}
-                                                <div className="relative h-48 bg-[var(--color-surface-light)] flex items-center justify-center overflow-hidden">
-                                                    {course.image || courseCategories.find((c) => c.id === course.category)?.image ? (
-                                                        <Image
-                                                            src={course.image || courseCategories.find((c) => c.id === course.category)?.image || ""}
-                                                            alt={course.name}
-                                                            fill
-                                                            unoptimized={Boolean(course.image && (course.image.startsWith('data:') || course.image.startsWith('blob:')))}
-                                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                                        />
-                                                    ) : (
-                                                        <ChefHat className="w-16 h-16 text-[var(--color-gray-600)] group-hover:text-[var(--color-primary)] transition-colors" />
-                                                    )}
+                    {/* Course Grid: 2 columns on mobile for elearning (online) courses */}
+                    <div className={`grid ${
+                        selectedType === "elearning"
+                            ? "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6"
+                            : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                    }`}>
+                        {filteredCourses.map((course) => {
+                            const isElearning = course.courseType === "elearning";
+                            const isTwoColsOnMobile = selectedType === "elearning";
 
-                                                    {/* Badges */}
-                                                    <div className="absolute top-3 left-3 flex gap-2 z-10">
-                                                        {isElearning ? (
-                                                            <span className="badge bg-purple-600 text-white border-none flex items-center gap-1 font-bold shadow-md">
-                                                                <Play className="w-3.5 h-3.5 fill-current" />
-                                                                Online
-                                                            </span>
-                                                        ) : (
-                                                            <span className="badge bg-green-600 text-white border-none flex items-center gap-1 font-bold shadow-md">
-                                                                <Users className="w-3.5 h-3.5 fill-current" />
-                                                                Trực tiếp
-                                                            </span>
-                                                        )}
-                                                        {course.featured && (
-                                                            <span className="badge bg-[var(--color-primary)] text-white border-none font-bold shadow-md">
-                                                                Nổi bật
-                                                            </span>
-                                                        )}
-                                                    </div>
+                            return (
+                                <div key={course.id} className="relative group flex flex-col">
+                                    <Link
+                                        href={`/khoa-hoc/${course.slug}`}
+                                        className="card card-glow block h-full flex flex-col justify-between overflow-hidden"
+                                    >
+                                        <div>
+                                            {/* Image */}
+                                            <div className={`relative ${isTwoColsOnMobile ? "h-32 xs:h-40 sm:h-48" : "h-48"} bg-[var(--color-surface-light)] flex items-center justify-center overflow-hidden`}>
+                                                {course.image || courseCategories.find((c) => c.id === course.category)?.image ? (
+                                                    <Image
+                                                        src={course.image || courseCategories.find((c) => c.id === course.category)?.image || ""}
+                                                        alt={course.name}
+                                                        fill
+                                                        unoptimized={Boolean(course.image && (course.image.startsWith("data:") || course.image.startsWith("blob:")))}
+                                                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                                    />
+                                                ) : (
+                                                    <ChefHat className={`${isTwoColsOnMobile ? "w-10 h-10 sm:w-16 sm:h-16" : "w-16 h-16"} text-[var(--color-gray-600)] group-hover:text-[var(--color-primary)] transition-colors`} />
+                                                )}
 
-                                                    {/* Video Indicator */}
-                                                    {course.videoUrl && (
-                                                        <div className="absolute bottom-2.5 right-2.5 z-10 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-xs text-white text-[10px] font-semibold flex items-center gap-1 border border-white/20 shadow-md">
-                                                            <Play className="w-2.5 h-2.5 text-red-500 fill-red-500" />
-                                                            <span>Có Video</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                {/* Content */}
-                                                <div className="p-5">
-                                                    <div className="text-xs text-[var(--color-text-muted)] mb-2 flex items-center gap-1.5">
-                                                        <CategoryIcon id={course.category} className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                                                        <span>{courseCategories.find((c) => c.id === course.category)?.name}</span>
-                                                    </div>
-                                                    <h3 className="font-heading font-semibold text-lg text-[var(--color-text)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
-                                                        {course.name}
-                                                    </h3>
-                                                    <p className="text-small text-[var(--color-text-muted)] mb-4 line-clamp-2">
-                                                        {course.shortDescription}
-                                                    </p>
-
-                                                    {/* Meta */}
-                                                    <div className="flex items-center gap-4 text-small text-[var(--color-text-secondary)] mb-4">
-                                                        <div className="flex items-center gap-1">
-                                                            {isElearning ? (
-                                                                <>
-                                                                    <BookOpen className="w-4 h-4" />
-                                                                    <span>{course.totalLessons} bài</span>
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <Clock className="w-4 h-4" />
-                                                                    <span>{course.duration}</span>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                        {!isElearning && course.maxStudents && (
-                                                            <div className="flex items-center gap-1">
-                                                                <Users className="w-4 h-4" />
-                                                                <span>{course.maxStudents} HV</span>
-                                                            </div>
-                                                        )}
-                                                        {isElearning && (
-                                                            <div className="flex items-center gap-1 text-green-400">
-                                                                <span>🔓 {course.accessDuration}</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Price & CTA */}
-                                                    <div className="flex items-center justify-between pt-4 border-t border-[var(--color-border)]">
-                                                        <div className="font-heading font-semibold text-sm text-[var(--color-primary)]">
-                                                            Tư vấn & Đăng ký
-                                                        </div>
-                                                        <span className="text-small font-medium text-[var(--color-text-secondary)] group-hover:text-[var(--color-primary)] transition-colors flex items-center gap-1">
-                                                            Xem chi tiết
-                                                            <ArrowRight className="w-4 h-4" />
+                                                {/* Badges */}
+                                                <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-wrap gap-1 sm:gap-2 z-10">
+                                                    {isElearning ? (
+                                                        <span className="badge bg-purple-600 text-white border-none flex items-center gap-1 font-bold shadow-md text-[10px] px-1.5 py-0.5 sm:text-xs sm:px-2.5 sm:py-1">
+                                                            <Play className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 fill-current" />
+                                                            Online
                                                         </span>
-                                                    </div>
-                                                </div>
-                                            </Link>
-
-                                            {/* Sibling badge for online class */}
-                                            {!isElearning && course.onlineUrl && (
-                                                <a 
-                                                    href={course.onlineUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="absolute top-3 right-3 badge bg-purple-600 text-white z-30 flex items-center gap-1 font-bold shadow-md cursor-pointer hover:bg-purple-700 transition-colors border-none"
-                                                >
-                                                    <Play className="w-3 h-3 fill-current" />
-                                                    Lớp Online
-                                                </a>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Empty State */}
-                            {filteredCourses.length === 0 && (
-                                <div className="text-center py-16">
-                                    <ChefHat className="w-16 h-16 text-[var(--color-gray-600)] mx-auto mb-4" />
-                                    <h3 className="heading-4 text-[var(--color-text)] mb-2">
-                                        Không tìm thấy khóa học
-                                    </h3>
-                                    <p className="text-[var(--color-text-secondary)] mb-6">
-                                        Hiện chưa có khóa học nào trong danh mục này.
-                                    </p>
-                                    <Link href="/khoa-hoc" className="btn btn-primary">
-                                        Xem tất cả khóa học
-                                    </Link>
-                                </div>
-                            )}
-                        </div>
-                    </section>
-
-                    {/* Category Selection */}
-                    <section className="py-8 bg-[var(--color-background)] border-b border-[var(--color-border)]">
-                        <div className="container">
-                            <div className="flex items-center justify-between mb-5">
-                                <h2 className="text-base font-semibold text-[var(--color-text)]">
-                                    Danh mục
-                                </h2>
-                                {selectedCategory && (
-                                    <Link
-                                        href={selectedType ? `/khoa-hoc?type=${selectedType}` : "/khoa-hoc"}
-                                        className="text-small text-[var(--color-primary)] hover:underline flex items-center gap-1"
-                                    >
-                                        Xóa bộ lọc ×
-                                    </Link>
-                                )}
-                            </div>
-
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                {courseCategories.map((category) => {
-                                    const isActive = selectedCategory === category.id;
-                                    const courseCount = (selectedType
-                                        ? courses.filter(c => c.courseType === selectedType && c.category === category.id)
-                                        : courses.filter(c => c.category === category.id)
-                                    ).length;
-
-                                    return (
-                                        <Link
-                                            key={category.id}
-                                            href={`/khoa-hoc?${selectedType ? `type=${selectedType}&` : ""}category=${category.id}`}
-                                            className={`relative flex flex-col items-center justify-center p-6 rounded-2xl border transition-all duration-300 group ${isActive
-                                                ? "bg-[var(--color-surface)] border-[var(--color-orange-500)] shadow-[0_0_20px_rgba(249,115,22,0.15)]"
-                                                : "bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-orange-300)] hover:shadow-lg hover:-translate-y-1"
-                                                }`}
-                                        >
-                                            <div className={`mb-4 transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"} text-[var(--color-primary)]`}>
-                                                <CategoryIcon id={category.id} className="w-8 h-8" />
-                                            </div>
-
-                                            <span className={`text-sm font-semibold text-center mb-1 ${isActive ? "text-[var(--color-orange-500)]" : "text-[var(--color-text)] group-hover:text-[var(--color-orange-500)]"
-                                                }`}>
-                                                {category.name}
-                                            </span>
-
-                                            <span className="text-xs text-[var(--color-text-muted)]">
-                                                {courseCount} khóa học
-                                            </span>
-
-                                            {isActive && (
-                                                <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[var(--color-orange-500)] animate-pulse" />
-                                            )}
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </section>
-                </>
-            ) : (
-                <>
-                    {/* Category Selection */}
-                    <section className="py-8 bg-[var(--color-background)] border-b border-[var(--color-border)]">
-                        <div className="container">
-                            <div className="flex items-center justify-between mb-5">
-                                <h2 className="text-base font-semibold text-[var(--color-text)]">
-                                    Danh mục
-                                </h2>
-                                {selectedCategory && (
-                                    <Link
-                                        href={selectedType ? `/khoa-hoc?type=${selectedType}` : "/khoa-hoc"}
-                                        className="text-small text-[var(--color-primary)] hover:underline flex items-center gap-1"
-                                    >
-                                        Xóa bộ lọc ×
-                                    </Link>
-                                )}
-                            </div>
-
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                {courseCategories.map((category) => {
-                                    const isActive = selectedCategory === category.id;
-                                    const courseCount = (selectedType
-                                        ? courses.filter(c => c.courseType === selectedType && c.category === category.id)
-                                        : courses.filter(c => c.category === category.id)
-                                    ).length;
-
-                                    return (
-                                        <Link
-                                            key={category.id}
-                                            href={`/khoa-hoc?${selectedType ? `type=${selectedType}&` : ""}category=${category.id}`}
-                                            className={`relative flex flex-col items-center justify-center p-6 rounded-2xl border transition-all duration-300 group ${isActive
-                                                ? "bg-[var(--color-surface)] border-[var(--color-orange-500)] shadow-[0_0_20px_rgba(249,115,22,0.15)]"
-                                                : "bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-orange-300)] hover:shadow-lg hover:-translate-y-1"
-                                                }`}
-                                        >
-                                            <div className={`mb-4 transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"} text-[var(--color-primary)]`}>
-                                                <CategoryIcon id={category.id} className="w-8 h-8" />
-                                            </div>
-
-                                            <span className={`text-sm font-semibold text-center mb-1 ${isActive ? "text-[var(--color-orange-500)]" : "text-[var(--color-text)] group-hover:text-[var(--color-orange-500)]"
-                                                }`}>
-                                                {category.name}
-                                            </span>
-
-                                            <span className="text-xs text-[var(--color-text-muted)]">
-                                                {courseCount} khóa học
-                                            </span>
-
-                                            {isActive && (
-                                                <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[var(--color-orange-500)] animate-pulse" />
-                                            )}
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Courses */}
-                    <section className="section bg-[var(--color-surface)]">
-                        <div className="container">
-                            {/* Results Header */}
-                            <div className="flex items-center justify-between mb-8">
-                                <div>
-                                    <h2 className="heading-4 text-[var(--color-text)]">{pageTitle}</h2>
-                                    <p className="text-small text-[var(--color-text-secondary)] mt-1">
-                                        Hiển thị {filteredCourses.length} khóa học
-                                        {selectedCategory && (
-                                            <> trong danh mục <span className="text-[var(--color-primary)]">
-                                                {courseCategories.find((c) => c.id === selectedCategory)?.name}
-                                            </span></>
-                                        )}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Course Grid */}
-                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {filteredCourses.map((course) => {
-                                    const isElearning = course.courseType === "elearning";
-                                    return (
-                                        <div key={course.id} className="relative group">
-                                            <Link
-                                                key={course.id}
-                                                href={`/khoa-hoc/${course.slug}`}
-                                                className="card card-glow block h-full"
-                                            >
-                                                {/* Image */}
-                                                <div className="relative h-48 bg-[var(--color-surface-light)] flex items-center justify-center overflow-hidden">
-                                                    {course.image || courseCategories.find((c) => c.id === course.category)?.image ? (
-                                                        <Image
-                                                            src={course.image || courseCategories.find((c) => c.id === course.category)?.image || ""}
-                                                            alt={course.name}
-                                                            fill
-                                                            unoptimized={Boolean(course.image && (course.image.startsWith('data:') || course.image.startsWith('blob:')))}
-                                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                                        />
                                                     ) : (
-                                                        <ChefHat className="w-16 h-16 text-[var(--color-gray-600)] group-hover:text-[var(--color-primary)] transition-colors" />
+                                                        <span className="badge bg-green-600 text-white border-none flex items-center gap-1 font-bold shadow-md text-[10px] px-1.5 py-0.5 sm:text-xs sm:px-2.5 sm:py-1">
+                                                            <Users className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 fill-current" />
+                                                            Trực tiếp
+                                                        </span>
                                                     )}
-
-                                                    {/* Badges */}
-                                                    <div className="absolute top-3 left-3 flex gap-2 z-10">
-                                                        {isElearning ? (
-                                                            <span className="badge bg-purple-600 text-white border-none flex items-center gap-1 font-bold shadow-md">
-                                                                <Play className="w-3.5 h-3.5 fill-current" />
-                                                                Online
-                                                            </span>
-                                                        ) : (
-                                                            <span className="badge bg-green-600 text-white border-none flex items-center gap-1 font-bold shadow-md">
-                                                                <Users className="w-3.5 h-3.5 fill-current" />
-                                                                Trực tiếp
-                                                            </span>
-                                                        )}
-                                                        {course.featured && (
-                                                            <span className="badge bg-[var(--color-primary)] text-white border-none font-bold shadow-md">
-                                                                Nổi bật
-                                                            </span>
-                                                        )}
-                                                    </div>
+                                                    {course.featured && (
+                                                        <span className="badge bg-[var(--color-primary)] text-white border-none font-bold shadow-md text-[10px] px-1.5 py-0.5 sm:text-xs sm:px-2.5 sm:py-1">
+                                                            Nổi bật
+                                                        </span>
+                                                    )}
                                                 </div>
+
+                                                {/* Video Indicator */}
+                                                {course.videoUrl && (
+                                                    <div className="absolute bottom-2 right-2 sm:bottom-2.5 sm:right-2.5 z-10 px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-md bg-black/75 backdrop-blur-xs text-white text-[9px] sm:text-[10px] font-semibold flex items-center gap-1 border border-white/20 shadow-md">
+                                                        <Play className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-red-500 fill-red-500" />
+                                                        <span className="hidden xs:inline sm:inline">Có Video</span>
+                                                    </div>
+                                                )}
+                                            </div>
 
                                             {/* Content */}
-                                            <div className="p-5">
-                                                <div className="text-xs text-[var(--color-text-muted)] mb-2 flex items-center gap-1.5">
-                                                    <CategoryIcon id={course.category} className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                                                    <span>{courseCategories.find((c) => c.id === course.category)?.name}</span>
+                                            <div className={`${isTwoColsOnMobile ? "p-2.5 sm:p-5" : "p-5"}`}>
+                                                <div className={`${isTwoColsOnMobile ? "text-[10px] sm:text-xs" : "text-xs"} text-[var(--color-text-muted)] mb-1 sm:mb-2 flex items-center gap-1 sm:gap-1.5`}>
+                                                    <CategoryIcon id={course.category} className={`${isTwoColsOnMobile ? "w-3 h-3 sm:w-3.5 sm:h-3.5" : "w-3.5 h-3.5"} text-[var(--color-primary)] shrink-0`} />
+                                                    <span className="truncate">{courseCategories.find((c) => c.id === course.category)?.name}</span>
                                                 </div>
-                                                <h3 className="font-heading font-semibold text-lg text-[var(--color-text)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
+                                                <h3 className={`font-heading font-semibold ${isTwoColsOnMobile ? "text-xs sm:text-lg leading-snug min-h-[2rem] sm:min-h-0" : "text-lg"} text-[var(--color-text)] mb-1 sm:mb-2 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2`}>
                                                     {course.name}
                                                 </h3>
-                                                <p className="text-small text-[var(--color-text-muted)] mb-4 line-clamp-2">
+                                                <p className={`${isTwoColsOnMobile ? "hidden sm:block" : ""} text-small text-[var(--color-text-muted)] mb-3 sm:mb-4 line-clamp-2`}>
                                                     {course.shortDescription}
                                                 </p>
 
                                                 {/* Meta */}
-                                                <div className="flex items-center gap-4 text-small text-[var(--color-text-secondary)] mb-4">
-                                                    <div className="flex items-center gap-1">
+                                                <div className={`flex items-center ${isTwoColsOnMobile ? "gap-2 sm:gap-4 text-[10px] sm:text-small" : "gap-4 text-small"} text-[var(--color-text-secondary)] mb-2 sm:mb-4`}>
+                                                    <div className="flex items-center gap-1 shrink-0">
                                                         {isElearning ? (
                                                             <>
-                                                                <BookOpen className="w-4 h-4" />
+                                                                <BookOpen className={`${isTwoColsOnMobile ? "w-3 h-3 sm:w-4 sm:h-4" : "w-4 h-4"} text-purple-400`} />
                                                                 <span>{course.totalLessons} bài</span>
                                                             </>
                                                         ) : (
@@ -534,69 +268,127 @@ export default async function CoursesPage({ searchParams }: Props) {
                                                         )}
                                                     </div>
                                                     {!isElearning && course.maxStudents && (
-                                                        <div className="flex items-center gap-1">
+                                                        <div className="flex items-center gap-1 shrink-0">
                                                             <Users className="w-4 h-4" />
                                                             <span>{course.maxStudents} HV</span>
                                                         </div>
                                                     )}
                                                     {isElearning && (
-                                                        <div className="flex items-center gap-1 text-green-400">
-                                                            <span>🔓 {course.accessDuration}</span>
+                                                        <div className="flex items-center gap-1 text-green-500 shrink-0 font-medium">
+                                                            <span className="truncate">{course.accessDuration || "Trọn đời"}</span>
                                                         </div>
                                                     )}
                                                 </div>
-
-                                                {/* Price & CTA */}
-                                                <div className="flex items-center justify-between pt-4 border-t border-[var(--color-border)]">
-                                                    <div className="font-heading font-semibold text-sm text-[var(--color-primary)]">
-                                                        Tư vấn & Đăng ký
-                                                    </div>
-                                                    <span className="text-small font-medium text-[var(--color-text-secondary)] group-hover:text-[var(--color-primary)] transition-colors flex items-center gap-1">
-                                                        Xem chi tiết
-                                                        <ArrowRight className="w-4 h-4" />
-                                                    </span>
-                                                </div>
                                             </div>
-                                        </Link>
+                                        </div>
 
-                                        {/* Sibling badge for online class */}
-                                        {!isElearning && course.onlineUrl && (
-                                            <a 
-                                                href={course.onlineUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="absolute top-3 right-3 badge bg-purple-600 text-white z-30 flex items-center gap-1 font-bold shadow-md cursor-pointer hover:bg-purple-700 transition-colors border-none"
-                                            >
-                                                <Play className="w-3 h-3 fill-current" />
-                                                Lớp Online
-                                            </a>
-                                        )}
-                                    </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Empty State */}
-                            {filteredCourses.length === 0 && (
-                                <div className="text-center py-16">
-                                    <ChefHat className="w-16 h-16 text-[var(--color-gray-600)] mx-auto mb-4" />
-                                    <h3 className="heading-4 text-[var(--color-text)] mb-2">
-                                        Không tìm thấy khóa học
-                                    </h3>
-                                    <p className="text-[var(--color-text-secondary)] mb-6">
-                                        Hiện chưa có khóa học nào trong danh mục này.
-                                    </p>
-                                    <Link href="/khoa-hoc" className="btn btn-primary">
-                                        Xem tất cả khóa học
+                                        {/* Price & CTA Footer */}
+                                        <div className={`${isTwoColsOnMobile ? "px-2.5 pb-2.5 sm:px-5 sm:pb-5" : "px-5 pb-5"}`}>
+                                            <div className="flex items-center justify-between pt-2.5 sm:pt-4 border-t border-[var(--color-border)]">
+                                                <div className={`font-heading font-semibold ${isTwoColsOnMobile ? "text-[11px] sm:text-sm" : "text-sm"} text-[var(--color-primary)]`}>
+                                                    Tư vấn & Đăng ký
+                                                </div>
+                                                <span className={`${isTwoColsOnMobile ? "text-[10px] sm:text-small" : "text-small"} font-medium text-[var(--color-text-secondary)] group-hover:text-[var(--color-primary)] transition-colors flex items-center gap-0.5 sm:gap-1`}>
+                                                    <span className="hidden xs:inline sm:inline">Chi tiết</span>
+                                                    <ArrowRight className={`${isTwoColsOnMobile ? "w-3 h-3 sm:w-4 sm:h-4" : "w-4 h-4"}`} />
+                                                </span>
+                                            </div>
+                                        </div>
                                     </Link>
-                                </div>
-                            )}
-                        </div>
-                    </section>
-                </>
-            )}
 
-            {/* CTA */}
+                                    {/* Sibling badge for online class */}
+                                    {!isElearning && course.onlineUrl && (
+                                        <a 
+                                            href={course.onlineUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="absolute top-3 right-3 badge bg-purple-600 text-white z-30 flex items-center gap-1 font-bold shadow-md cursor-pointer hover:bg-purple-700 transition-colors border-none text-[10px] sm:text-xs"
+                                        >
+                                            <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-current" />
+                                            Lớp Online
+                                        </a>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Empty State */}
+                    {filteredCourses.length === 0 && (
+                        <div className="text-center py-16">
+                            <ChefHat className="w-16 h-16 text-[var(--color-gray-600)] mx-auto mb-4" />
+                            <h3 className="heading-4 text-[var(--color-text)] mb-2">
+                                Không tìm thấy khóa học
+                            </h3>
+                            <p className="text-[var(--color-text-secondary)] mb-6">
+                                Hiện chưa có khóa học nào trong danh mục này.
+                            </p>
+                            <Link href="/khoa-hoc" className="btn btn-primary">
+                                Xem tất cả khóa học
+                            </Link>
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {/* Category Selection Section - Placed BELOW courses (as in onsite) */}
+            <section className="py-8 bg-[var(--color-background)] border-b border-[var(--color-border)]">
+                <div className="container">
+                    <div className="flex items-center justify-between mb-5">
+                        <h2 className="text-base font-semibold text-[var(--color-text)]">
+                            Danh mục
+                        </h2>
+                        {selectedCategory && (
+                            <Link
+                                href={selectedType ? `/khoa-hoc?type=${selectedType}` : "/khoa-hoc"}
+                                className="text-small text-[var(--color-primary)] hover:underline flex items-center gap-1"
+                            >
+                                Xóa bộ lọc ×
+                            </Link>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {courseCategories.map((category) => {
+                            const isActive = selectedCategory === category.id;
+                            const courseCount = (selectedType
+                                ? courses.filter(c => c.courseType === selectedType && c.category === category.id)
+                                : courses.filter(c => c.category === category.id)
+                            ).length;
+
+                            return (
+                                <Link
+                                    key={category.id}
+                                    href={`/khoa-hoc?${selectedType ? `type=${selectedType}&` : ""}category=${category.id}`}
+                                    className={`relative flex flex-col items-center justify-center p-6 rounded-2xl border transition-all duration-300 group ${isActive
+                                        ? "bg-[var(--color-surface)] border-[var(--color-orange-500)] shadow-[0_0_20px_rgba(249,115,22,0.15)]"
+                                        : "bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-orange-300)] hover:shadow-lg hover:-translate-y-1"
+                                        }`}
+                                >
+                                    <div className={`mb-4 transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"} text-[var(--color-primary)]`}>
+                                        <CategoryIcon id={category.id} className="w-8 h-8" />
+                                    </div>
+
+                                    <span className={`text-sm font-semibold text-center mb-1 ${isActive ? "text-[var(--color-orange-500)]" : "text-[var(--color-text)] group-hover:text-[var(--color-orange-500)]"
+                                        }`}>
+                                        {category.name}
+                                    </span>
+
+                                    <span className="text-xs text-[var(--color-text-muted)]">
+                                        {courseCount} khóa học
+                                    </span>
+
+                                    {isActive && (
+                                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[var(--color-orange-500)] animate-pulse" />
+                                    )}
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </div>
+            </section>
+
+{/* CTA */}
             <section className="section bg-[var(--color-orange-600)] pattern-light">
                 <div className="container relative z-10">
                     <div className="text-center max-w-2xl mx-auto">
