@@ -1,17 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { 
     Image as ImageIcon, 
     X, 
     Eye, 
     Upload, 
+    Folder,
     Link as LinkIcon,
+    Loader2,
     Sparkles
 } from "lucide-react";
 import { MediaPickerModal } from "./media-picker-modal";
 import { MediaLightboxModal } from "./media-lightbox-modal";
 import { MediaItem } from "@/lib/media-store";
+import { compressImage } from "@/lib/image-compressor";
 
 interface MediaSelectorInputProps {
     value: string;
@@ -34,9 +37,13 @@ export function MediaSelectorInput({
     required = false,
     mediaType = "image"
 }: MediaSelectorInputProps) {
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [pickerOpen, setPickerOpen] = useState(false);
+    const [pickerTab, setPickerTab] = useState<"library" | "upload" | "stock">("library");
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [showManualInput, setShowManualInput] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadError, setUploadError] = useState<string | null>(null);
 
     const isVideoMode = mediaType === "video";
     const defaultPlaceholder = isVideoMode 
@@ -69,6 +76,74 @@ export function MediaSelectorInput({
         type: isVideoMode || ytMatch || isDirectVideo ? "video" : "image",
         size: "Hiện tại",
         uploadedAt: new Date().toISOString().split("T")[0]
+    };
+
+    // Direct file upload handler
+    const handleDirectFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        setUploadError(null);
+
+        try {
+            let uploadBody: FormData;
+
+            if (!isVideoMode && file.type.startsWith("image/")) {
+                const result = await compressImage(file, {
+                    maxWidth: 1920,
+                    maxHeight: 1920,
+                    quality: 0.85,
+                    format: "image/webp"
+                });
+
+                const webpFile = new File(
+                    [result.file],
+                    file.name.replace(/\.[^/.]+$/, ".webp"),
+                    { type: "image/webp" }
+                );
+
+                const formData = new FormData();
+                formData.append("file", webpFile);
+                uploadBody = formData;
+            } else {
+                const formData = new FormData();
+                formData.append("file", file);
+                uploadBody = formData;
+            }
+
+            const res = await fetch("/api/cms/upload", {
+                method: "POST",
+                body: uploadBody
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error || "Tải file lên thất bại");
+            }
+
+            const data = await res.json();
+            const uploadedUrl = data.url || (data.item && data.item.url);
+
+            if (uploadedUrl) {
+                onChange(uploadedUrl);
+
+                if (data.item) {
+                    try {
+                        const stored = localStorage.getItem("admin_media_extended");
+                        const current = stored ? JSON.parse(stored) : [];
+                        localStorage.setItem("admin_media_extended", JSON.stringify([data.item, ...current]));
+                    } catch {}
+                }
+            }
+        } catch (err: any) {
+            setUploadError(err.message || "Lỗi tải ảnh");
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
+        }
     };
 
     return (
@@ -135,7 +210,9 @@ export function MediaSelectorInput({
                             </>
                         ) : (
                             <div className="flex flex-col items-center justify-center gap-1 text-[var(--color-text-muted)] p-2 text-center">
-                                {isVideoMode ? (
+                                {isUploading ? (
+                                    <Loader2 className="w-5 h-5 animate-spin text-[var(--color-primary)]" />
+                                ) : isVideoMode ? (
                                     <>
                                         <span className="text-base opacity-40">🎬</span>
                                         <span className="text-[9px] font-medium">Chưa có video</span>
@@ -153,21 +230,55 @@ export function MediaSelectorInput({
                     {/* Action Controls */}
                     <div className="flex-1 min-w-0 space-y-1.5">
                         <div className="flex items-center gap-1.5 flex-wrap">
+                            {/* Option 1: Tải ảnh lên */}
                             <button
                                 type="button"
-                                onClick={() => setPickerOpen(true)}
-                                className="btn btn-primary btn-xs px-2.5 py-1 text-xs flex items-center gap-1 shadow-xs rounded-lg flex-shrink-0"
+                                disabled={isUploading}
+                                onClick={() => fileInputRef.current?.click()}
+                                className="btn btn-primary btn-xs px-2.5 py-1 text-xs flex items-center gap-1.5 shadow-xs rounded-lg flex-shrink-0 disabled:opacity-50 cursor-pointer"
+                                title={isVideoMode ? "Tải video trực tiếp từ máy tính" : "Tải ảnh trực tiếp từ máy tính"}
                             >
-                                <ImageIcon className="w-3.5 h-3.5" />
-                                <span>
-                                    {hasMedia 
-                                        ? (isVideoMode ? "Đổi video" : "Đổi ảnh") 
-                                        : (isVideoMode ? "Chọn video" : "Chọn ảnh")}
-                                </span>
+                                {isUploading ? (
+                                    <>
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                        <span>Đang tải lên...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Upload className="w-3.5 h-3.5" />
+                                        <span>{isVideoMode ? "Tải video lên" : "Tải ảnh lên"}</span>
+                                    </>
+                                )}
                             </button>
 
+                            {/* Hidden file input for native file dialog */}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept={isVideoMode ? "video/*" : "image/*"}
+                                onChange={handleDirectFileUpload}
+                                className="hidden"
+                            />
+
+                            {/* Option 2: Chọn từ kho media */}
                             <button
                                 type="button"
+                                disabled={isUploading}
+                                onClick={() => {
+                                    setPickerTab("library");
+                                    setPickerOpen(true);
+                                }}
+                                className="px-2.5 py-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] text-xs flex items-center gap-1.5 transition flex-shrink-0 cursor-pointer font-medium"
+                                title="Chọn ảnh có sẵn từ Thư viện Media"
+                            >
+                                <Folder className="w-3.5 h-3.5 text-[var(--color-primary)]" />
+                                <span>Kho Media</span>
+                            </button>
+
+                            {/* Option 3: Dán link */}
+                            <button
+                                type="button"
+                                disabled={isUploading}
                                 onClick={() => setShowManualInput(!showManualInput)}
                                 className={`px-2 py-1 rounded-lg border text-xs flex items-center gap-1 transition flex-shrink-0 ${
                                     showManualInput 
@@ -180,6 +291,7 @@ export function MediaSelectorInput({
                                 <span>{showManualInput ? "Đóng URL" : "Dán link"}</span>
                             </button>
 
+                            {/* Preview & Delete buttons */}
                             {hasMedia && (
                                 <>
                                     <button
@@ -201,6 +313,10 @@ export function MediaSelectorInput({
                                 </>
                             )}
                         </div>
+
+                        {uploadError && (
+                            <p className="text-[11px] text-rose-500 font-medium">{uploadError}</p>
+                        )}
 
                         {/* File path display badge with guaranteed truncation */}
                         {hasMedia && !showManualInput && (
@@ -235,6 +351,7 @@ export function MediaSelectorInput({
                 onSelect={(url) => onChange(url)}
                 selectedUrl={value}
                 allowedType={isVideoMode ? "all" : "image"}
+                initialTab={pickerTab}
                 title={label ? `Chọn file: ${label}` : (isVideoMode ? "Chọn video từ Thư viện" : "Chọn ảnh từ Thư viện")}
             />
 

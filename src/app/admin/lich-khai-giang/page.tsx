@@ -31,6 +31,7 @@ import {
 import { ScheduleItem } from "@/data/default-schedules";
 import { courses as defaultMockCourses } from "@/data/mock";
 import { Course } from "@/lib/types";
+import { MediaSelectorInput } from "@/components/admin/media-selector-input";
 
 export default function AdminSchedulesPage() {
     const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
@@ -922,29 +923,16 @@ export default function AdminSchedulesPage() {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <div>
-                                        <label className="block text-xs font-semibold text-[var(--color-text)] mb-1">
-                                            Ảnh đại diện khóa học (URL)
-                                        </label>
-                                        <div className="flex items-center gap-2">
-                                            <input
-                                                type="text"
-                                                placeholder="/images/courses/... hoặc URL"
-                                                value={formState.courseImage || ""}
-                                                onChange={(e) => setFormState({ ...formState, courseImage: e.target.value })}
-                                                className="input w-full text-xs"
-                                            />
-                                            {formState.courseImage && (
-                                                /* eslint-disable-next-line @next/next/no-img-element */
-                                                <img
-                                                    src={formState.courseImage}
-                                                    alt="Preview"
-                                                    className="w-9 h-9 rounded-lg object-cover border border-[var(--color-border)] shrink-0"
-                                                />
-                                            )}
-                                        </div>
-                                    </div>
+                                <div className="space-y-3 pt-1">
+                                    <MediaSelectorInput
+                                        label="Ảnh đại diện khóa học"
+                                        description="Chọn ảnh từ Thư viện Media hoặc tải ảnh mới trực tiếp từ máy tính (tự động nén WebP)"
+                                        value={formState.courseImage || ""}
+                                        onChange={(url) => setFormState({ ...formState, courseImage: url })}
+                                        aspectRatio="video"
+                                        placeholder="Chọn ảnh từ kho hoặc tải ảnh lên..."
+                                    />
+
                                     <div>
                                         <label className="block text-xs font-semibold text-[var(--color-text)] mb-1">
                                             Giảng viên đứng lớp
@@ -954,7 +942,7 @@ export default function AdminSchedulesPage() {
                                             placeholder="VD: Nghệ nhân Nguyễn Hữu Thọ"
                                             value={formState.instructorName || ""}
                                             onChange={(e) => setFormState({ ...formState, instructorName: e.target.value })}
-                                            className="input w-full text-xs"
+                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-3.5 py-2 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
                                         />
                                     </div>
                                 </div>

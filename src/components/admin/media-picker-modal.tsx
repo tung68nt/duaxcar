@@ -30,6 +30,7 @@ export interface MediaPickerModalProps {
     allowedType?: "all" | "image" | "video";
     allowMultiple?: boolean;
     onSelectMultiple?: (urls: string[], items?: MediaItem[]) => void;
+    initialTab?: "library" | "upload" | "stock";
 }
 
 export function MediaPickerModal({
@@ -40,12 +41,20 @@ export function MediaPickerModal({
     title = "Chọn ảnh từ Thư viện Media",
     allowedType = "image",
     allowMultiple = false,
-    onSelectMultiple
+    onSelectMultiple,
+    initialTab = "library"
 }: MediaPickerModalProps) {
     const fileInputId = useId();
-    const [activeTab, setActiveTab] = useState<"library" | "upload" | "stock">("library");
+    const [activeTab, setActiveTab] = useState<"library" | "upload" | "stock">(initialTab);
     const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
+
+    // Reset activeTab when opening with specific initialTab
+    useEffect(() => {
+        if (isOpen && initialTab) {
+            setActiveTab(initialTab);
+        }
+    }, [isOpen, initialTab]);
     
     // Single select state
     const [selectedItemUrl, setSelectedItemUrl] = useState<string>(selectedUrl || "");
