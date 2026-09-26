@@ -915,5 +915,85 @@
       "lastUpdated": "18/08/2026",
       "content": "<h2>1. Phương thức thanh toán được chấp nhận</h2>\n<p>DuaxCar Kitchen hỗ trợ đa dạng phương thức thanh toán thuận tiện và an toàn:</p>\n<ul>\n    <li><strong>Chuyển khoản Ngân hàng (QR Code 24/7):</strong> Chuyển khoản nhanh qua Internet Banking của tất cả ngân hàng tại Việt Nam.</li>\n    <li><strong>Thanh toán trực tiếp:</strong> Tiền mặt hoặc quẹt thẻ POS (Visa, Master, JCB, Napas) tại văn phòng tuyển sinh của trung tâm.</li>\n</ul>\n\n<h2>2. Quy trình đặt cọc & Xác nhận giữ chỗ</h2>\n<ul>\n    <li><strong>Mức phí đặt cọc:</strong> Tối thiểu <strong>30% - 50%</strong> tổng học phí của khóa học để trung tâm chuẩn bị nguyên vật liệu và xếp lịch giảng viên.</li>\n    <li><strong>Thời hạn hoàn tất học phí:</strong> Học viên thanh toán phần học phí còn lại vào ngày đầu tiên khai giảng khóa học trước khi bước vào giờ thực hành.</li>\n    <li><strong>Xác nhận nhập học:</strong> Ngay sau khi nhận tiền cọc, DuaxCar Kitchen sẽ gửi Giấy báo nhập học và mã lớp qua Email & SMS cho học viên.</li>\n</ul>\n\n<h2>3. Quy chế bảo lưu & Chuyển đổi khóa học</h2>\n<ul>\n    <li><strong>Quyền bảo lưu:</strong> Học viên được bảo lưu toàn bộ học phí đã đóng trong thời hạn <strong>tối đa 06 tháng</strong> kể từ ngày đăng ký.</li>\n    <li><strong>Chuyển đổi khóa học:</strong> Được phép chuyển sang khóa học khác hoặc đổi ca học hoàn toàn miễn phí nếu thông báo trước ngày khai giảng tối thiểu <strong>03 ngày</strong>.</li>\n    <li><strong>Chuyển nhượng suất học:</strong> Học viên được quyền chuyển nhượng suất học của mình cho bạn bè hoặc người thân.</li>\n</ul>\n\n<h2>4. Chính sách hoàn phí & Điều kiện áp dụng</h2>\n<ul>\n    <li><strong>Báo hủy trước ngày khai giảng ≥ 05 ngày:</strong> Hoàn lại <strong>100%</strong> học phí đã đóng.</li>\n    <li><strong>Báo hủy trước ngày khai giảng từ 02 - 04 ngày:</strong> Hoàn lại <strong>70%</strong> học phí (trừ chi phí chuẩn bị nguyên vật liệu tươi).</li>\n    <li><strong>Báo hủy trước ngày khai giảng &lt; 24 giờ:</strong> Không hoàn cọc, tự động kích hoạt chế độ bảo lưu 06 tháng.</li>\n    <li><strong>Trung tâm hủy lớp vì lý do bất khả kháng:</strong> Hoàn <strong>100%</strong> học phí trong vòng 24 giờ kèm voucher ưu đãi 10%.</li>\n</ul>\n\n<h2>5. Xuất hóa đơn tài chính (VAT) & Biên nhận</h2>\n<p>DuaxCar Kitchen hỗ trợ xuất Hóa Đơn Điện Tử (VAT) cho các doanh nghiệp, công ty, nhà hàng hoặc hộ kinh doanh cá thể có nhu cầu hạch toán chi phí đào tạo nhân sự trong vòng 01 - 03 ngày làm việc.</p>"
     }
+  ],
+  "schedules": [
+    {
+      "id": "sch-1",
+      "courseSlug": "pho-bo-truyen-thong",
+      "startDate": "2026-10-15",
+      "endDate": "2026-10-16",
+      "time": "08:00 - 17:00",
+      "location": "Cơ sở Cầu Giấy (12 Lê Văn Lương, Hà Nội)",
+      "spotsLeft": 3,
+      "totalSpots": 8,
+      "status": "opening",
+      "note": "Tặng cẩm nang kỹ thuật hầm nước dùng độc quyền",
+      "visible": true
+    },
+    {
+      "id": "sch-2",
+      "courseSlug": "bun-bo-hue",
+      "startDate": "2026-10-22",
+      "endDate": "2026-10-23",
+      "time": "08:00 - 17:00",
+      "location": "Cơ sở Cầu Giấy (12 Lê Văn Lương, Hà Nội)",
+      "spotsLeft": 4,
+      "totalSpots": 8,
+      "status": "opening",
+      "note": "Thực hành nấu mắm ruốc chuẩn cố đô",
+      "visible": true
+    },
+    {
+      "id": "sch-3",
+      "courseSlug": "lau-nuong-tron-goi",
+      "startDate": "2026-11-02",
+      "endDate": "2026-11-03",
+      "time": "08:00 - 17:00",
+      "location": "Cơ sở Cầu Giấy (12 Lê Văn Lương, Hà Nội)",
+      "spotsLeft": 7,
+      "totalSpots": 10,
+      "status": "opening",
+      "note": "Chia sẻ danh bạ nhà cung cấp thịt sỉ toàn quốc",
+      "visible": true
+    },
+    {
+      "id": "sch-4",
+      "courseSlug": "mon-dong-que-thuc-chien",
+      "startDate": "2026-11-10",
+      "endDate": "2026-11-11",
+      "time": "08:00 - 16:00",
+      "location": "Cơ sở Cầu Giấy (12 Lê Văn Lương, Hà Nội)",
+      "spotsLeft": 5,
+      "totalSpots": 8,
+      "status": "opening",
+      "note": "Bí quyết chế biến ếch, lươn, ốc không bị tanh",
+      "visible": true
+    },
+    {
+      "id": "sch-5",
+      "courseSlug": "hai-san-nha-hang",
+      "startDate": "2026-11-18",
+      "endDate": "2026-11-19",
+      "time": "08:00 - 17:00",
+      "location": "Cơ sở Cầu Giấy (12 Lê Văn Lương, Hà Nội)",
+      "spotsLeft": 3,
+      "totalSpots": 8,
+      "status": "opening",
+      "note": "Công thức các loại sốt hải sản siêu cuốn",
+      "visible": true
+    },
+    {
+      "id": "sch-6",
+      "courseSlug": "mon-cao-cap-fine-dining",
+      "startDate": "2026-11-25",
+      "endDate": "2026-11-27",
+      "time": "09:00 - 18:00",
+      "location": "Cơ sở Cầu Giấy (12 Lê Văn Lương, Hà Nội)",
+      "spotsLeft": 2,
+      "totalSpots": 6,
+      "status": "almost-full",
+      "note": "Trải nghiệm bếp Âu - Á chuẩn nhà hàng 5 sao",
+      "visible": true
+    }
   ]
 }

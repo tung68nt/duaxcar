@@ -58,7 +58,8 @@ export interface Registration {
 
 import { MediaItem } from './media-store';
 import { defaultPolicies, PolicyData } from '@/data/default-policies';
-export type { PolicyData };
+import { defaultSchedules, ScheduleItem } from '@/data/default-schedules';
+export type { PolicyData, ScheduleItem };
 
 export interface DBData {
     courses: Course[];
@@ -70,6 +71,7 @@ export interface DBData {
     registrations: Registration[];
     media?: MediaItem[];
     policies?: PolicyData[];
+    schedules?: ScheduleItem[];
 }
 
 const defaultFaqs: FAQItem[] = [
@@ -149,7 +151,8 @@ export function getLocalDB(): DBData {
                 faqs: defaultFaqs,
                 settings: defaultSettings,
                 registrations: defaultRegistrations,
-                policies: defaultPolicies
+                policies: defaultPolicies,
+                schedules: defaultSchedules
             };
             fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
             fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf-8');
@@ -167,7 +170,8 @@ export function getLocalDB(): DBData {
             settings: parsed.settings || defaultSettings,
             registrations: parsed.registrations || defaultRegistrations,
             media: parsed.media || [],
-            policies: parsed.policies || defaultPolicies
+            policies: parsed.policies || defaultPolicies,
+            schedules: parsed.schedules || defaultSchedules
         };
     } catch (e) {
         console.error("Error reading local db store:", e);
@@ -179,7 +183,8 @@ export function getLocalDB(): DBData {
             faqs: defaultFaqs,
             settings: defaultSettings,
             registrations: defaultRegistrations,
-            policies: defaultPolicies
+            policies: defaultPolicies,
+            schedules: defaultSchedules
         };
     }
 }

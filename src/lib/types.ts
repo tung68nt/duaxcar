@@ -110,3 +110,5 @@ export interface ContactInfo {
         zalo?: string;
     };
 }
+
+export type { ScheduleItem } from "@/data/default-schedules";

@@ -19,6 +19,7 @@ import {
     HelpCircle,
     ChefHat,
     ShieldCheck,
+    Calendar,
     Image as ImageIcon
 } from "lucide-react";
 
@@ -90,6 +91,7 @@ export default function AdminLayout({
     const menuItems = [
         { label: "Tổng quan", href: "/admin", icon: LayoutDashboard },
         { label: "Khóa học (CMS)", href: "/admin/khoa-hoc", icon: BookOpen },
+        { label: "Lịch khai giảng (CMS)", href: "/admin/lich-khai-giang", icon: Calendar },
         { label: "Bài viết (CMS)", href: "/admin/tin-tuc", icon: FileText },
         { label: "Giảng viên (CMS)", href: "/admin/giang-vien", icon: ChefHat },
         { label: "Đăng ký học", href: "/admin/dang-ky", icon: Users },
