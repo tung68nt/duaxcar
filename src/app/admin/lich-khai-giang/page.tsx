@@ -53,6 +53,12 @@ export default function AdminSchedulesPage() {
 
     const emptyForm: Omit<ScheduleItem, "id"> = {
         courseSlug: "",
+        courseName: "",
+        courseUrl: "",
+        courseImage: "",
+        instructorName: "",
+        price: undefined,
+        priceOverride: undefined,
         startDate: "",
         endDate: "",
         time: "08:00 - 17:00",
@@ -104,11 +110,29 @@ export default function AdminSchedulesPage() {
         loadInitialData();
     }, []);
 
+    // Helper: When admin selects course from dropdown
+    const handleCourseSelect = (slug: string) => {
+        const selected = courses.find((c) => c.slug === slug);
+        if (selected) {
+            setFormState((prev) => ({
+                ...prev,
+                courseSlug: slug,
+                courseName: selected.name,
+                courseUrl: `/khoa-hoc/${slug}`,
+                courseImage: selected.image || "",
+                instructorName: selected.instructor || "",
+                price: selected.price,
+            }));
+        } else {
+            setFormState((prev) => ({ ...prev, courseSlug: slug }));
+        }
+    };
+
     // Filtered schedules
     const filteredSchedules = useMemo(() => {
         return schedules.filter((item) => {
             const course = courses.find((c) => c.slug === item.courseSlug);
-            const courseName = course ? course.name.toLowerCase() : "";
+            const courseName = (item.courseName || (course ? course.name : item.courseSlug)).toLowerCase();
             const searchLower = searchTerm.toLowerCase();
 
             const matchSearch =
@@ -152,6 +176,11 @@ export default function AdminSchedulesPage() {
         setFormState({
             ...emptyForm,
             courseSlug: defaultCourse ? defaultCourse.slug : "",
+            courseName: defaultCourse ? defaultCourse.name : "",
+            courseUrl: defaultCourse ? `/khoa-hoc/${defaultCourse.slug}` : "",
+            courseImage: defaultCourse ? defaultCourse.image : "",
+            instructorName: defaultCourse ? defaultCourse.instructor : "",
+            price: defaultCourse ? defaultCourse.price : undefined,
             startDate: start.toISOString().split("T")[0],
             endDate: end.toISOString().split("T")[0],
         });
@@ -161,8 +190,14 @@ export default function AdminSchedulesPage() {
     // Handle Open Edit Modal
     const handleOpenEdit = (item: ScheduleItem) => {
         setEditingItem(item);
+        const matchedCourse = courses.find((c) => c.slug === item.courseSlug);
         setFormState({
             courseSlug: item.courseSlug,
+            courseName: item.courseName || (matchedCourse ? matchedCourse.name : ""),
+            courseUrl: item.courseUrl || (matchedCourse ? `/khoa-hoc/${matchedCourse.slug}` : `/khoa-hoc/${item.courseSlug}`),
+            courseImage: item.courseImage || (matchedCourse ? matchedCourse.image : ""),
+            instructorName: item.instructorName || (matchedCourse ? matchedCourse.instructor : ""),
+            price: item.price || (matchedCourse ? matchedCourse.price : undefined),
             startDate: item.startDate,
             endDate: item.endDate || item.startDate,
             time: item.time,
@@ -180,13 +215,17 @@ export default function AdminSchedulesPage() {
     // Handle Duplicate Item
     const handleDuplicate = (item: ScheduleItem) => {
         setEditingItem(null);
-        // Set new start date 1 month after current item's start date
         const curStart = new Date(item.startDate);
         const nextMonth = new Date(curStart.getFullYear(), curStart.getMonth() + 1, curStart.getDate());
         const nextMonthEnd = new Date(curStart.getFullYear(), curStart.getMonth() + 1, curStart.getDate() + 1);
 
         setFormState({
             courseSlug: item.courseSlug,
+            courseName: item.courseName,
+            courseUrl: item.courseUrl,
+            courseImage: item.courseImage,
+            instructorName: item.instructorName,
+            price: item.price,
             startDate: !isNaN(nextMonth.getTime()) ? nextMonth.toISOString().split("T")[0] : "",
             endDate: !isNaN(nextMonthEnd.getTime()) ? nextMonthEnd.toISOString().split("T")[0] : "",
             time: item.time,
@@ -219,6 +258,11 @@ export default function AdminSchedulesPage() {
             const payload: ScheduleItem = {
                 id: editingItem ? editingItem.id : `sch-${Date.now()}`,
                 courseSlug: formState.courseSlug,
+                courseName: formState.courseName || undefined,
+                courseUrl: formState.courseUrl || undefined,
+                courseImage: formState.courseImage || undefined,
+                instructorName: formState.instructorName || undefined,
+                price: formState.price ? Number(formState.price) : undefined,
                 startDate: formState.startDate,
                 endDate: formState.endDate || formState.startDate,
                 time: formState.time || "08:00 - 17:00",
@@ -609,6 +653,11 @@ export default function AdminSchedulesPage() {
                         const filledSpots = Math.max(0, totalSpots - spotsLeft);
                         const fillPercent = Math.min(100, Math.round((filledSpots / totalSpots) * 100));
 
+                        const displayName = schedule.courseName || (course ? course.name : schedule.courseSlug);
+                        const displayImage = schedule.courseImage || (course ? course.image : "");
+                        const displayUrl = schedule.courseUrl || (course ? `/khoa-hoc/${course.slug}` : `/khoa-hoc/${schedule.courseSlug}`);
+                        const displayInstructor = schedule.instructorName || (course ? course.instructor : "");
+
                         return (
                             <div
                                 key={schedule.id}
@@ -634,6 +683,18 @@ export default function AdminSchedulesPage() {
                                             </span>
                                         </div>
 
+                                        {/* Thumbnail Image */}
+                                        {displayImage && (
+                                            <div className="hidden sm:block flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border border-[var(--color-border)] relative">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
+                                                    src={displayImage}
+                                                    alt={displayName}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                        )}
+
                                         {/* Course Information */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex flex-wrap items-center gap-1.5 mb-1">
@@ -643,6 +704,11 @@ export default function AdminSchedulesPage() {
                                                         Đang ẩn
                                                     </span>
                                                 )}
+                                                {displayInstructor && (
+                                                    <span className="badge bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20 text-[10px] px-2 py-0.5">
+                                                        GV: {displayInstructor}
+                                                    </span>
+                                                )}
                                                 {schedule.priceOverride && (
                                                     <span className="badge bg-purple-500/15 text-purple-400 border border-purple-500/30 text-[10px] px-2 py-0.5">
                                                         Ưu đãi: {schedule.priceOverride.toLocaleString("vi-VN")}đ
@@ -650,9 +716,21 @@ export default function AdminSchedulesPage() {
                                                 )}
                                             </div>
 
-                                            <h3 className="text-base font-bold text-[var(--color-text)] truncate">
-                                                {course ? course.name : schedule.courseSlug}
-                                            </h3>
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="text-base font-bold text-[var(--color-text)] truncate">
+                                                    {displayName}
+                                                </h3>
+                                                {displayUrl && (
+                                                    <Link
+                                                        href={displayUrl}
+                                                        target="_blank"
+                                                        className="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors"
+                                                        title="Xem chi tiết khóa học"
+                                                    >
+                                                        <ArrowUpRight className="w-3.5 h-3.5" />
+                                                    </Link>
+                                                )}
+                                            </div>
 
                                             {/* Meta Info Grid */}
                                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 mt-2 text-xs text-[var(--color-text-secondary)]">
@@ -794,25 +872,91 @@ export default function AdminSchedulesPage() {
                         {/* Modal Body Form */}
                         <form onSubmit={handleSave} className="p-6 space-y-4">
                             {/* Course selection */}
-                            <div>
-                                <label className="block text-xs font-semibold text-[var(--color-text)] mb-1.5">
-                                    Khóa học đào tạo <span className="text-rose-500">*</span>
-                                </label>
-                                <select
-                                    value={formState.courseSlug}
-                                    onChange={(e) => setFormState({ ...formState, courseSlug: e.target.value })}
-                                    required
-                                    className="input w-full text-sm"
-                                >
-                                    <option value="" disabled>
-                                        -- Chọn khóa học --
-                                    </option>
-                                    {courses.map((c) => (
-                                        <option key={c.id || c.slug} value={c.slug}>
-                                            {c.name} {c.courseType === "elearning" ? "(E-learning)" : "(Onsite trực tiếp)"}
+                            <div className="space-y-3 p-3.5 bg-[var(--color-background)] rounded-xl border border-[var(--color-border)]">
+                                <div>
+                                    <label className="block text-xs font-semibold text-[var(--color-text)] mb-1.5">
+                                        Chọn Khóa học từ danh mục <span className="text-rose-500">*</span>
+                                    </label>
+                                    <select
+                                        value={formState.courseSlug}
+                                        onChange={(e) => handleCourseSelect(e.target.value)}
+                                        required
+                                        className="input w-full text-sm"
+                                    >
+                                        <option value="" disabled>
+                                            -- Chọn khóa học --
                                         </option>
-                                    ))}
-                                </select>
+                                        {courses.map((c) => (
+                                            <option key={c.id || c.slug} value={c.slug}>
+                                                {c.name} {c.courseType === "elearning" ? "(E-learning)" : "(Onsite trực tiếp)"}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                                            Tên khóa học hiển thị
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="Tự động điền theo khóa học"
+                                            value={formState.courseName || ""}
+                                            onChange={(e) => setFormState({ ...formState, courseName: e.target.value })}
+                                            className="input w-full text-xs"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                                            Link chi tiết khóa học (URL)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="VD: /khoa-hoc/pho-bo-ha-noi"
+                                            value={formState.courseUrl || ""}
+                                            onChange={(e) => setFormState({ ...formState, courseUrl: e.target.value })}
+                                            className="input w-full text-xs"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                                            Ảnh đại diện khóa học (URL)
+                                        </label>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="text"
+                                                placeholder="/images/courses/... hoặc URL"
+                                                value={formState.courseImage || ""}
+                                                onChange={(e) => setFormState({ ...formState, courseImage: e.target.value })}
+                                                className="input w-full text-xs"
+                                            />
+                                            {formState.courseImage && (
+                                                /* eslint-disable-next-line @next/next/no-img-element */
+                                                <img
+                                                    src={formState.courseImage}
+                                                    alt="Preview"
+                                                    className="w-9 h-9 rounded-lg object-cover border border-[var(--color-border)] shrink-0"
+                                                />
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-[var(--color-text)] mb-1">
+                                            Giảng viên đứng lớp
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="VD: Nghệ nhân Nguyễn Hữu Thọ"
+                                            value={formState.instructorName || ""}
+                                            onChange={(e) => setFormState({ ...formState, instructorName: e.target.value })}
+                                            className="input w-full text-xs"
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Dates Grid */}
@@ -949,23 +1093,42 @@ export default function AdminSchedulesPage() {
                                 </div>
                             </div>
 
-                            {/* Price Override (Optional) */}
-                            <div>
-                                <label className="block text-xs font-semibold text-[var(--color-text)] mb-1.5">
-                                    Học phí ưu đãi riêng cho đợt này (VNĐ - tùy chọn)
-                                </label>
-                                <input
-                                    type="number"
-                                    placeholder="Để trống nếu áp dụng học phí chuẩn của khóa học"
-                                    value={formState.priceOverride || ""}
-                                    onChange={(e) =>
-                                        setFormState({
-                                            ...formState,
-                                            priceOverride: e.target.value ? parseInt(e.target.value) : undefined,
-                                        })
-                                    }
-                                    className="input w-full text-sm"
-                                />
+                            {/* Prices Grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-[var(--color-text)] mb-1.5">
+                                        Học phí gốc niêm yết (VNĐ)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="VD: 15500000"
+                                        value={formState.price || ""}
+                                        onChange={(e) =>
+                                            setFormState({
+                                                ...formState,
+                                                price: e.target.value ? parseInt(e.target.value) : undefined,
+                                            })
+                                        }
+                                        className="input w-full text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-[var(--color-text)] mb-1.5">
+                                        Học phí ưu đãi đợt này (VNĐ)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="Để trống nếu không áp dụng ưu đãi"
+                                        value={formState.priceOverride || ""}
+                                        onChange={(e) =>
+                                            setFormState({
+                                                ...formState,
+                                                priceOverride: e.target.value ? parseInt(e.target.value) : undefined,
+                                            })
+                                        }
+                                        className="input w-full text-sm"
+                                    />
+                                </div>
                             </div>
 
                             {/* Note / Promotion info */}
