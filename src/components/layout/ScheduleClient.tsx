@@ -28,6 +28,7 @@ import {
 import CategoryIcon from "@/components/category-icon";
 import { ScheduleItem } from "@/data/default-schedules";
 import { Course, Instructor } from "@/lib/types";
+import { resolveScheduleInfo } from "@/lib/course-schedule-helper";
 
 interface ScheduleClientProps {
     initialSchedules: ScheduleItem[];
@@ -111,8 +112,9 @@ export default function ScheduleClient({
         return schedules
             .filter((item) => item.visible !== false) // Only public schedules
             .filter((item) => {
-                const course = courses.find((c) => c.slug === item.courseSlug);
-                const courseName = (item.courseName || (course ? course.name : item.courseSlug)).toLowerCase();
+                const resolved = resolveScheduleInfo(item, courses);
+                const course = resolved.matchedCourse;
+                const courseName = resolved.courseName.toLowerCase();
 
                 // Only available filter
                 if (onlyAvailable && (item.status === "full" || item.status === "closed" || item.spotsLeft <= 0)) {
@@ -121,7 +123,8 @@ export default function ScheduleClient({
 
                 // Category filter
                 if (selectedCategory !== "all") {
-                    if (course && course.category !== selectedCategory) {
+                    const categoryId = course?.category || (resolved.courseSlug.includes("pho") || resolved.courseSlug.includes("bun") ? "mon-an-sang" : undefined);
+                    if (categoryId && categoryId !== selectedCategory) {
                         return false;
                     }
                 }
@@ -132,7 +135,7 @@ export default function ScheduleClient({
                     const matchCourseName = courseName.includes(term);
                     const matchLocation = item.location.toLowerCase().includes(term);
                     const matchNote = item.note ? item.note.toLowerCase().includes(term) : false;
-                    const matchInstructor = item.instructorName ? item.instructorName.toLowerCase().includes(term) : false;
+                    const matchInstructor = resolved.instructorName ? resolved.instructorName.toLowerCase().includes(term) : false;
                     return matchCourseName || matchLocation || matchNote || matchInstructor;
                 }
 
@@ -285,14 +288,15 @@ export default function ScheduleClient({
                     ) : (
                         <div className="space-y-6">
                             {visibleSchedules.map((schedule) => {
-                                const course = courses.find((c) => c.slug === schedule.courseSlug);
+                                const resolved = resolveScheduleInfo(schedule, courses);
+                                const course = resolved.matchedCourse;
                                 const instructor = instructors.find((i) => i.id === (course ? course.instructorId : ""));
                                 const category = courseCategories.find((c) => c.id === (course ? course.category : ""));
 
-                                const displayName = schedule.courseName || (course ? course.name : schedule.courseSlug);
-                                const displayImage = schedule.courseImage || (course ? course.image : "/images/hero-pho.jpg");
-                                const displayUrl = schedule.courseUrl || (course ? `/khoa-hoc/${course.slug}` : `/khoa-hoc/${schedule.courseSlug}`);
-                                const displayInstructor = schedule.instructorName || (instructor ? instructor.name : (course ? course.instructor : "Nghệ nhân DuaxCar"));
+                                const displayName = resolved.courseName;
+                                const displayImage = resolved.courseImage;
+                                const displayUrl = resolved.courseUrl;
+                                const displayInstructor = resolved.instructorName;
                                 const displayInstructorRole = instructor ? instructor.title || instructor.role : "Giảng viên ẩm thực";
 
                                 const spotsLeft = schedule.spotsLeft ?? 0;
@@ -303,7 +307,7 @@ export default function ScheduleClient({
                                 const isFull = schedule.status === "full" || schedule.status === "closed" || spotsLeft <= 0;
                                 const isAlmostFull = schedule.status === "almost-full" || (spotsLeft > 0 && spotsLeft <= 2);
 
-                                const originalPrice = schedule.price || (course ? course.price : undefined);
+                                const originalPrice = schedule.price || resolved.price || (course ? course.price : undefined);
                                 const promoPrice = schedule.priceOverride;
 
                                 return (

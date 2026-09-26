@@ -32,6 +32,7 @@ import { ScheduleItem } from "@/data/default-schedules";
 import { courses as defaultMockCourses } from "@/data/mock";
 import { Course } from "@/lib/types";
 import { MediaSelectorInput } from "@/components/admin/media-selector-input";
+import { resolveScheduleInfo } from "@/lib/course-schedule-helper";
 
 export default function AdminSchedulesPage() {
     const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
@@ -113,16 +114,20 @@ export default function AdminSchedulesPage() {
 
     // Helper: When admin selects course from dropdown
     const handleCourseSelect = (slug: string) => {
-        const selected = courses.find((c) => c.slug === slug);
+        const selected = courses.find((c) => c.slug === slug || c.id === slug);
+        const resolved = selected 
+            ? resolveScheduleInfo({ courseSlug: selected.slug } as ScheduleItem, courses)
+            : null;
+
         if (selected) {
             setFormState((prev) => ({
                 ...prev,
-                courseSlug: slug,
+                courseSlug: selected.slug,
                 courseName: selected.name,
-                courseUrl: `/khoa-hoc/${slug}`,
-                courseImage: selected.image || "",
-                instructorName: selected.instructor || "",
-                price: selected.price,
+                courseUrl: `/khoa-hoc/${selected.slug}`,
+                courseImage: selected.image || (resolved ? resolved.courseImage : ""),
+                instructorName: selected.instructor || (resolved ? resolved.instructorName : ""),
+                price: selected.price || (resolved ? resolved.price : undefined),
             }));
         } else {
             setFormState((prev) => ({ ...prev, courseSlug: slug }));
@@ -132,19 +137,20 @@ export default function AdminSchedulesPage() {
     // Filtered schedules
     const filteredSchedules = useMemo(() => {
         return schedules.filter((item) => {
-            const course = courses.find((c) => c.slug === item.courseSlug);
-            const courseName = (item.courseName || (course ? course.name : item.courseSlug)).toLowerCase();
+            const resolved = resolveScheduleInfo(item, courses);
+            const courseName = resolved.courseName.toLowerCase();
             const searchLower = searchTerm.toLowerCase();
 
             const matchSearch =
                 !searchTerm ||
                 courseName.includes(searchLower) ||
-                item.courseSlug.toLowerCase().includes(searchLower) ||
+                resolved.courseSlug.toLowerCase().includes(searchLower) ||
                 item.location.toLowerCase().includes(searchLower) ||
-                (item.note && item.note.toLowerCase().includes(searchLower));
+                (item.note && item.note.toLowerCase().includes(searchLower)) ||
+                (resolved.instructorName && resolved.instructorName.toLowerCase().includes(searchLower));
 
             const matchStatus = statusFilter === "all" || item.status === statusFilter;
-            const matchCourse = courseFilter === "all" || item.courseSlug === courseFilter;
+            const matchCourse = courseFilter === "all" || item.courseSlug === courseFilter || resolved.courseSlug === courseFilter;
             const matchVisibility =
                 visibilityFilter === "all" ||
                 (visibilityFilter === "visible" && item.visible !== false) ||
@@ -191,14 +197,14 @@ export default function AdminSchedulesPage() {
     // Handle Open Edit Modal
     const handleOpenEdit = (item: ScheduleItem) => {
         setEditingItem(item);
-        const matchedCourse = courses.find((c) => c.slug === item.courseSlug);
+        const resolved = resolveScheduleInfo(item, courses);
         setFormState({
-            courseSlug: item.courseSlug,
-            courseName: item.courseName || (matchedCourse ? matchedCourse.name : ""),
-            courseUrl: item.courseUrl || (matchedCourse ? `/khoa-hoc/${matchedCourse.slug}` : `/khoa-hoc/${item.courseSlug}`),
-            courseImage: item.courseImage || (matchedCourse ? matchedCourse.image : ""),
-            instructorName: item.instructorName || (matchedCourse ? matchedCourse.instructor : ""),
-            price: item.price || (matchedCourse ? matchedCourse.price : undefined),
+            courseSlug: resolved.courseSlug,
+            courseName: resolved.courseName,
+            courseUrl: resolved.courseUrl,
+            courseImage: resolved.courseImage,
+            instructorName: resolved.instructorName,
+            price: resolved.price,
             startDate: item.startDate,
             endDate: item.endDate || item.startDate,
             time: item.time,
@@ -216,17 +222,18 @@ export default function AdminSchedulesPage() {
     // Handle Duplicate Item
     const handleDuplicate = (item: ScheduleItem) => {
         setEditingItem(null);
+        const resolved = resolveScheduleInfo(item, courses);
         const curStart = new Date(item.startDate);
         const nextMonth = new Date(curStart.getFullYear(), curStart.getMonth() + 1, curStart.getDate());
         const nextMonthEnd = new Date(curStart.getFullYear(), curStart.getMonth() + 1, curStart.getDate() + 1);
 
         setFormState({
-            courseSlug: item.courseSlug,
-            courseName: item.courseName,
-            courseUrl: item.courseUrl,
-            courseImage: item.courseImage,
-            instructorName: item.instructorName,
-            price: item.price,
+            courseSlug: resolved.courseSlug,
+            courseName: resolved.courseName,
+            courseUrl: resolved.courseUrl,
+            courseImage: resolved.courseImage,
+            instructorName: resolved.instructorName,
+            price: resolved.price,
             startDate: !isNaN(nextMonth.getTime()) ? nextMonth.toISOString().split("T")[0] : "",
             endDate: !isNaN(nextMonthEnd.getTime()) ? nextMonthEnd.toISOString().split("T")[0] : "",
             time: item.time,
@@ -256,18 +263,27 @@ export default function AdminSchedulesPage() {
 
         setIsSaving(true);
         try {
+            const resolved = resolveScheduleInfo({
+                courseSlug: formState.courseSlug,
+                courseName: formState.courseName,
+                courseUrl: formState.courseUrl,
+                courseImage: formState.courseImage,
+                instructorName: formState.instructorName,
+                price: formState.price ? Number(formState.price) : undefined,
+            } as ScheduleItem, courses);
+
             const payload: ScheduleItem = {
                 id: editingItem ? editingItem.id : `sch-${Date.now()}`,
-                courseSlug: formState.courseSlug,
-                courseName: formState.courseName || undefined,
-                courseUrl: formState.courseUrl || undefined,
-                courseImage: formState.courseImage || undefined,
-                instructorName: formState.instructorName || undefined,
-                price: formState.price ? Number(formState.price) : undefined,
+                courseSlug: resolved.courseSlug,
+                courseName: resolved.courseName,
+                courseUrl: resolved.courseUrl,
+                courseImage: resolved.courseImage,
+                instructorName: resolved.instructorName,
+                price: resolved.price,
                 startDate: formState.startDate,
                 endDate: formState.endDate || formState.startDate,
                 time: formState.time || "08:00 - 17:00",
-                location: formState.location || "Cơ sở Cầu Giấy",
+                location: formState.location || "Cơ sở Cầu Giấy (12 Lê Văn Lương, Hà Nội)",
                 spotsLeft: Number(formState.spotsLeft) || 0,
                 totalSpots: Number(formState.totalSpots) || 8,
                 status: formState.status,
@@ -648,17 +664,18 @@ export default function AdminSchedulesPage() {
             ) : (
                 <div className="space-y-3.5">
                     {filteredSchedules.map((schedule) => {
-                        const course = courses.find((c) => c.slug === schedule.courseSlug);
+                        const resolved = resolveScheduleInfo(schedule, courses);
+                        const course = resolved.matchedCourse;
                         const isHidden = schedule.visible === false;
                         const spotsLeft = schedule.spotsLeft || 0;
                         const totalSpots = schedule.totalSpots || 8;
                         const filledSpots = Math.max(0, totalSpots - spotsLeft);
                         const fillPercent = Math.min(100, Math.round((filledSpots / totalSpots) * 100));
 
-                        const displayName = schedule.courseName || (course ? course.name : schedule.courseSlug);
-                        const displayImage = schedule.courseImage || (course ? course.image : "");
-                        const displayUrl = schedule.courseUrl || (course ? `/khoa-hoc/${course.slug}` : `/khoa-hoc/${schedule.courseSlug}`);
-                        const displayInstructor = schedule.instructorName || (course ? course.instructor : "");
+                        const displayName = resolved.courseName;
+                        const displayImage = resolved.courseImage;
+                        const displayUrl = resolved.courseUrl;
+                        const displayInstructor = resolved.instructorName;
 
                         return (
                             <div

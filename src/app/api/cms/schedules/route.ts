@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { getLocalDB, saveLocalDB, ScheduleItem } from '@/lib/db';
 import { defaultSchedules } from '@/data/default-schedules';
 import { supabase } from '@/lib/supabase';
+import { resolveScheduleInfo } from '@/lib/course-schedule-helper';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +16,31 @@ export async function GET() {
             .single();
 
         if (!error && data && Array.isArray(data.data) && data.data.length > 0) {
-            return NextResponse.json({ schedules: data.data });
+            const rawList: ScheduleItem[] = data.data;
+            const normalizedList = rawList.map((item) => {
+                const resolved = resolveScheduleInfo(item);
+                return {
+                    ...item,
+                    courseSlug: resolved.courseSlug,
+                    courseName: resolved.courseName,
+                    courseImage: resolved.courseImage,
+                    courseUrl: resolved.courseUrl,
+                    instructorName: resolved.instructorName,
+                    price: resolved.price || item.price,
+                };
+            });
+
+            // If any item was missing fields, sync the cleansed data to Supabase
+            const needsUpdate = rawList.some((item) => !item.courseName || !item.courseImage || item.courseSlug === "pho-bo-truyen-thong");
+            if (needsUpdate) {
+                try {
+                    await supabase
+                        .from('site_settings')
+                        .upsert({ id: 'default_schedules', data: normalizedList });
+                } catch {}
+            }
+
+            return NextResponse.json({ schedules: normalizedList });
         }
     } catch (e) {
         // Fallback to local DB if Supabase fails
@@ -23,8 +48,20 @@ export async function GET() {
 
     try {
         const db = getLocalDB();
-        const schedules = db.schedules && db.schedules.length > 0 ? db.schedules : defaultSchedules;
-        return NextResponse.json({ schedules });
+        const baseSchedules = db.schedules && db.schedules.length > 0 ? db.schedules : defaultSchedules;
+        const normalized = baseSchedules.map((s) => {
+            const resolved = resolveScheduleInfo(s);
+            return {
+                ...s,
+                courseSlug: resolved.courseSlug,
+                courseName: resolved.courseName,
+                courseImage: resolved.courseImage,
+                courseUrl: resolved.courseUrl,
+                instructorName: resolved.instructorName,
+                price: resolved.price || s.price,
+            };
+        });
+        return NextResponse.json({ schedules: normalized });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }
