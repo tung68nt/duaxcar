@@ -203,13 +203,13 @@ export default function ScheduleClient({
                     <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
                         {/* Search Input */}
                         <div className="relative flex-1 max-w-lg">
-                            <Search className="w-4 h-4 text-[var(--color-text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                            <Search className="w-4 h-4 text-[var(--color-text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                             <input
                                 type="text"
                                 placeholder="Tìm kiếm theo tên món ăn, khóa học, giảng viên hoặc địa điểm..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="input pl-10 pr-9 w-full text-xs md:text-sm h-10 rounded-xl"
+                                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl pl-10 pr-9 py-2.5 text-xs md:text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-all placeholder:text-[var(--color-text-muted)]"
                             />
                             {searchTerm && (
                                 <button
@@ -226,7 +226,7 @@ export default function ScheduleClient({
                             <select
                                 value={selectedCategory}
                                 onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="input text-xs md:text-sm h-10 rounded-xl py-1.5"
+                                className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-xs md:text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none cursor-pointer leading-normal min-w-[170px]"
                             >
                                 <option value="all">Tất cả nhóm món</option>
                                 {courseCategories.map((cat) => (
@@ -236,7 +236,7 @@ export default function ScheduleClient({
                                 ))}
                             </select>
 
-                            <label className="inline-flex items-center gap-2 cursor-pointer bg-[var(--color-background)] px-3.5 py-2 h-10 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-primary)]/40 transition-colors">
+                            <label className="inline-flex items-center gap-2 cursor-pointer bg-[var(--color-background)] px-3.5 py-2.5 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-primary)]/40 transition-colors select-none">
                                 <input
                                     type="checkbox"
                                     checked={onlyAvailable}
@@ -637,7 +637,7 @@ export default function ScheduleClient({
                                             value={regName}
                                             onChange={(e) => setRegName(e.target.value)}
                                             required
-                                            className="input w-full text-sm h-10 rounded-xl"
+                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-all placeholder:text-[var(--color-text-muted)]"
                                         />
                                     </div>
 
@@ -652,7 +652,7 @@ export default function ScheduleClient({
                                             value={regPhone}
                                             onChange={(e) => setRegPhone(e.target.value)}
                                             required
-                                            className="input w-full text-sm h-10 rounded-xl"
+                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-all placeholder:text-[var(--color-text-muted)]"
                                         />
                                     </div>
 
@@ -666,7 +666,7 @@ export default function ScheduleClient({
                                             placeholder="VD: vanan@gmail.com (không bắt buộc)"
                                             value={regEmail}
                                             onChange={(e) => setRegEmail(e.target.value)}
-                                            className="input w-full text-sm h-10 rounded-xl"
+                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-all placeholder:text-[var(--color-text-muted)]"
                                         />
                                     </div>
 
@@ -680,7 +680,7 @@ export default function ScheduleClient({
                                             placeholder="VD: Em muốn học để mở quán ăn sáng, cần tư vấn thêm về nguyên liệu..."
                                             value={regMessage}
                                             onChange={(e) => setRegMessage(e.target.value)}
-                                            className="input w-full text-xs p-3 rounded-xl resize-none"
+                                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl p-3 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-all placeholder:text-[var(--color-text-muted)] resize-none"
                                         />
                                     </div>
 

@@ -553,22 +553,23 @@ export default function AdminSchedulesPage() {
             </div>
 
             {/* Compact Filter Toolbar */}
-            <div className="card p-2.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
-                <div className="flex flex-col md:flex-row gap-2">
+            <div className="card p-2.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-xs">
+                <div className="flex flex-col lg:flex-row gap-2.5 items-stretch lg:items-center">
                     {/* Search */}
-                    <div className="relative flex-1">
-                        <Search className="w-3.5 h-3.5 text-[var(--color-text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
+                    <div className="relative flex-1 min-w-[240px]">
+                        <Search className="w-4 h-4 text-[var(--color-text-muted)] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                             type="text"
                             placeholder="Tìm theo tên khóa học, địa điểm, ghi chú..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="input pl-8 pr-7 w-full text-xs h-9 rounded-lg"
+                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg pl-9 pr-8 py-2 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none transition-all placeholder:text-[var(--color-text-muted)]"
                         />
                         {searchTerm && (
                             <button
                                 onClick={() => setSearchTerm("")}
                                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                                title="Xóa tìm kiếm"
                             >
                                 <X className="w-3.5 h-3.5" />
                             </button>
@@ -576,11 +577,11 @@ export default function AdminSchedulesPage() {
                     </div>
 
                     {/* Filter by Course */}
-                    <div className="w-full md:w-52">
+                    <div className="w-full sm:w-auto min-w-[190px]">
                         <select
                             value={courseFilter}
                             onChange={(e) => setCourseFilter(e.target.value)}
-                            className="input w-full text-xs h-9 rounded-lg"
+                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-3 py-2 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none cursor-pointer leading-normal"
                         >
                             <option value="all">Tất cả khóa học</option>
                             {courses.map((c) => (
@@ -592,11 +593,11 @@ export default function AdminSchedulesPage() {
                     </div>
 
                     {/* Filter by Status */}
-                    <div className="w-full md:w-40">
+                    <div className="w-full sm:w-auto min-w-[170px]">
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="input w-full text-xs h-9 rounded-lg"
+                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-3 py-2 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none cursor-pointer leading-normal"
                         >
                             <option value="all">Tất cả trạng thái</option>
                             <option value="opening">Đang nhận đăng ký</option>
@@ -607,11 +608,11 @@ export default function AdminSchedulesPage() {
                     </div>
 
                     {/* Filter by Visibility */}
-                    <div className="w-full md:w-36">
+                    <div className="w-full sm:w-auto min-w-[150px]">
                         <select
                             value={visibilityFilter}
                             onChange={(e) => setVisibilityFilter(e.target.value)}
-                            className="input w-full text-xs h-9 rounded-lg"
+                            className="w-full bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-3 py-2 text-xs text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none cursor-pointer leading-normal"
                         >
                             <option value="all">Tất cả hiển thị</option>
                             <option value="visible">Đang hiển thị</option>
