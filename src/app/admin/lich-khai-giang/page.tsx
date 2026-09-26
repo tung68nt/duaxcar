@@ -18,7 +18,6 @@ import {
     Sparkles,
     Copy,
     ArrowUpRight,
-    RotateCcw,
     X,
     Filter,
     BookOpen,
@@ -387,33 +386,6 @@ export default function AdminSchedulesPage() {
         }
     };
 
-    // Restore Defaults
-    const handleRestoreDefaults = async () => {
-        if (!confirm("Bạn có chắc chắn muốn khôi phục về danh sách lịch khai giảng mẫu ban đầu? Tất cả chỉnh sửa hiện tại sẽ được cập nhật lại.")) {
-            return;
-        }
-
-        setIsSaving(true);
-        try {
-            const { defaultSchedules } = await import("@/data/default-schedules");
-            const res = await fetch("/api/cms/schedules", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ schedules: defaultSchedules }),
-            });
-
-            if (!res.ok) throw new Error("Khôi phục mặc định thất bại");
-            const data = await res.json();
-            if (data.schedules) {
-                setSchedules(data.schedules);
-            }
-            showToast("Đã khôi phục danh sách lịch khai giảng mặc định!", "success");
-        } catch (err: any) {
-            showToast(err.message || "Lỗi khôi phục", "error");
-        } finally {
-            setIsSaving(false);
-        }
-    };
 
     const getStatusBadge = (status: ScheduleItem["status"]) => {
         switch (status) {
@@ -509,15 +481,6 @@ export default function AdminSchedulesPage() {
                         <span>Xem trang web</span>
                         <ArrowUpRight className="w-3.5 h-3.5" />
                     </Link>
-                    <button
-                        onClick={handleRestoreDefaults}
-                        disabled={isSaving}
-                        className="btn btn-secondary text-xs px-3 py-2 h-9 flex items-center gap-1.5 rounded-xl"
-                        title="Khôi phục danh sách mẫu ban đầu"
-                    >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">Mặc định</span>
-                    </button>
                     <button
                         onClick={handleOpenCreate}
                         className="btn btn-primary text-xs px-3.5 py-2 h-9 flex items-center gap-1.5 rounded-xl shadow-xs whitespace-nowrap"
