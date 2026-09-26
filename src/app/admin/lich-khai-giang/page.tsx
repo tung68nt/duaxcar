@@ -422,123 +422,121 @@ export default function AdminSchedulesPage() {
                 </div>
             )}
 
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--color-border)] pb-6">
+            {/* Compact Header Section */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--color-border)] pb-4">
                 <div>
-                    <div className="flex items-center gap-2 text-xs font-medium text-[var(--color-primary)] uppercase tracking-wider mb-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>Hệ Thống Quản Trị Tuyển Sinh</span>
-                    </div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-text)] flex items-center gap-3">
-                        Lịch Khai Giảng
-                        <span className="text-sm font-normal px-2.5 py-0.5 rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)]">
-                            {schedules.length} đợt mở lớp
+                    <h1 className="text-xl md:text-2xl font-bold text-[var(--color-text)] flex items-center gap-2.5">
+                        <Calendar className="w-5 h-5 text-[var(--color-primary)] flex-shrink-0" />
+                        <span>Lịch Khai Giảng</span>
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)]">
+                            {schedules.length} đợt
                         </span>
                     </h1>
-                    <p className="text-sm text-[var(--color-text-secondary)] mt-1">
-                        Quản lý ngày khai giảng, số lượng học viên, ca học và trạng thái tuyển sinh hiển thị công khai trên website.
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                        Quản lý ngày khai giảng, số lượng học viên, ca học và trạng thái tuyển sinh công khai.
                     </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5">
+                {/* Compact Action Buttons - Always 1 row */}
+                <div className="flex items-center gap-2 flex-shrink-0">
                     <Link
                         href="/lich-khai-giang"
                         target="_blank"
-                        className="btn btn-secondary text-sm flex items-center gap-1.5"
+                        className="btn btn-secondary text-xs px-3 py-2 h-9 flex items-center gap-1.5 rounded-xl"
                         title="Xem trang hiển thị công khai cho học viên"
                     >
                         <span>Xem trang web</span>
-                        <ArrowUpRight className="w-4 h-4" />
+                        <ArrowUpRight className="w-3.5 h-3.5" />
                     </Link>
                     <button
                         onClick={handleRestoreDefaults}
                         disabled={isSaving}
-                        className="btn btn-secondary text-sm flex items-center gap-1.5"
+                        className="btn btn-secondary text-xs px-3 py-2 h-9 flex items-center gap-1.5 rounded-xl"
                         title="Khôi phục danh sách mẫu ban đầu"
                     >
-                        <RotateCcw className="w-4 h-4" />
-                        <span>Mặc định</span>
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Mặc định</span>
                     </button>
                     <button
                         onClick={handleOpenCreate}
-                        className="btn btn-primary text-sm flex items-center gap-1.5 shadow-sm"
+                        className="btn btn-primary text-xs px-3.5 py-2 h-9 flex items-center gap-1.5 rounded-xl shadow-xs whitespace-nowrap"
                     >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-3.5 h-3.5" />
                         <span>Thêm lịch mở lớp</span>
                     </button>
                 </div>
             </div>
 
-            {/* Statistics Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="card p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl">
-                    <div className="flex items-center justify-between text-[var(--color-text-secondary)] text-xs mb-2">
+            {/* Compact Statistics Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="card p-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
+                    <div className="flex items-center justify-between text-[var(--color-text-secondary)] text-[11px] mb-1">
                         <span>Tổng lịch mở lớp</span>
-                        <Calendar className="w-4 h-4 text-[var(--color-primary)]" />
+                        <Calendar className="w-3.5 h-3.5 text-[var(--color-primary)]" />
                     </div>
-                    <div className="text-2xl font-bold text-[var(--color-text)]">{stats.total}</div>
-                    <div className="text-xs text-[var(--color-text-muted)] mt-1">
-                        {stats.hidden > 0 ? `Đang ẩn: ${stats.hidden} đợt` : "Tất cả đều công khai"}
+                    <div className="text-xl font-bold text-[var(--color-text)]">{stats.total}</div>
+                    <div className="text-[10px] text-[var(--color-text-muted)] mt-0.5">
+                        {stats.hidden > 0 ? `Đang ẩn: ${stats.hidden} đợt` : "Tất cả công khai"}
                     </div>
                 </div>
 
-                <div className="card p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl">
-                    <div className="flex items-center justify-between text-emerald-500 text-xs mb-2">
+                <div className="card p-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
+                    <div className="flex items-center justify-between text-emerald-500 text-[11px] mb-1">
                         <span>Đang nhận đăng ký</span>
-                        <CalendarCheck className="w-4 h-4" />
+                        <CalendarCheck className="w-3.5 h-3.5" />
                     </div>
-                    <div className="text-2xl font-bold text-emerald-500">{stats.opening}</div>
-                    <div className="text-xs text-[var(--color-text-muted)] mt-1">Sẵn sàng nhận học viên</div>
+                    <div className="text-xl font-bold text-emerald-500">{stats.opening}</div>
+                    <div className="text-[10px] text-[var(--color-text-muted)] mt-0.5">Sẵn sàng nhận học viên</div>
                 </div>
 
-                <div className="card p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl">
-                    <div className="flex items-center justify-between text-amber-500 text-xs mb-2">
+                <div className="card p-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
+                    <div className="flex items-center justify-between text-amber-500 text-[11px] mb-1">
                         <span>Sắp hết chỗ</span>
-                        <Timer className="w-4 h-4" />
+                        <Timer className="w-3.5 h-3.5" />
                     </div>
-                    <div className="text-2xl font-bold text-amber-500">{stats.almostFull}</div>
-                    <div className="text-xs text-[var(--color-text-muted)] mt-1">Còn dưới 3 suất</div>
+                    <div className="text-xl font-bold text-amber-500">{stats.almostFull}</div>
+                    <div className="text-[10px] text-[var(--color-text-muted)] mt-0.5">Còn dưới 3 suất</div>
                 </div>
 
-                <div className="card p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl">
-                    <div className="flex items-center justify-between text-rose-500 text-xs mb-2">
+                <div className="card p-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
+                    <div className="flex items-center justify-between text-rose-500 text-[11px] mb-1">
                         <span>Đã đủ / Đóng lớp</span>
-                        <CalendarX className="w-4 h-4" />
+                        <CalendarX className="w-3.5 h-3.5" />
                     </div>
-                    <div className="text-2xl font-bold text-rose-500">{stats.full}</div>
-                    <div className="text-xs text-[var(--color-text-muted)] mt-1">Ngừng nhận học viên</div>
+                    <div className="text-xl font-bold text-rose-500">{stats.full}</div>
+                    <div className="text-[10px] text-[var(--color-text-muted)] mt-0.5">Ngừng nhận học viên</div>
                 </div>
             </div>
 
-            {/* Filter & Search Bar */}
-            <div className="card p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl space-y-3">
-                <div className="flex flex-col md:flex-row gap-3">
+            {/* Compact Filter Toolbar */}
+            <div className="card p-2.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl">
+                <div className="flex flex-col md:flex-row gap-2">
                     {/* Search */}
                     <div className="relative flex-1">
-                        <Search className="w-4 h-4 text-[var(--color-text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <Search className="w-3.5 h-3.5 text-[var(--color-text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                             type="text"
-                            placeholder="Tìm kiếm theo tên khóa học, địa điểm, ghi chú..."
+                            placeholder="Tìm theo tên khóa học, địa điểm, ghi chú..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="input pl-10 w-full text-sm"
+                            className="input pl-8 pr-7 w-full text-xs h-9 rounded-lg"
                         />
                         {searchTerm && (
                             <button
                                 onClick={() => setSearchTerm("")}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
                             >
-                                <X className="w-4 h-4" />
+                                <X className="w-3.5 h-3.5" />
                             </button>
                         )}
                     </div>
 
                     {/* Filter by Course */}
-                    <div className="w-full md:w-56">
+                    <div className="w-full md:w-52">
                         <select
                             value={courseFilter}
                             onChange={(e) => setCourseFilter(e.target.value)}
-                            className="input w-full text-sm"
+                            className="input w-full text-xs h-9 rounded-lg"
                         >
                             <option value="all">Tất cả khóa học</option>
                             {courses.map((c) => (
@@ -550,11 +548,11 @@ export default function AdminSchedulesPage() {
                     </div>
 
                     {/* Filter by Status */}
-                    <div className="w-full md:w-44">
+                    <div className="w-full md:w-40">
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="input w-full text-sm"
+                            className="input w-full text-xs h-9 rounded-lg"
                         >
                             <option value="all">Tất cả trạng thái</option>
                             <option value="opening">Đang nhận đăng ký</option>
@@ -565,11 +563,11 @@ export default function AdminSchedulesPage() {
                     </div>
 
                     {/* Filter by Visibility */}
-                    <div className="w-full md:w-40">
+                    <div className="w-full md:w-36">
                         <select
                             value={visibilityFilter}
                             onChange={(e) => setVisibilityFilter(e.target.value)}
-                            className="input w-full text-sm"
+                            className="input w-full text-xs h-9 rounded-lg"
                         >
                             <option value="all">Tất cả hiển thị</option>
                             <option value="visible">Đang hiển thị</option>
@@ -614,50 +612,50 @@ export default function AdminSchedulesPage() {
                         return (
                             <div
                                 key={schedule.id}
-                                className={`card p-5 bg-[var(--color-surface)] border rounded-2xl transition-all hover:shadow-md ${
+                                className={`card p-4 bg-[var(--color-surface)] border rounded-xl transition-all hover:shadow-md ${
                                     isHidden
                                         ? "opacity-60 border-dashed border-[var(--color-border)] bg-[var(--color-surface)]/40"
                                         : "border-[var(--color-border)]"
                                 }`}
                             >
-                                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                                     {/* Left: Date Badge & Course Details */}
-                                    <div className="flex items-start gap-4 flex-1">
+                                    <div className="flex items-start gap-3.5 flex-1 min-w-0">
                                         {/* Date Box */}
-                                        <div className="flex-shrink-0 w-20 h-20 rounded-2xl bg-gradient-to-br from-[var(--color-orange-500)] to-[var(--color-orange-600)] text-white flex flex-col items-center justify-center shadow-sm">
-                                            <span className="text-2xl font-bold leading-none">
+                                        <div className="flex-shrink-0 w-16 h-16 rounded-xl bg-gradient-to-br from-[var(--color-orange-500)] to-[var(--color-orange-600)] text-white flex flex-col items-center justify-center shadow-xs">
+                                            <span className="text-xl font-bold leading-none">
                                                 {new Date(schedule.startDate).getDate() || "--"}
                                             </span>
-                                            <span className="text-xs opacity-90 mt-1">
+                                            <span className="text-[10px] opacity-90 mt-0.5">
                                                 Tháng {new Date(schedule.startDate).getMonth() + 1 || "--"}
                                             </span>
-                                            <span className="text-[10px] opacity-75">
+                                            <span className="text-[9px] opacity-75">
                                                 {new Date(schedule.startDate).getFullYear() || ""}
                                             </span>
                                         </div>
 
                                         {/* Course Information */}
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                                            <div className="flex flex-wrap items-center gap-1.5 mb-1">
                                                 {getStatusBadge(schedule.status)}
                                                 {isHidden && (
-                                                    <span className="badge bg-zinc-500/15 text-zinc-400 border border-zinc-500/30 text-xs px-2 py-0.5">
-                                                        Đang ẩn trên web
+                                                    <span className="badge bg-zinc-500/15 text-zinc-400 border border-zinc-500/30 text-[10px] px-2 py-0.5">
+                                                        Đang ẩn
                                                     </span>
                                                 )}
                                                 {schedule.priceOverride && (
-                                                    <span className="badge bg-purple-500/15 text-purple-400 border border-purple-500/30 text-xs px-2 py-0.5">
+                                                    <span className="badge bg-purple-500/15 text-purple-400 border border-purple-500/30 text-[10px] px-2 py-0.5">
                                                         Ưu đãi: {schedule.priceOverride.toLocaleString("vi-VN")}đ
                                                     </span>
                                                 )}
                                             </div>
 
-                                            <h3 className="text-lg font-bold text-[var(--color-text)] truncate">
+                                            <h3 className="text-base font-bold text-[var(--color-text)] truncate">
                                                 {course ? course.name : schedule.courseSlug}
                                             </h3>
 
                                             {/* Meta Info Grid */}
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-2.5 text-xs text-[var(--color-text-secondary)]">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 mt-2 text-xs text-[var(--color-text-secondary)]">
                                                 <div className="flex items-center gap-1.5">
                                                     <Calendar className="w-3.5 h-3.5 text-[var(--color-primary)] flex-shrink-0" />
                                                     <span>
@@ -683,8 +681,8 @@ export default function AdminSchedulesPage() {
 
                                             {/* Note / Promo info if exists */}
                                             {schedule.note && (
-                                                <div className="mt-2.5 inline-flex items-center gap-1.5 text-xs text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
-                                                    <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+                                                <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+                                                    <Sparkles className="w-3 h-3 flex-shrink-0" />
                                                     <span>{schedule.note}</span>
                                                 </div>
                                             )}
@@ -692,8 +690,8 @@ export default function AdminSchedulesPage() {
                                     </div>
 
                                     {/* Middle: Capacity Progress Bar */}
-                                    <div className="w-full lg:w-48 bg-[var(--color-background)] p-3 rounded-xl border border-[var(--color-border)]">
-                                        <div className="flex items-center justify-between text-xs mb-1.5">
+                                    <div className="w-full lg:w-44 bg-[var(--color-background)] p-2.5 rounded-lg border border-[var(--color-border)] shrink-0">
+                                        <div className="flex items-center justify-between text-xs mb-1">
                                             <span className="text-[var(--color-text-secondary)]">Chỗ học:</span>
                                             <span className="font-semibold text-[var(--color-text)]">
                                                 Còn{" "}
@@ -709,7 +707,7 @@ export default function AdminSchedulesPage() {
                                                 /{totalSpots}
                                             </span>
                                         </div>
-                                        <div className="w-full bg-[var(--color-surface)] h-2 rounded-full overflow-hidden border border-[var(--color-border)]">
+                                        <div className="w-full bg-[var(--color-surface)] h-1.5 rounded-full overflow-hidden border border-[var(--color-border)]">
                                             <div
                                                 className={`h-full transition-all rounded-full ${
                                                     fillPercent >= 90
@@ -727,41 +725,41 @@ export default function AdminSchedulesPage() {
                                     </div>
 
                                     {/* Right: Actions */}
-                                    <div className="flex items-center gap-2 self-end lg:self-center">
+                                    <div className="flex items-center gap-1.5 self-end lg:self-center shrink-0">
                                         <button
                                             onClick={() => handleToggleVisible(schedule)}
-                                            className={`p-2 rounded-xl border text-xs transition-colors ${
+                                            className={`p-1.5 rounded-lg border text-xs transition-colors ${
                                                 isHidden
                                                     ? "bg-zinc-800 text-zinc-400 border-zinc-700 hover:text-white"
                                                     : "bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:text-[var(--color-primary)]"
                                             }`}
                                             title={isHidden ? "Hiện lại trên web" : "Ẩn khỏi web"}
                                         >
-                                            {isHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            {isHidden ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                                         </button>
 
                                         <button
                                             onClick={() => handleDuplicate(schedule)}
-                                            className="p-2 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
+                                            className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
                                             title="Nhân bản đợt này cho tháng sau"
                                         >
-                                            <Copy className="w-4 h-4" />
+                                            <Copy className="w-3.5 h-3.5" />
                                         </button>
 
                                         <button
                                             onClick={() => handleOpenEdit(schedule)}
-                                            className="p-2 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-blue-400 transition-colors"
+                                            className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-blue-400 transition-colors"
                                             title="Chỉnh sửa lịch"
                                         >
-                                            <Edit3 className="w-4 h-4" />
+                                            <Edit3 className="w-3.5 h-3.5" />
                                         </button>
 
                                         <button
                                             onClick={() => handleDeleteClick(schedule)}
-                                            className="p-2 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-rose-400 transition-colors"
+                                            className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-rose-400 transition-colors"
                                             title="Xóa lịch này"
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <Trash2 className="w-3.5 h-3.5" />
                                         </button>
                                     </div>
                                 </div>
