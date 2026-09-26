@@ -534,9 +534,9 @@ export default function AdminSchedulesPage() {
 
             {/* Compact Filter Toolbar */}
             <div className="card p-2.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-xs">
-                <div className="flex flex-col lg:flex-row gap-2.5 items-stretch lg:items-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-center gap-2.5">
                     {/* Search */}
-                    <div className="relative flex-1 min-w-[240px]">
+                    <div className="relative flex-1 min-w-[200px]">
                         <Search className="w-4 h-4 text-[var(--color-text-muted)] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                             type="text"
@@ -832,14 +832,14 @@ export default function AdminSchedulesPage() {
             {/* Modal: Create / Edit Form */}
             {modalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
-                    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl">
+                    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl sm:rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl">
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between p-5 border-b border-[var(--color-border)] sticky top-0 bg-[var(--color-surface)] z-10">
+                        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[var(--color-border)] sticky top-0 bg-[var(--color-surface)] z-10">
                             <div>
-                                <h2 className="text-lg font-bold text-[var(--color-text)]">
+                                <h2 className="text-base sm:text-lg font-bold text-[var(--color-text)]">
                                     {editingItem ? "Chỉnh sửa Lịch Khai Giảng" : "Thêm Lịch Khai Giảng Mới"}
                                 </h2>
-                                <p className="text-xs text-[var(--color-text-secondary)]">
+                                <p className="text-[11px] sm:text-xs text-[var(--color-text-secondary)]">
                                     Điền thông tin khóa học và các thông số cho đợt tuyển sinh mới.
                                 </p>
                             </div>
@@ -852,7 +852,7 @@ export default function AdminSchedulesPage() {
                         </div>
 
                         {/* Modal Body Form */}
-                        <form onSubmit={handleSave} className="p-6 space-y-4">
+                        <form onSubmit={handleSave} className="p-4 sm:p-6 space-y-4">
                             {/* Course selection */}
                             <div className="space-y-3 p-3.5 bg-[var(--color-background)] rounded-xl border border-[var(--color-border)]">
                                 <div>

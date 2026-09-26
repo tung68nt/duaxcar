@@ -73,6 +73,7 @@ export default function ScheduleClient({
     const [isSubmittingReg, setIsSubmittingReg] = useState(false);
     const [regSuccess, setRegSuccess] = useState(false);
     const [regError, setRegError] = useState<string | null>(null);
+    const [hpCompany, setHpCompany] = useState("");
 
     // Fetch latest schedules from CMS API on mount
     useEffect(() => {
@@ -156,6 +157,7 @@ export default function ScheduleClient({
         setRegSuccess(false);
         setRegError(null);
         setRegMessage("");
+        setHpCompany("");
     };
 
     // Handle submit registration
@@ -182,6 +184,7 @@ export default function ScheduleClient({
                     email: regEmail.trim() || undefined,
                     course: `${courseName} - Lịch khai giảng ngày ${formatScheduleDate(selectedScheduleForModal.startDate)}`,
                     message: `[Đăng ký Lịch Khai Giảng] Ca học: ${selectedScheduleForModal.time} | Địa điểm: ${selectedScheduleForModal.location} | Lời nhắn: ${regMessage.trim() || "Muốn tư vấn giữ chỗ khóa học"}`,
+                    honeypot: hpCompany,
                 }),
             });
 
@@ -346,7 +349,7 @@ export default function ScheduleClient({
                                                 </div>
 
                                                 {/* Status Badge Overlay */}
-                                                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                                                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 flex-wrap">
                                                     {isFull ? (
                                                         <span className="badge bg-zinc-900/80 text-zinc-300 border border-zinc-700 text-xs px-2.5 py-1 backdrop-blur-md">
                                                             Đã đủ học viên
@@ -362,7 +365,7 @@ export default function ScheduleClient({
                                                     )}
 
                                                     {category && (
-                                                        <span className="text-[11px] font-medium text-white/90 bg-black/50 backdrop-blur-md px-2 py-0.5 rounded-lg border border-white/10 flex items-center gap-1">
+                                                        <span className="text-[11px] font-medium text-white/90 bg-black/50 backdrop-blur-md px-2 py-0.5 rounded-lg border border-white/10 flex items-center gap-1 shrink-0">
                                                             <CategoryIcon id={category.id} className="w-3 h-3" />
                                                             <span>{category.name}</span>
                                                         </span>
@@ -425,9 +428,9 @@ export default function ScheduleClient({
 
                                                 {/* Meta Info Grid: Date, Time, Location, Capacity */}
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-[var(--color-text-secondary)] mb-3">
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-2 min-w-0">
                                                         <Calendar className="w-4 h-4 text-[var(--color-primary)] flex-shrink-0" />
-                                                        <span>
+                                                        <span className="truncate">
                                                             <strong className="text-[var(--color-text)]">Khai giảng: </strong>
                                                             {formatScheduleDate(schedule.startDate)}
                                                             {schedule.endDate && schedule.endDate !== schedule.startDate && (
@@ -436,15 +439,15 @@ export default function ScheduleClient({
                                                         </span>
                                                     </div>
 
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-2 min-w-0">
                                                         <Clock className="w-4 h-4 text-[var(--color-primary)] flex-shrink-0" />
-                                                        <span>
+                                                        <span className="truncate">
                                                             <strong className="text-[var(--color-text)]">Ca học: </strong>
                                                             {schedule.time}
                                                         </span>
                                                     </div>
 
-                                                    <div className="flex items-center gap-2 truncate">
+                                                    <div className="flex items-center gap-2 min-w-0">
                                                         <MapPin className="w-4 h-4 text-[var(--color-primary)] flex-shrink-0" />
                                                         <span className="truncate" title={schedule.location}>
                                                             <strong className="text-[var(--color-text)]">Địa điểm: </strong>
@@ -452,9 +455,9 @@ export default function ScheduleClient({
                                                         </span>
                                                     </div>
 
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-2 min-w-0">
                                                         <Users className="w-4 h-4 text-[var(--color-primary)] flex-shrink-0" />
-                                                        <span>
+                                                        <span className="truncate">
                                                             <strong className="text-[var(--color-text)]">Quy mô: </strong>
                                                             {isFull ? (
                                                                 <span className="text-rose-500 font-semibold">Đã đủ 8/8 học viên</span>
@@ -503,11 +506,11 @@ export default function ScheduleClient({
                                             </div>
 
                                             {/* Right: CTA Buttons */}
-                                            <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 justify-center flex-shrink-0 lg:border-l lg:border-[var(--color-border)] lg:pl-6 min-w-[190px]">
+                                            <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 justify-center flex-shrink-0 lg:border-l lg:border-[var(--color-border)] lg:pl-6 w-full lg:w-48">
                                                 {/* View Course Details Button */}
                                                 <Link
                                                     href={displayUrl}
-                                                    className="btn btn-secondary text-xs h-11 px-4 rounded-xl flex items-center justify-center gap-1.5 hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)] transition-all font-semibold"
+                                                    className="btn btn-secondary text-xs h-11 px-4 rounded-xl flex items-center justify-center gap-1.5 hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)] transition-all font-semibold flex-1 sm:flex-initial"
                                                 >
                                                     <BookOpen className="w-4 h-4" />
                                                     <span>Xem chi tiết khóa học</span>
@@ -517,14 +520,14 @@ export default function ScheduleClient({
                                                 {isFull ? (
                                                     <button
                                                         onClick={() => handleOpenRegister(schedule)}
-                                                        className="btn btn-secondary text-xs h-11 px-4 rounded-xl flex items-center justify-center gap-1.5 opacity-80"
+                                                        className="btn btn-secondary text-xs h-11 px-4 rounded-xl flex items-center justify-center gap-1.5 opacity-80 flex-1 sm:flex-initial"
                                                     >
                                                         <span>Đăng ký danh sách chờ</span>
                                                     </button>
                                                 ) : (
                                                     <button
                                                         onClick={() => handleOpenRegister(schedule)}
-                                                        className="btn btn-primary text-xs h-11 px-4 rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-orange-500/20 font-bold hover:shadow-lg transition-all"
+                                                        className="btn btn-primary text-xs h-11 px-4 rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-orange-500/20 font-bold hover:shadow-lg transition-all flex-1 sm:flex-initial"
                                                     >
                                                         <span>Tư vấn & Đăng ký</span>
                                                         <ArrowRight className="w-4 h-4" />
@@ -542,15 +545,15 @@ export default function ScheduleClient({
 
             {/* Modal Popup Đăng ký tư vấn trực tiếp trong trang */}
             {selectedScheduleForModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl sm:rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between p-5 border-b border-[var(--color-border)] bg-[var(--color-surface)]">
+                        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[var(--color-border)] bg-[var(--color-surface)]">
                             <div>
                                 <span className="text-[11px] font-bold text-[var(--color-primary)] uppercase tracking-wider">
                                     Đăng Ký Tuyển Sinh
                                 </span>
-                                <h3 className="text-lg font-bold text-[var(--color-text)]">
+                                <h3 className="text-base sm:text-lg font-bold text-[var(--color-text)]">
                                     Tư vấn lịch khai giảng
                                 </h3>
                             </div>
@@ -563,7 +566,7 @@ export default function ScheduleClient({
                         </div>
 
                         {/* Modal Body */}
-                        <div className="p-6 overflow-y-auto flex-1">
+                        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
                             {regSuccess ? (
                                 <div className="text-center py-6">
                                     <div className="w-16 h-16 rounded-full bg-emerald-500/15 text-emerald-500 flex items-center justify-center mx-auto mb-4 border border-emerald-500/30">
@@ -604,6 +607,18 @@ export default function ScheduleClient({
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmitRegistration} className="space-y-4">
+                                    {/* Invisible Honeypot anti-bot trap */}
+                                    <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
+                                        <input
+                                            type="text"
+                                            name="_hp_company"
+                                            value={hpCompany}
+                                            onChange={(e) => setHpCompany(e.target.value)}
+                                            tabIndex={-1}
+                                            autoComplete="off"
+                                        />
+                                    </div>
+
                                     {/* Selected Schedule Summary Card */}
                                     <div className="p-3.5 bg-[var(--color-background)] rounded-2xl border border-[var(--color-border)] text-xs space-y-1.5">
                                         <div className="font-bold text-sm text-[var(--color-text)]">
