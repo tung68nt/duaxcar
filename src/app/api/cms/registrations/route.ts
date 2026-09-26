@@ -1,8 +1,26 @@
 import { NextResponse } from 'next/server';
 import { getLocalDB, saveLocalDB, Registration } from '@/lib/db';
 import { supabase } from '@/lib/supabase';
+import { verifySessionToken, SESSION_COOKIE_NAME } from '@/lib/auth-session';
 
-export async function GET() {
+async function isAuthorizedAdmin(request: Request): Promise<boolean> {
+    const cookieHeader = request.headers.get('cookie') || '';
+    const sessionCookie = cookieHeader
+        .split(';')
+        .map(c => c.trim())
+        .find(c => c.startsWith(`${SESSION_COOKIE_NAME}=`))
+        ?.split('=')[1];
+    const { valid } = await verifySessionToken(sessionCookie);
+    return valid;
+}
+
+export async function GET(request: Request) {
+    if (!(await isAuthorizedAdmin(request))) {
+        return NextResponse.json(
+            { error: 'Unauthorized — Yêu cầu quyền quản trị viên để xem danh sách đăng ký.' },
+            { status: 401 }
+        );
+    }
     try {
         // Try fetching latest registrations from Supabase
         const { data, error } = await supabase
@@ -42,6 +60,12 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+    if (!(await isAuthorizedAdmin(request))) {
+        return NextResponse.json(
+            { error: 'Unauthorized — Yêu cầu quyền quản trị viên.' },
+            { status: 401 }
+        );
+    }
     try {
         const body = await request.json();
         const registration: Registration = body.registration;
@@ -99,6 +123,12 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+    if (!(await isAuthorizedAdmin(request))) {
+        return NextResponse.json(
+            { error: 'Unauthorized — Yêu cầu quyền quản trị viên.' },
+            { status: 401 }
+        );
+    }
     try {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');

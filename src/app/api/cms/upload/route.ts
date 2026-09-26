@@ -4,15 +4,16 @@ import path from 'path';
 import { getLocalDB, saveLocalDB } from '@/lib/db';
 import { MediaItem, DEFAULT_MEDIA_ITEMS } from '@/lib/media-store';
 import { supabase } from '@/lib/supabase';
+import { verifySessionToken, SESSION_COOKIE_NAME } from '@/lib/auth-session';
 
 export const dynamic = 'force-dynamic';
 
 // === Security Constants ===
 const MAX_IMAGE_SIZE = 15 * 1024 * 1024;   // 15MB
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024;   // 50MB
-const ALLOWED_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+const ALLOWED_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const ALLOWED_VIDEO_MIMES = ['video/mp4', 'video/webm', 'video/quicktime'];
-const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'mp4', 'webm', 'mov'];
+const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'mp4', 'webm', 'mov'];
 
 // Magic bytes for file type verification
 const MAGIC_BYTES: Record<string, number[]> = {
@@ -124,6 +125,22 @@ async function processSingleFile(file: File, uploadDir: string, indexOffset = 0)
 
 export async function POST(request: Request) {
     try {
+        // Defense-in-depth: Verify admin session
+        const cookieHeader = request.headers.get('cookie') || '';
+        const sessionCookie = cookieHeader
+            .split(';')
+            .map(c => c.trim())
+            .find(c => c.startsWith(`${SESSION_COOKIE_NAME}=`))
+            ?.split('=')[1];
+
+        const { valid: isAuthenticated } = await verifySessionToken(sessionCookie);
+        if (!isAuthenticated) {
+            return NextResponse.json(
+                { error: 'Unauthorized — Yêu cầu quyền quản trị viên để tải file lên.' },
+                { status: 401 }
+            );
+        }
+
         const contentType = request.headers.get('content-type') || '';
         
         // Target uploads directory in public/uploads/

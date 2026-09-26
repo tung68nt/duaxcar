@@ -27,30 +27,35 @@ function LoginForm() {
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setLoading(true);
 
-        const cleanEmail = email.trim().toLowerCase();
+        try {
+            const res = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email.trim(), password }),
+            });
 
-        if (
-            (cleanEmail === "admin@duaxcar.vn" || cleanEmail === "admin") &&
-            password === "admin"
-        ) {
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || "Email hoặc mật khẩu quản trị không chính xác!");
+            }
+
             setSuccess(true);
             try {
                 localStorage.setItem("admin_logged_in", "true");
-                document.cookie = "admin_logged_in=true; path=/; max-age=2592000; SameSite=Lax";
             } catch {}
+
             setTimeout(() => {
                 router.push(redirectTo);
-            }, 600);
-            return;
+            }, 500);
+        } catch (err: any) {
+            setError(err.message || "Đăng nhập thất bại");
+            setLoading(false);
         }
-
-        setError("Email hoặc mật khẩu quản trị không chính xác!");
-        setLoading(false);
     };
 
     return (
@@ -144,11 +149,10 @@ function LoginForm() {
                         </div>
                     </div>
 
-                    {/* Helper text info */}
-                    <div className="bg-[var(--color-surface-light)]/40 border border-[var(--color-border)] rounded-lg p-3.5 text-[11px] text-[var(--color-text-muted)] leading-relaxed">
-                        <span className="font-bold text-[var(--color-primary)] block mb-1">Tài khoản quản trị CMS:</span>
-                        <div>Email: <strong className="text-[var(--color-text)]">admin@duaxcar.vn</strong></div>
-                        <div>Mật khẩu: <strong className="text-[var(--color-text)]">admin</strong></div>
+                    {/* Security Notice */}
+                    <div className="bg-[var(--color-surface-light)]/40 border border-[var(--color-border)] rounded-lg p-3 text-[11px] text-[var(--color-text-muted)] leading-relaxed flex items-center gap-2">
+                        <Lock className="w-3.5 h-3.5 text-[var(--color-primary)] shrink-0" />
+                        <span>Khu vực bảo mật dành riêng cho Ban quản trị DuaxCar Kitchen.</span>
                     </div>
 
                     {/* Submit Button */}

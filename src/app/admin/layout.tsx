@@ -35,13 +35,28 @@ export default function AdminLayout({
     const [logoUrl, setLogoUrl] = useState("/images/logo.png");
 
     useEffect(() => {
-        // Verify authentication
-        const localAuth = typeof window !== "undefined" && localStorage.getItem("admin_logged_in") === "true";
-        if (!localAuth) {
-            router.push("/login");
-            return;
-        }
-        setIsLoading(false);
+        let isMounted = true;
+
+        // Verify authentication with server
+        fetch("/api/auth/me")
+            .then(res => {
+                if (!res.ok) throw new Error("Unauthorized");
+                return res.json();
+            })
+            .then(data => {
+                if (!data.authenticated && isMounted) {
+                    localStorage.removeItem("admin_logged_in");
+                    router.push("/login");
+                } else if (isMounted) {
+                    setIsLoading(false);
+                }
+            })
+            .catch(() => {
+                if (isMounted) {
+                    localStorage.removeItem("admin_logged_in");
+                    router.push("/login");
+                }
+            });
 
         // Fetch settings for logo and favicon
         try {
@@ -78,10 +93,15 @@ export default function AdminLayout({
                 }
             })
             .catch(() => {});
+
+        return () => {
+            isMounted = false;
+        };
     }, [router]);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         try {
+            await fetch("/api/auth/logout", { method: "POST" });
             localStorage.removeItem("admin_logged_in");
             document.cookie = "admin_logged_in=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         } catch {}
