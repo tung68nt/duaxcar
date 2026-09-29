@@ -1,9 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
+import AnalyticsTracker from "@/components/analytics/AnalyticsTracker";
 
 export default function ClientLayoutWrapper({
     children,
@@ -78,6 +79,9 @@ export default function ClientLayoutWrapper({
 
     return (
         <>
+            <Suspense fallback={null}>
+                <AnalyticsTracker />
+            </Suspense>
             <Header logo={siteSettings.logo} />
             <main className="min-h-screen pt-16 md:pt-20">{children}</main>
             <Footer logo={siteSettings.logo} />

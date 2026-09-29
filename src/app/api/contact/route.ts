@@ -1,23 +1,35 @@
 import { NextResponse } from 'next/server';
 import { processLeadSubmission, LeadSubmissionPayload } from '@/lib/lead-manager';
+import { resolveGeoLocation, extractClientIp } from '@/lib/geo-ip';
 
 export async function POST(request: Request) {
     try {
         const body = await request.json();
         
         // Extract client IP address for anti-abuse and rate limiting
-        const forwardedFor = request.headers.get('x-forwarded-for');
-        const realIp = request.headers.get('x-real-ip');
-        const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : realIp || '127.0.0.1';
+        const clientIp = extractClientIp(request.headers);
+        const geo = await resolveGeoLocation(request.headers, clientIp);
+
+        // Extract Visitor ID from body or cookie
+        let visitorId = body.visitorId;
+        if (!visitorId) {
+            const cookieHeader = request.headers.get("cookie") || "";
+            const match = cookieHeader.match(/(^|;\s*)duaxcar_vid=([^;]*)/);
+            if (match) visitorId = decodeURIComponent(match[2]);
+        }
 
         const payload: LeadSubmissionPayload = {
             name: body.name,
             phone: body.phone,
             email: body.email,
             course: body.course,
-            message: body.message,
+            message: body.message || body.note,
             honeypot: body.honeypot || body._hp_company,
             ip: clientIp,
+            visitorId,
+            city: geo.city,
+            firstSeenAt: body.firstSeenAt,
+            clientJourney: body.clientJourney,
         };
 
         const result = await processLeadSubmission(payload);

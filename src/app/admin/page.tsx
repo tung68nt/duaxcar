@@ -11,7 +11,10 @@ import {
     CheckCircle, 
     XCircle,
     ArrowRight,
-    Plus
+    Plus,
+    Eye,
+    Compass,
+    MapPin
 } from "lucide-react";
 import { blogPosts, courses } from "@/data/mock";
 
@@ -23,6 +26,8 @@ interface Registration {
     courseName: string;
     status: "pending" | "contacted" | "enrolled" | "cancelled";
     date: string;
+    city?: string;
+    timeToConvertFormatted?: string;
 }
 
 export default function AdminDashboard() {
@@ -30,7 +35,10 @@ export default function AdminDashboard() {
         totalCourses: 0,
         totalBlogs: 0,
         totalRegistrations: 0,
-        pendingRegistrations: 0
+        pendingRegistrations: 0,
+        todayPageviews: 0,
+        todayVisitors: 0,
+        topCity: ""
     });
     const [recentRegistrations, setRecentRegistrations] = useState<Registration[]>([]);
 
@@ -40,11 +48,16 @@ export default function AdminDashboard() {
             let loadedBlogs = blogPosts;
             let loadedRegs: Registration[] = [];
 
+            let todayPv = 0;
+            let todayVis = 0;
+            let primaryCity = "";
+
             try {
-                const [cRes, bRes, rRes] = await Promise.all([
+                const [cRes, bRes, rRes, aRes] = await Promise.all([
                     fetch('/api/cms/courses'),
                     fetch('/api/cms/blogs'),
-                    fetch('/api/cms/registrations')
+                    fetch('/api/cms/registrations'),
+                    fetch('/api/analytics/stats?range=today')
                 ]);
                 if (cRes.ok) {
                     const data = await cRes.json();
@@ -57,6 +70,16 @@ export default function AdminDashboard() {
                 if (rRes.ok) {
                     const data = await rRes.json();
                     if (data.registrations) loadedRegs = data.registrations;
+                }
+                if (aRes.ok) {
+                    const aData = await aRes.json();
+                    if (aData.stats) {
+                        todayPv = aData.stats.totalPageviews;
+                        todayVis = aData.stats.uniqueVisitors;
+                        if (aData.stats.geoStats && aData.stats.geoStats[0]) {
+                            primaryCity = aData.stats.geoStats[0].city;
+                        }
+                    }
                 }
             } catch (e) {
                 console.error("Dashboard fetch error:", e);
@@ -73,7 +96,10 @@ export default function AdminDashboard() {
                 totalCourses: loadedCourses.length,
                 totalBlogs: loadedBlogs.length,
                 totalRegistrations: loadedRegs.length,
-                pendingRegistrations: loadedRegs.filter(r => r.status === "pending").length
+                pendingRegistrations: loadedRegs.filter(r => r.status === "pending").length,
+                todayPageviews: todayPv,
+                todayVisitors: todayVis,
+                topCity: primaryCity
             });
 
             setRecentRegistrations(loadedRegs.slice(0, 5));
@@ -116,7 +142,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 {/* Registrations */}
                 <div className="p-3.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-3">
                     <div className="w-9 h-9 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-lg flex items-center justify-center flex-shrink-0">
@@ -147,9 +173,29 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
+                {/* Website Traffic Today */}
+                <div className="p-3.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-3 hover:border-blue-500 transition-colors group">
+                    <div className="w-9 h-9 bg-blue-500/10 text-blue-500 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                        <Eye className="w-4.5 h-4.5" />
+                    </div>
+                    <div className="min-w-0">
+                        <span className="text-[11px] text-[var(--color-text-muted)] font-medium block truncate">
+                            Lượt xem hôm nay
+                        </span>
+                        <div className="flex items-baseline gap-1.5">
+                            <span className="text-lg font-bold text-blue-600 block leading-tight">
+                                {stats.todayPageviews}
+                            </span>
+                            <span className="text-[10px] text-[var(--color-text-muted)]">
+                                ({stats.todayVisitors} khách)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Courses */}
                 <div className="p-3.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl flex items-center gap-3">
-                    <div className="w-9 h-9 bg-blue-500/10 text-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="w-9 h-9 bg-emerald-500/10 text-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
                         <BookOpen className="w-4.5 h-4.5" />
                     </div>
                     <div className="min-w-0">
@@ -176,6 +222,35 @@ export default function AdminDashboard() {
                         </span>
                     </div>
                 </div>
+            </div>
+
+            {/* Quick Analytics & Journey CTA Banner */}
+            <div className="p-4 rounded-xl bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-transparent border border-orange-500/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <Compass className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h4 className="font-heading font-bold text-sm text-[var(--color-text)]">
+                            Bộ Đếm Lượt Xem & Lưu Vết Khách Hàng Tiềm Năng
+                        </h4>
+                        <p className="text-xs text-[var(--color-text-secondary)]">
+                            {stats.topCity ? (
+                                <>Khu vực quan tâm nhiều nhất: <strong className="text-[var(--color-text)]">{stats.topCity}</strong>. </>
+                            ) : (
+                                <>Theo dõi dữ liệu thực tế: </>
+                            )}
+                            Xem chi tiết hành trình từng IP, trang khóa học đã đọc trước khi mua để chốt sale tốt hơn.
+                        </p>
+                    </div>
+                </div>
+                <Link
+                    href="/admin/analytics"
+                    className="px-3.5 py-2 rounded-lg bg-[var(--color-primary)] text-white text-xs font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5 shrink-0 shadow-sm"
+                >
+                    <span>Mở Báo Cáo Thống Kê</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
             </div>
 
             {/* Layout Widgets */}

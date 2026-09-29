@@ -25,6 +25,7 @@ import {
     AlertCircle,
     Check
 } from "lucide-react";
+import { getLeadJourneyPayload } from "@/lib/client-tracker";
 import CategoryIcon from "@/components/category-icon";
 import { ScheduleItem } from "@/data/default-schedules";
 import { Course, Instructor } from "@/lib/types";
@@ -175,6 +176,8 @@ export default function ScheduleClient({
         const courseName = selectedScheduleForModal.courseName || (course ? course.name : selectedScheduleForModal.courseSlug);
 
         try {
+            const journeyPayload = getLeadJourneyPayload();
+
             const res = await fetch("/api/contact", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -185,6 +188,9 @@ export default function ScheduleClient({
                     course: `${courseName} - Lịch khai giảng ngày ${formatScheduleDate(selectedScheduleForModal.startDate)}`,
                     message: `[Đăng ký Lịch Khai Giảng] Ca học: ${selectedScheduleForModal.time} | Địa điểm: ${selectedScheduleForModal.location} | Lời nhắn: ${regMessage.trim() || "Muốn tư vấn giữ chỗ khóa học"}`,
                     honeypot: hpCompany,
+                    visitorId: journeyPayload.visitorId,
+                    firstSeenAt: journeyPayload.firstSeenAt,
+                    clientJourney: journeyPayload.journeyHistory
                 }),
             });
 

@@ -15,6 +15,7 @@ import {
     MessageSquare,
 } from "lucide-react";
 import { contactInfo } from "@/data/mock";
+import { getLeadJourneyPayload } from "@/lib/client-tracker";
 
 export default function ContactPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,12 +35,23 @@ export default function ContactPage() {
         const message = formData.get("message") as string;
 
         try {
+            const journeyPayload = getLeadJourneyPayload();
+
             const response = await fetch("/api/contact", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ name, phone, email, course, message }),
+                body: JSON.stringify({ 
+                    name, 
+                    phone, 
+                    email, 
+                    course, 
+                    message,
+                    visitorId: journeyPayload.visitorId,
+                    firstSeenAt: journeyPayload.firstSeenAt,
+                    clientJourney: journeyPayload.journeyHistory
+                }),
             });
 
             const data = await response.json();

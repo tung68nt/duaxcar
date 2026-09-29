@@ -54,6 +54,15 @@ export interface Registration {
     status: "pending" | "contacted" | "enrolled" | "cancelled";
     date: string;
     note?: string;
+    // Lead Journey & Analytics tracking
+    visitorId?: string;
+    ip?: string;
+    city?: string;
+    firstSeenAt?: string;
+    timeToConvertFormatted?: string;
+    journeySummary?: string;
+    viewedCourses?: { slug: string; name: string; viewCount: number }[];
+    viewedBlogs?: { slug: string; name: string; viewCount: number }[];
 }
 
 import { MediaItem } from './media-store';

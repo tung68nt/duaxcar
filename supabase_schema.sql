@@ -91,6 +91,55 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 7. Table: visitor_profiles (Lưu hồ sơ và dấu vết khách hàng tiềm năng)
+CREATE TABLE IF NOT EXISTS public.visitor_profiles (
+    id TEXT PRIMARY KEY,
+    visitor_id TEXT UNIQUE NOT NULL,
+    ip TEXT,
+    city TEXT,
+    country TEXT DEFAULT 'Việt Nam',
+    device TEXT DEFAULT 'desktop',
+    browser TEXT,
+    first_seen_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    last_seen_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    total_visits INTEGER DEFAULT 1,
+    session_count INTEGER DEFAULT 1,
+    first_referrer TEXT,
+    first_utm_source TEXT,
+    first_utm_campaign TEXT,
+    is_converted BOOLEAN DEFAULT FALSE,
+    converted_lead_id TEXT,
+    converted_at TIMESTAMP WITH TIME ZONE
+);
+
+-- 8. Table: analytics_pageviews (Lưu chi tiết từng lượt xem trang, khóa học, bài viết)
+CREATE TABLE IF NOT EXISTS public.analytics_pageviews (
+    id TEXT PRIMARY KEY,
+    visitor_id TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    ip TEXT,
+    city TEXT,
+    country TEXT DEFAULT 'Việt Nam',
+    path TEXT NOT NULL,
+    title TEXT NOT NULL,
+    page_type TEXT DEFAULT 'other',
+    target_slug TEXT,
+    target_name TEXT,
+    referrer TEXT,
+    utm_source TEXT,
+    utm_medium TEXT,
+    utm_campaign TEXT,
+    device TEXT DEFAULT 'desktop',
+    browser TEXT,
+    duration_seconds INTEGER DEFAULT 15,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Thêm các cột lưu vết vào bảng registrations nếu chưa có
+ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS visitor_id TEXT;
+ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS ip TEXT;
+ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS city TEXT;
+
 -- Enable RLS & Allow Public Access
 ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public Courses Access" ON public.courses;
@@ -115,3 +164,11 @@ CREATE POLICY "Public Registrations Access" ON public.registrations FOR ALL USIN
 ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public Settings Access" ON public.site_settings;
 CREATE POLICY "Public Settings Access" ON public.site_settings FOR ALL USING (true);
+
+ALTER TABLE public.visitor_profiles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public Visitor Profiles Access" ON public.visitor_profiles;
+CREATE POLICY "Public Visitor Profiles Access" ON public.visitor_profiles FOR ALL USING (true);
+
+ALTER TABLE public.analytics_pageviews ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public Analytics Access" ON public.analytics_pageviews;
+CREATE POLICY "Public Analytics Access" ON public.analytics_pageviews FOR ALL USING (true);

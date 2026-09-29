@@ -1,5 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { getLocalDB, saveLocalDB, Registration } from "@/lib/db";
+import { getVisitorJourney, markVisitorAsConverted } from "@/lib/analytics";
+import { normalizeCityName } from "@/lib/geo-ip";
 
 // In-Memory IP Rate Limiter for lead protection
 interface RateLimitRecord {
@@ -19,6 +21,10 @@ export interface LeadSubmissionPayload {
     message?: string;
     honeypot?: string; // Invisible anti-bot field
     ip?: string;
+    visitorId?: string;
+    city?: string;
+    firstSeenAt?: string;
+    clientJourney?: any;
 }
 
 export interface LeadProcessingResult {
@@ -171,6 +177,30 @@ export async function processLeadSubmission(payload: LeadSubmissionPayload): Pro
     const todayStr = new Date().toISOString().split("T")[0];
     const createdAtVn = new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
 
+    // --- ENRICH LEAD WITH JOURNEY & GEO DATA ---
+    const journeyData = getVisitorJourney(payload.visitorId, ip);
+    const city = normalizeCityName(payload.city || journeyData.city);
+    const firstSeenAt = payload.firstSeenAt || journeyData.firstSeenAt || new Date().toISOString();
+    const timeToConvertFormatted = journeyData.timeToConvertFormatted || "Đăng ký ngay trong phiên đầu";
+
+    const viewedCoursesList = journeyData.viewedCourses.map(c => ({
+        slug: c.slug,
+        name: c.name,
+        viewCount: c.viewCount
+    }));
+
+    const viewedBlogsList = journeyData.viewedBlogs.map(b => ({
+        slug: b.slug,
+        name: b.name,
+        viewCount: b.viewCount
+    }));
+
+    // Tóm tắt hành trình cho CSKH đọc nhanh
+    const coursesStr = viewedCoursesList.length > 0
+        ? `Đã xem: ${viewedCoursesList.map(c => `${c.name} (${c.viewCount}x)`).join(", ")}`
+        : "Chưa ghi nhận khóa học xem trước";
+    const journeySummary = `[${city}] • ${timeToConvertFormatted} • ${coursesStr}${journeyData.utmSummary ? ` • ${journeyData.utmSummary}` : ""}`;
+
     const newRegistration: Registration = {
         id: leadId,
         name,
@@ -179,7 +209,21 @@ export async function processLeadSubmission(payload: LeadSubmissionPayload): Pro
         courseName: course,
         status: "pending",
         date: todayStr,
+        note: message,
+        visitorId: payload.visitorId,
+        ip,
+        city,
+        firstSeenAt,
+        timeToConvertFormatted,
+        journeySummary,
+        viewedCourses: viewedCoursesList,
+        viewedBlogs: viewedBlogsList
     };
+
+    // Đánh dấu chuyển đổi thành công trong Analytics Store
+    if (payload.visitorId || ip) {
+        markVisitorAsConverted(payload.visitorId || ip, leadId);
+    }
 
     let persistedToSupabase = false;
     let persistedToLocalDB = false;
@@ -193,9 +237,12 @@ export async function processLeadSubmission(payload: LeadSubmissionPayload): Pro
             phone,
             email: email || "N/A",
             course_name: course,
-            note: message || null,
+            note: message ? `${message}\n\n[Hành trình]: ${journeySummary}` : `[Hành trình]: ${journeySummary}`,
             status: "pending",
             date: todayStr,
+            visitor_id: payload.visitorId || null,
+            ip: ip || null,
+            city: city || null,
         });
 
         if (!error) {

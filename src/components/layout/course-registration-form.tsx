@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Send, CheckCircle, Loader2, Play, HelpCircle } from "lucide-react";
+import { getLeadJourneyPayload } from "@/lib/client-tracker";
 
 type Props = {
     courseName: string;
@@ -28,6 +29,8 @@ export default function CourseRegistrationForm({ courseName, courseType = "onsit
         const note = formData.get("note") as string;
 
         try {
+            const journeyPayload = getLeadJourneyPayload();
+
             const response = await fetch("/api/contact", {
                 method: "POST",
                 headers: {
@@ -39,6 +42,9 @@ export default function CourseRegistrationForm({ courseName, courseType = "onsit
                     email,
                     course: `${courseName} (${isElearning ? "Hỏi đáp khóa Online" : "Đăng ký khóa Offline"})`,
                     note,
+                    visitorId: journeyPayload.visitorId,
+                    firstSeenAt: journeyPayload.firstSeenAt,
+                    clientJourney: journeyPayload.journeyHistory
                 }),
             });
 
