@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { getVisitorJourney } from "@/lib/analytics";
+import { getVisitorJourneyAsync } from "@/lib/analytics";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET(
     request: Request,
@@ -10,11 +13,15 @@ export async function GET(
         const url = new URL(request.url);
         const ip = url.searchParams.get("ip") || undefined;
 
-        const journey = getVisitorJourney(id, ip);
+        const journey = await getVisitorJourneyAsync(id, ip);
 
         return NextResponse.json({
             success: true,
             journey
+        }, {
+            headers: {
+                "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate"
+            }
         });
     } catch (error: any) {
         return NextResponse.json(

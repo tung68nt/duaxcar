@@ -64,6 +64,10 @@ export interface AnalyticsStore {
 const ANALYTICS_STORE_FILE = path.join(process.cwd(), "src", "data", "analytics-store.json");
 const MAX_STORED_PAGEVIEWS = 6000;
 
+let memoryCacheStore: AnalyticsStore | null = null;
+let lastCacheTimestamp = 0;
+const CACHE_TTL_MS = 3000; // 3 giây bộ nhớ đệm tránh spam queries
+
 /**
  * Khởi tạo dữ liệu sạch ban đầu (không mock data)
  * Dữ liệu được ghi nhận 100% từ lượt truy cập thực tế của người dùng
@@ -77,48 +81,127 @@ function createEmptyStore(): AnalyticsStore {
 }
 
 /**
- * Đọc toàn bộ Analytics Store từ file JSON
+ * Đọc toàn bộ Analytics Store từ bộ nhớ cache hoặc file JSON (Đồng bộ)
  */
 export function getAnalyticsStore(): AnalyticsStore {
-    try {
-        if (!fs.existsSync(ANALYTICS_STORE_FILE)) {
-            const emptyStore = createEmptyStore();
-            fs.mkdirSync(path.dirname(ANALYTICS_STORE_FILE), { recursive: true });
-            fs.writeFileSync(ANALYTICS_STORE_FILE, JSON.stringify(emptyStore, null, 2), "utf-8");
-            return emptyStore;
-        }
-
-        const raw = fs.readFileSync(ANALYTICS_STORE_FILE, "utf-8");
-        const parsed = JSON.parse(raw);
-        return {
-            pageviews: Array.isArray(parsed.pageviews) ? parsed.pageviews : [],
-            visitors: parsed.visitors || {},
-            lastUpdated: parsed.lastUpdated || new Date().toISOString()
-        };
-    } catch (err) {
-        console.error("[AnalyticsStore] Read error:", err);
-        return createEmptyStore();
+    if (memoryCacheStore) {
+        return memoryCacheStore;
     }
+    try {
+        if (fs.existsSync(ANALYTICS_STORE_FILE)) {
+            const raw = fs.readFileSync(ANALYTICS_STORE_FILE, "utf-8");
+            const parsed = JSON.parse(raw);
+            memoryCacheStore = {
+                pageviews: Array.isArray(parsed.pageviews) ? parsed.pageviews : [],
+                visitors: parsed.visitors || {},
+                lastUpdated: parsed.lastUpdated || new Date().toISOString()
+            };
+            return memoryCacheStore;
+        }
+    } catch (err) {
+        console.warn("[AnalyticsStore] Local read warning:", err);
+    }
+    return createEmptyStore();
 }
 
 /**
- * Lưu Analytics Store vào file JSON an toàn
+ * Đọc toàn bộ Analytics Store từ Supabase site_settings (Bất đồng bộ - Chuẩn Production Vercel)
  */
-export function saveAnalyticsStore(data: Partial<AnalyticsStore>) {
+export async function getAnalyticsStoreAsync(): Promise<AnalyticsStore> {
+    const now = Date.now();
+    if (memoryCacheStore && now - lastCacheTimestamp < CACHE_TTL_MS) {
+        return memoryCacheStore;
+    }
+
+    // 1. Ưu tiên đọc từ Supabase site_settings (Primary Production Store)
     try {
-        const current = getAnalyticsStore();
-        const merged: AnalyticsStore = {
-            pageviews: data.pageviews ? data.pageviews.slice(-MAX_STORED_PAGEVIEWS) : current.pageviews,
-            visitors: data.visitors ? { ...current.visitors, ...data.visitors } : current.visitors,
-            lastUpdated: new Date().toISOString()
-        };
+        const { data, error } = await supabase
+            .from("site_settings")
+            .select("data")
+            .eq("id", "analytics_store")
+            .single();
+
+        if (!error && data?.data) {
+            const parsed = data.data;
+            memoryCacheStore = {
+                pageviews: Array.isArray(parsed.pageviews) ? parsed.pageviews : [],
+                visitors: parsed.visitors || {},
+                lastUpdated: parsed.lastUpdated || new Date().toISOString()
+            };
+            lastCacheTimestamp = now;
+            return memoryCacheStore;
+        }
+    } catch (e) {
+        console.warn("[getAnalyticsStoreAsync] Supabase fetch warning:", e);
+    }
+
+    // 2. Fallback sang local JSON file (Localhost development)
+    const local = getAnalyticsStore();
+    memoryCacheStore = local;
+    lastCacheTimestamp = now;
+    return local;
+}
+
+/**
+ * Lưu Analytics Store lên Supabase site_settings & local file JSON (Bất đồng bộ - Production)
+ */
+export async function saveAnalyticsStoreAsync(data: Partial<AnalyticsStore>): Promise<AnalyticsStore> {
+    const current = await getAnalyticsStoreAsync();
+    const merged: AnalyticsStore = {
+        pageviews: data.pageviews ? data.pageviews.slice(-MAX_STORED_PAGEVIEWS) : current.pageviews,
+        visitors: data.visitors ? { ...current.visitors, ...data.visitors } : current.visitors,
+        lastUpdated: new Date().toISOString()
+    };
+
+    memoryCacheStore = merged;
+    lastCacheTimestamp = Date.now();
+
+    // 1. Lưu lên Supabase site_settings (Cơ sở dữ liệu vĩnh viễn trên Production)
+    try {
+        const { error } = await supabase.from("site_settings").upsert({
+            id: "analytics_store",
+            data: merged
+        });
+        if (error) {
+            console.error("[saveAnalyticsStoreAsync] Supabase upsert error:", error);
+        }
+    } catch (err) {
+        console.error("[saveAnalyticsStoreAsync] Supabase exception:", err);
+    }
+
+    // 2. Cố gắng ghi ra file cục bộ nếu có quyền ghi (chạy localhost)
+    try {
         fs.mkdirSync(path.dirname(ANALYTICS_STORE_FILE), { recursive: true });
         fs.writeFileSync(ANALYTICS_STORE_FILE, JSON.stringify(merged, null, 2), "utf-8");
-        return merged;
-    } catch (err) {
-        console.error("[AnalyticsStore] Write error:", err);
-        return null;
+    } catch {
+        // Trên Vercel serverless read-only filesystem, bỏ qua lỗi ghi file
     }
+
+    return merged;
+}
+
+/**
+ * Lưu Analytics Store an toàn (Hỗ trợ gọi đồng bộ)
+ */
+export function saveAnalyticsStore(data: Partial<AnalyticsStore>): AnalyticsStore {
+    const current = getAnalyticsStore();
+    const merged: AnalyticsStore = {
+        pageviews: data.pageviews ? data.pageviews.slice(-MAX_STORED_PAGEVIEWS) : current.pageviews,
+        visitors: data.visitors ? { ...current.visitors, ...data.visitors } : current.visitors,
+        lastUpdated: new Date().toISOString()
+    };
+    memoryCacheStore = merged;
+    lastCacheTimestamp = Date.now();
+
+    // Trigger lưu ngầm lên Supabase
+    saveAnalyticsStoreAsync(data).catch(() => {});
+
+    try {
+        fs.mkdirSync(path.dirname(ANALYTICS_STORE_FILE), { recursive: true });
+        fs.writeFileSync(ANALYTICS_STORE_FILE, JSON.stringify(merged, null, 2), "utf-8");
+    } catch {}
+
+    return merged;
 }
 
 /**
@@ -168,9 +251,9 @@ export async function recordPageview(payload: {
         durationSeconds: payload.durationSeconds || 15
     };
 
-    // 1. Cập nhật Local Store (Đảm bảo luôn nhanh và luôn lưu vết thành công)
+    // 1. Cập nhật Store (Primary: Supabase site_settings, Secondary: local)
     try {
-        const store = getAnalyticsStore();
+        const store = await getAnalyticsStoreAsync();
         const visitors = { ...store.visitors };
         const existingVisitor = visitors[payload.visitorId];
 
@@ -259,50 +342,23 @@ export async function recordPageview(payload: {
         }
 
         const newPageviews = [...store.pageviews, pageviewItem];
-        saveAnalyticsStore({
+        await saveAnalyticsStoreAsync({
             pageviews: newPageviews,
             visitors
         });
     } catch (e) {
-        console.warn("[recordPageview] Local store update warning:", e);
-    }
-
-    // 2. Đồng bộ ngầm lên Supabase (nếu bảng tồn tại)
-    try {
-        await supabase.from("analytics_pageviews").insert({
-            id: pvId,
-            visitor_id: payload.visitorId,
-            session_id: payload.sessionId,
-            ip: payload.ip,
-            city: payload.city,
-            country: payload.country,
-            path: payload.path,
-            title: payload.title,
-            page_type: payload.pageType,
-            target_slug: payload.targetSlug || null,
-            target_name: payload.targetName || null,
-            referrer: payload.referrer || null,
-            utm_source: payload.utmSource || null,
-            utm_medium: payload.utmMedium || null,
-            utm_campaign: payload.utmCampaign || null,
-            device: payload.device,
-            browser: payload.browser,
-            duration_seconds: payload.durationSeconds || 15,
-            created_at: nowIso
-        });
-    } catch {
-        // Supabase table may not exist yet, fallback to local store silently
+        console.warn("[recordPageview] Store update warning:", e);
     }
 
     return true;
 }
 
 /**
- * Đánh dấu Visitor đã gửi thông tin chuyển đổi thành công (Lead Conversion)
+ * Đánh dấu Visitor đã gửi thông tin chuyển đổi thành công (Lead Conversion) - Bất đồng bộ
  */
-export function markVisitorAsConverted(visitorIdOrIp: string, leadId: string) {
+export async function markVisitorAsConvertedAsync(visitorIdOrIp: string, leadId: string): Promise<void> {
     try {
-        const store = getAnalyticsStore();
+        const store = await getAnalyticsStoreAsync();
         const visitors = { ...store.visitors };
         const nowIso = new Date().toISOString();
 
@@ -323,17 +379,24 @@ export function markVisitorAsConverted(visitorIdOrIp: string, leadId: string) {
             targetVisitor.isConverted = true;
             targetVisitor.convertedLeadId = leadId;
             targetVisitor.convertedAt = nowIso;
-            saveAnalyticsStore({ visitors });
+            await saveAnalyticsStoreAsync({ visitors });
         }
     } catch (e) {
-        console.warn("[markVisitorAsConverted] Error:", e);
+        console.warn("[markVisitorAsConvertedAsync] Error:", e);
     }
+}
+
+/**
+ * Đánh dấu Visitor chuyển đổi (Wrapper đồng bộ)
+ */
+export function markVisitorAsConverted(visitorIdOrIp: string, leadId: string): void {
+    markVisitorAsConvertedAsync(visitorIdOrIp, leadId).catch(() => {});
 }
 
 /**
  * Tra cứu toàn bộ vết hành trình (Lead Journey) của một khách hàng
  */
-export function getVisitorJourney(visitorId?: string, ip?: string): {
+export function getVisitorJourney(visitorId?: string, ip?: string, storeParam?: AnalyticsStore): {
     found: boolean;
     visitor?: VisitorProfile;
     pageviews: PageviewItem[];
@@ -344,7 +407,7 @@ export function getVisitorJourney(visitorId?: string, ip?: string): {
     utmSummary?: string;
     city?: string;
 } {
-    const store = getAnalyticsStore();
+    const store = storeParam || getAnalyticsStore();
     let visitor: VisitorProfile | undefined = undefined;
 
     if (visitorId && store.visitors[visitorId]) {
@@ -404,6 +467,14 @@ export function getVisitorJourney(visitorId?: string, ip?: string): {
         utmSummary,
         city: visitor.city
     };
+}
+
+/**
+ * Tra cứu hành trình khách hàng từ Cloud Store (Bất đồng bộ)
+ */
+export async function getVisitorJourneyAsync(visitorId?: string, ip?: string) {
+    const store = await getAnalyticsStoreAsync();
+    return getVisitorJourney(visitorId, ip, store);
 }
 
 export interface GeoStatItem {
@@ -480,8 +551,8 @@ export interface AnalyticsDashboardStats {
 /**
  * Tổng hợp toàn bộ số liệu thống kê cho Admin Dashboard
  */
-export function getAnalyticsDashboard(range: "today" | "7d" | "30d" | "all" = "7d"): AnalyticsDashboardStats {
-    const store = getAnalyticsStore();
+export function getAnalyticsDashboard(range: "today" | "7d" | "30d" | "all" = "7d", storeParam?: AnalyticsStore): AnalyticsDashboardStats {
+    const store = storeParam || getAnalyticsStore();
     const now = new Date();
 
     // Xác định mốc thời gian lọc
@@ -785,4 +856,12 @@ export function getAnalyticsDashboard(range: "today" | "7d" | "30d" | "all" = "7
         },
         recentVisitors
     };
+}
+
+/**
+ * Tổng hợp toàn bộ số liệu thống kê từ Cloud Store (Bất đồng bộ - Chuẩn Production Vercel)
+ */
+export async function getAnalyticsDashboardAsync(range: "today" | "7d" | "30d" | "all" = "7d"): Promise<AnalyticsDashboardStats> {
+    const store = await getAnalyticsStoreAsync();
+    return getAnalyticsDashboard(range, store);
 }

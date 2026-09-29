@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { getAnalyticsStore, saveAnalyticsStore } from "@/lib/analytics";
+import { getAnalyticsStoreAsync, saveAnalyticsStoreAsync } from "@/lib/analytics";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
     try {
@@ -16,15 +18,19 @@ export async function POST(request: Request) {
 
         const { visitorId, path, durationSeconds } = body;
         if (visitorId && path && durationSeconds) {
-            const store = getAnalyticsStore();
+            const store = await getAnalyticsStoreAsync();
             // Cập nhật duration cho pageview gần nhất tương ứng
             const pvs = [...store.pageviews];
+            let found = false;
             for (let i = pvs.length - 1; i >= 0; i--) {
                 if (pvs[i].visitorId === visitorId && pvs[i].path === path) {
                     pvs[i].durationSeconds = Math.min(3600, (pvs[i].durationSeconds || 0) + Number(durationSeconds));
-                    saveAnalyticsStore({ pageviews: pvs });
+                    found = true;
                     break;
                 }
+            }
+            if (found) {
+                await saveAnalyticsStoreAsync({ pageviews: pvs });
             }
         }
 

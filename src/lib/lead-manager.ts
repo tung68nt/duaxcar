@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { getLocalDB, saveLocalDB, Registration } from "@/lib/db";
-import { getVisitorJourney, markVisitorAsConverted } from "@/lib/analytics";
+import { getVisitorJourney, getVisitorJourneyAsync, markVisitorAsConverted, markVisitorAsConvertedAsync } from "@/lib/analytics";
 import { normalizeCityName } from "@/lib/geo-ip";
 
 // In-Memory IP Rate Limiter for lead protection
@@ -178,7 +178,7 @@ export async function processLeadSubmission(payload: LeadSubmissionPayload): Pro
     const createdAtVn = new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
 
     // --- ENRICH LEAD WITH JOURNEY & GEO DATA ---
-    const journeyData = getVisitorJourney(payload.visitorId, ip);
+    const journeyData = await getVisitorJourneyAsync(payload.visitorId, ip);
     const city = normalizeCityName(payload.city || journeyData.city);
     const firstSeenAt = payload.firstSeenAt || journeyData.firstSeenAt || new Date().toISOString();
     const timeToConvertFormatted = journeyData.timeToConvertFormatted || "Đăng ký ngay trong phiên đầu";
@@ -222,7 +222,7 @@ export async function processLeadSubmission(payload: LeadSubmissionPayload): Pro
 
     // Đánh dấu chuyển đổi thành công trong Analytics Store
     if (payload.visitorId || ip) {
-        markVisitorAsConverted(payload.visitorId || ip, leadId);
+        await markVisitorAsConvertedAsync(payload.visitorId || ip, leadId);
     }
 
     let persistedToSupabase = false;

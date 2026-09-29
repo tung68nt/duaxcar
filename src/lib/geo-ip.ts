@@ -84,7 +84,12 @@ const geoCache = new Map<string, GeoInfo>();
 export function normalizeCityName(rawCity?: string | null, rawRegion?: string | null): string {
     if (!rawCity && !rawRegion) return "Không xác định";
 
-    const clean = (str: string) => str.toLowerCase().trim().replace(/^(tinh|tp|thanh pho)\s+/i, "");
+    const clean = (str: string) => {
+        try {
+            str = decodeURIComponent(str);
+        } catch {}
+        return str.toLowerCase().trim().replace(/^(tinh|tp|thanh pho)\s+/i, "");
+    };
 
     const cityKey = rawCity ? clean(rawCity) : "";
     const regionKey = rawRegion ? clean(rawRegion) : "";
