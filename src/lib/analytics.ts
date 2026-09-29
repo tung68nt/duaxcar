@@ -19,7 +19,11 @@ export interface PageviewItem {
     utmMedium?: string;
     utmCampaign?: string;
     device: "mobile" | "desktop" | "tablet";
+    deviceModel?: string; // Model máy cụ thể (iPhone 15 Pro, Samsung S24 Ultra, MacBook M3, PC Windows 11...)
+    os?: string; // Hệ điều hành (iOS 17.5, Android 14, Windows 11, macOS Sonoma...)
     browser: string;
+    screenResolution?: string;
+    hardwareSummary?: string;
     timestamp: string; // ISO String
     durationSeconds?: number;
 }
@@ -47,7 +51,11 @@ export interface VisitorProfile {
     firstUtmMedium?: string;
     firstUtmCampaign?: string;
     device: "mobile" | "desktop" | "tablet";
+    deviceModel?: string;
+    os?: string;
     browser: string;
+    screenResolution?: string;
+    hardwareSummary?: string;
     viewedCourses: ViewedEntity[];
     viewedBlogs: ViewedEntity[];
     isConverted: boolean; // Đã từng để lại thông tin / mua hàng
@@ -223,7 +231,11 @@ export async function recordPageview(payload: {
     utmMedium?: string;
     utmCampaign?: string;
     device: "mobile" | "desktop" | "tablet";
+    deviceModel?: string;
+    os?: string;
     browser: string;
+    screenResolution?: string;
+    hardwareSummary?: string;
     durationSeconds?: number;
 }): Promise<boolean> {
     const nowIso = new Date().toISOString();
@@ -246,7 +258,11 @@ export async function recordPageview(payload: {
         utmMedium: payload.utmMedium,
         utmCampaign: payload.utmCampaign,
         device: payload.device,
+        deviceModel: payload.deviceModel,
+        os: payload.os,
         browser: payload.browser,
+        screenResolution: payload.screenResolution,
+        hardwareSummary: payload.hardwareSummary,
         timestamp: nowIso,
         durationSeconds: payload.durationSeconds || 15
     };
@@ -273,7 +289,11 @@ export async function recordPageview(payload: {
                 firstUtmMedium: payload.utmMedium,
                 firstUtmCampaign: payload.utmCampaign,
                 device: payload.device,
+                deviceModel: payload.deviceModel,
+                os: payload.os,
                 browser: payload.browser,
+                screenResolution: payload.screenResolution,
+                hardwareSummary: payload.hardwareSummary,
                 viewedCourses: payload.pageType === "course" && payload.targetSlug ? [{
                     slug: payload.targetSlug,
                     name: payload.targetName || payload.title,
@@ -296,6 +316,12 @@ export async function recordPageview(payload: {
             // Khách quay lại -> Cập nhật thông tin và danh sách quan tâm
             existingVisitor.lastSeenAt = nowIso;
             existingVisitor.totalVisits += 1;
+            if (payload.deviceModel) existingVisitor.deviceModel = payload.deviceModel;
+            if (payload.os) existingVisitor.os = payload.os;
+            if (payload.browser) existingVisitor.browser = payload.browser;
+            if (payload.screenResolution) existingVisitor.screenResolution = payload.screenResolution;
+            if (payload.hardwareSummary) existingVisitor.hardwareSummary = payload.hardwareSummary;
+
             // Nếu có IP/City mới cập nhật thêm
             if (payload.city && payload.city !== "Không xác định") {
                 existingVisitor.city = payload.city;
@@ -518,6 +544,21 @@ export interface TrafficSourceItem {
     percentage: number;
 }
 
+export interface DeviceModelStatItem {
+    name: string; // e.g. "iPhone 15 Pro", "Samsung Galaxy S24 Ultra", "MacBook Apple M3", "PC Windows 11"
+    os: string;
+    type: "mobile" | "desktop" | "tablet";
+    visits: number;
+    percentage: number;
+}
+
+export interface OsStatItem {
+    name: string; // e.g. "iOS", "Android", "Windows", "macOS"
+    versionSummary: string;
+    visits: number;
+    percentage: number;
+}
+
 export interface AnalyticsDashboardStats {
     timeRange: "today" | "7d" | "30d" | "all";
     totalPageviews: number;
@@ -532,11 +573,18 @@ export interface AnalyticsDashboardStats {
     topBlogs: BlogStatItem[];
     trafficSources: TrafficSourceItem[];
     deviceStats: { mobile: number; desktop: number; tablet: number };
+    deviceModels: DeviceModelStatItem[];
+    osStats: OsStatItem[];
     recentVisitors: {
         visitorId: string;
         ip: string;
         city: string;
         device: string;
+        deviceModel?: string;
+        os?: string;
+        browser?: string;
+        screenResolution?: string;
+        hardwareSummary?: string;
         lastSeenAt: string;
         firstSeenAt: string;
         daysSinceFirstVisit: number;
@@ -782,15 +830,60 @@ export function getAnalyticsDashboard(range: "today" | "7d" | "30d" | "all" = "7
         }))
         .sort((a, b) => b.visits - a.visits);
 
-    // --- 6. THỐNG KÊ THIẾT BỊ ---
+    // --- 6. THỐNG KÊ THIẾT BỊ, MODEL VÀ HỆ ĐIỀU HÀNH CHI TIẾT ---
     let mobileCount = 0;
     let desktopCount = 0;
     let tabletCount = 0;
+    const modelMap: Record<string, { visits: number; os: string; type: "mobile" | "desktop" | "tablet" }> = {};
+    const osMap: Record<string, { visits: number; versions: Set<string> }> = {};
+
     for (const pv of filteredPvs) {
         if (pv.device === "mobile") mobileCount++;
         else if (pv.device === "tablet") tabletCount++;
         else desktopCount++;
+
+        // Model Map
+        const modelName = pv.deviceModel || (pv.device === "mobile" ? "Điện thoại thông minh" : pv.device === "tablet" ? "Máy tính bảng" : "Máy tính để bàn (PC)");
+        const osName = pv.os || (pv.device === "mobile" ? "Mobile OS" : "Desktop OS");
+        if (!modelMap[modelName]) {
+            modelMap[modelName] = { visits: 0, os: osName, type: pv.device || "desktop" };
+        }
+        modelMap[modelName].visits += 1;
+
+        // Nhóm hệ điều hành (iOS, Android, Windows, macOS, Linux...)
+        let groupOs = "Khác";
+        if (/iOS/i.test(osName)) groupOs = "iOS (Apple)";
+        else if (/Android/i.test(osName)) groupOs = "Android";
+        else if (/Windows/i.test(osName)) groupOs = "Windows PC";
+        else if (/macOS|Mac/i.test(osName)) groupOs = "macOS (Apple Mac)";
+        else if (/Linux/i.test(osName)) groupOs = "Linux";
+
+        if (!osMap[groupOs]) {
+            osMap[groupOs] = { visits: 0, versions: new Set() };
+        }
+        osMap[groupOs].visits += 1;
+        if (pv.os) osMap[groupOs].versions.add(pv.os);
     }
+
+    const deviceModels: DeviceModelStatItem[] = Object.entries(modelMap)
+        .map(([name, item]) => ({
+            name,
+            os: item.os,
+            type: item.type,
+            visits: item.visits,
+            percentage: totalPageviews > 0 ? Number(((item.visits / totalPageviews) * 100).toFixed(1)) : 0
+        }))
+        .sort((a, b) => b.visits - a.visits)
+        .slice(0, 15);
+
+    const osStats: OsStatItem[] = Object.entries(osMap)
+        .map(([name, item]) => ({
+            name,
+            versionSummary: Array.from(item.versions).slice(0, 3).join(", ") || name,
+            visits: item.visits,
+            percentage: totalPageviews > 0 ? Number(((item.visits / totalPageviews) * 100).toFixed(1)) : 0
+        }))
+        .sort((a, b) => b.visits - a.visits);
 
     // --- 7. DANH SÁCH KHÁCH HÀNG TIỀM NĂNG GẦN ĐÂY (LIVE VISITOR FEED) ---
     const recentVisitors = Object.values(store.visitors)
@@ -810,6 +903,11 @@ export function getAnalyticsDashboard(range: "today" | "7d" | "30d" | "all" = "7
                 ip: v.ip,
                 city: v.city,
                 device: v.device,
+                deviceModel: v.deviceModel || (v.device === "mobile" ? "Điện thoại" : "Máy tính"),
+                os: v.os || (v.device === "mobile" ? "iOS / Android" : "Windows / macOS"),
+                browser: v.browser,
+                screenResolution: v.screenResolution,
+                hardwareSummary: v.hardwareSummary || `${v.deviceModel || v.device} • ${v.os || ""}`,
                 lastSeenAt: v.lastSeenAt,
                 firstSeenAt: v.firstSeenAt,
                 daysSinceFirstVisit,
@@ -854,6 +952,8 @@ export function getAnalyticsDashboard(range: "today" | "7d" | "30d" | "all" = "7
             desktop: desktopCount,
             tablet: tabletCount
         },
+        deviceModels,
+        osStats,
         recentVisitors
     };
 }

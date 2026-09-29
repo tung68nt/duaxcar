@@ -101,10 +101,10 @@ export default function AdminAnalyticsPage() {
                         </div>
                         <div>
                             <h1 className="text-xl sm:text-2xl font-bold font-heading text-[var(--color-text)]">
-                                Thống Kê Truy Cập & Vết Khách Hàng
+                                Thống Kê Truy Cập
                             </h1>
                             <p className="text-xs sm:text-sm text-[var(--color-text-secondary)]">
-                                Theo dõi chi tiết hành vi khách tiềm năng, định vị tỉnh thành và tối ưu chiến dịch quảng cáo
+                                Theo dõi chi tiết lưu lượng truy cập, phân tích thiết bị phần cứng, định vị tỉnh thành và tối ưu quảng cáo
                             </p>
                         </div>
                     </div>
@@ -632,28 +632,32 @@ export default function AdminAnalyticsPage() {
                     </div>
                 </div>
 
-                {/* Tỉ lệ thiết bị */}
+                {/* Phân tích thiết bị chi tiết */}
                 <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-6 shadow-sm flex flex-col justify-between">
                     <div>
-                        <h2 className="text-base font-bold font-heading text-[var(--color-text)] mb-1">
-                            Thiết Bị Khách Dùng
-                        </h2>
+                        <div className="flex items-center justify-between mb-1">
+                            <h2 className="text-base font-bold font-heading text-[var(--color-text)]">
+                                Thiết Bị & Hệ Điều Hành
+                            </h2>
+                            <span className="text-[11px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 font-semibold border border-amber-500/20">
+                                Chi tiết phần cứng
+                            </span>
+                        </div>
                         <p className="text-xs text-[var(--color-text-secondary)] mb-5">
-                            Tỉ lệ truy cập qua Smartphone so với Máy tính
+                            Phân tích chi tiết iOS / Android, model điện thoại và máy tính
                         </p>
 
-                        <div className="space-y-4">
-                            <div>
-                                <div className="flex items-center justify-between text-xs mb-1.5">
-                                    <span className="flex items-center gap-2 text-[var(--color-text)] font-semibold">
-                                        <Smartphone className="w-4 h-4 text-amber-500" />
-                                        <span>Điện thoại di động (Mobile)</span>
-                                    </span>
-                                    <span className="font-bold text-[var(--color-text)]">
-                                        {data?.deviceStats ? Math.round((data.deviceStats.mobile / ((data.deviceStats.mobile + data.deviceStats.desktop || 1))) * 100) : 0}%
-                                    </span>
+                        {/* Tổng quan Tỉ lệ Mobile vs Desktop */}
+                        <div className="grid grid-cols-2 gap-3 mb-5">
+                            <div className="p-3 rounded-xl bg-[var(--color-surface-light)] border border-[var(--color-border)]">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Smartphone className="w-4 h-4 text-amber-500" />
+                                    <span className="text-xs font-semibold text-[var(--color-text)]">Di động</span>
                                 </div>
-                                <div className="h-2 rounded-full bg-[var(--color-surface-light)] overflow-hidden">
+                                <div className="text-lg font-bold text-[var(--color-text)]">
+                                    {data?.deviceStats ? Math.round((data.deviceStats.mobile / ((data.deviceStats.mobile + data.deviceStats.desktop || 1))) * 100) : 0}%
+                                </div>
+                                <div className="h-1.5 rounded-full bg-[var(--color-border)] overflow-hidden mt-1.5">
                                     <div 
                                         style={{ width: `${data?.deviceStats ? Math.round((data.deviceStats.mobile / ((data.deviceStats.mobile + data.deviceStats.desktop || 1))) * 100) : 0}%` }}
                                         className="h-full bg-amber-500 rounded-full"
@@ -661,17 +665,15 @@ export default function AdminAnalyticsPage() {
                                 </div>
                             </div>
 
-                            <div>
-                                <div className="flex items-center justify-between text-xs mb-1.5">
-                                    <span className="flex items-center gap-2 text-[var(--color-text)] font-semibold">
-                                        <Monitor className="w-4 h-4 text-blue-500" />
-                                        <span>Máy tính / Laptop (Desktop)</span>
-                                    </span>
-                                    <span className="font-bold text-[var(--color-text)]">
-                                        {data?.deviceStats ? Math.round((data.deviceStats.desktop / ((data.deviceStats.mobile + data.deviceStats.desktop || 1))) * 100) : 0}%
-                                    </span>
+                            <div className="p-3 rounded-xl bg-[var(--color-surface-light)] border border-[var(--color-border)]">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Monitor className="w-4 h-4 text-blue-500" />
+                                    <span className="text-xs font-semibold text-[var(--color-text)]">Máy tính</span>
                                 </div>
-                                <div className="h-2 rounded-full bg-[var(--color-surface-light)] overflow-hidden">
+                                <div className="text-lg font-bold text-[var(--color-text)]">
+                                    {data?.deviceStats ? Math.round((data.deviceStats.desktop / ((data.deviceStats.mobile + data.deviceStats.desktop || 1))) * 100) : 0}%
+                                </div>
+                                <div className="h-1.5 rounded-full bg-[var(--color-border)] overflow-hidden mt-1.5">
                                     <div 
                                         style={{ width: `${data?.deviceStats ? Math.round((data.deviceStats.desktop / ((data.deviceStats.mobile + data.deviceStats.desktop || 1))) * 100) : 0}%` }}
                                         className="h-full bg-blue-500 rounded-full"
@@ -679,10 +681,45 @@ export default function AdminAnalyticsPage() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Top Model Máy (iPhone, Samsung, MacBook, PC Windows...) */}
+                        <div>
+                            <div className="text-xs font-bold text-[var(--color-text-secondary)] mb-2 flex items-center justify-between">
+                                <span>Model máy & Hệ điều hành ghi nhận:</span>
+                                <span className="text-[10px] text-[var(--color-text-muted)]">{data?.deviceModels?.length || 0} thiết bị</span>
+                            </div>
+                            <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                                {data?.deviceModels && data.deviceModels.length > 0 ? (
+                                    data.deviceModels.map((m, idx) => (
+                                        <div key={idx} className="flex items-center justify-between text-xs p-2 rounded-lg bg-[var(--color-surface-light)]/60 border border-[var(--color-border)]">
+                                            <div className="flex items-center gap-2 min-w-0 pr-2">
+                                                {m.type === "mobile" ? (
+                                                    <Smartphone className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                                ) : m.type === "tablet" ? (
+                                                    <Smartphone className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                                                ) : (
+                                                    <Monitor className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                                                )}
+                                                <div className="truncate">
+                                                    <div className="font-semibold text-[var(--color-text)] truncate">{m.name}</div>
+                                                    <div className="text-[10px] text-[var(--color-text-muted)]">{m.os}</div>
+                                                </div>
+                                            </div>
+                                            <div className="text-right shrink-0">
+                                                <div className="font-bold text-[var(--color-text)]">{m.visits} lượt</div>
+                                                <div className="text-[10px] text-[var(--color-text-muted)]">{m.percentage}%</div>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-xs text-[var(--color-text-muted)] py-2 text-center">Đang chờ lượt truy cập mới để nhận diện model...</p>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-700 mt-6">
-                        <strong>Lưu ý CSKH:</strong> Học viên nấu ăn hầu hết lướt Facebook trên điện thoại, hãy chuẩn bị kịch bản tư vấn Zalo & gọi điện thân thiện, trực tiếp.
+                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-700 mt-4">
+                        <strong>Gợi ý kinh doanh:</strong> Nắm rõ học viên đang dùng iPhone hay Android, phân khúc máy để tư vấn gói khóa học và canh chỉnh giao diện di động trực quan nhất.
                     </div>
                 </div>
             </div>
@@ -705,7 +742,7 @@ export default function AdminAnalyticsPage() {
                     <table className="w-full text-left text-xs">
                         <thead className="bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] font-semibold border-b border-[var(--color-border)]">
                             <tr>
-                                <th className="py-2.5 px-3">IP / Khách truy cập</th>
+                                <th className="py-2.5 px-3">Thiết bị & IP truy cập</th>
                                 <th className="py-2.5 px-3">Tỉnh thành</th>
                                 <th className="py-2.5 px-3">Thời gian tiếp cận</th>
                                 <th className="py-2.5 px-3">Khóa học quan tâm</th>
@@ -718,12 +755,22 @@ export default function AdminAnalyticsPage() {
                                 data.recentVisitors.map((v, idx) => (
                                     <tr key={idx} className="hover:bg-[var(--color-surface-light)]/50 transition-colors">
                                         <td className="py-3 px-3">
-                                            <div className="font-mono text-xs font-semibold text-[var(--color-text)]">
-                                                {v.ip}
+                                            <div className="font-semibold text-xs text-[var(--color-text)] flex items-center gap-1.5">
+                                                {v.device === "mobile" ? (
+                                                    <Smartphone className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                                ) : (
+                                                    <Monitor className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                                                )}
+                                                <span className="truncate max-w-[200px]" title={v.deviceModel || v.device}>
+                                                    {v.deviceModel || (v.device === "mobile" ? "Điện thoại" : "Máy tính")}
+                                                </span>
                                             </div>
-                                            <span className="text-[10px] text-[var(--color-text-muted)]">
-                                                {v.device === "mobile" ? "📱 Di động" : "💻 Máy tính"}
-                                            </span>
+                                            <div className="text-[10px] text-[var(--color-text-secondary)] flex items-center gap-1.5 flex-wrap mt-0.5">
+                                                <span className="font-mono bg-[var(--color-surface-light)] px-1 py-0.5 rounded">{v.ip}</span>
+                                                {v.os && <span className="text-emerald-700 font-medium">• {v.os}</span>}
+                                                {v.browser && <span>• {v.browser}</span>}
+                                                {v.screenResolution && <span className="opacity-70">({v.screenResolution})</span>}
+                                            </div>
                                         </td>
                                         <td className="py-3 px-3">
                                             <span className="px-2 py-0.5 rounded-md bg-[var(--color-surface-light)] border border-[var(--color-border)] font-medium text-[var(--color-text)]">
@@ -791,7 +838,7 @@ export default function AdminAnalyticsPage() {
                                     <span>Hành Trình Khách Hàng (Customer Journey)</span>
                                 </h3>
                                 <p className="text-xs text-[var(--color-text-secondary)]">
-                                    Hồ sơ lưu vết đầy đủ từ lúc khách lần đầu ghé thăm đến các khóa học đã xem
+                                    Hồ sơ chi tiết từ lúc khách lần đầu ghé thăm đến các khóa học đã xem
                                 </p>
                             </div>
                             <button
@@ -833,6 +880,34 @@ export default function AdminAnalyticsPage() {
                                                 {visitorJourneyData.timeToConvertFormatted || "Mới tiếp cận"}
                                             </span>
                                         </div>
+                                    </div>
+
+                                    {/* Chi tiết thiết bị phần cứng & hệ điều hành */}
+                                    <div className="p-3.5 rounded-xl bg-blue-500/5 border border-blue-500/20 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
+                                                {visitorJourneyData.visitor?.device === "mobile" ? <Smartphone className="w-5 h-5" /> : <Monitor className="w-5 h-5" />}
+                                            </div>
+                                            <div>
+                                                <div className="font-bold text-[var(--color-text)]">
+                                                    {visitorJourneyData.visitor?.deviceModel || (visitorJourneyData.visitor?.device === "mobile" ? "Điện thoại thông minh" : "Máy tính để bàn")}
+                                                </div>
+                                                <div className="text-[11px] text-[var(--color-text-secondary)] mt-0.5 flex items-center gap-2 flex-wrap">
+                                                    <span>Hệ điều hành: <strong>{visitorJourneyData.visitor?.os || "N/A"}</strong></span>
+                                                    <span>•</span>
+                                                    <span>Trình duyệt: <strong>{visitorJourneyData.visitor?.browser || "N/A"}</strong></span>
+                                                    {visitorJourneyData.visitor?.screenResolution && (
+                                                        <>
+                                                            <span>•</span>
+                                                            <span>Màn hình: {visitorJourneyData.visitor?.screenResolution}</span>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span className="px-2.5 py-1 rounded-md bg-[var(--color-surface)] border border-[var(--color-border)] text-[11px] font-semibold text-[var(--color-text)] shrink-0 self-start sm:self-auto">
+                                            {visitorJourneyData.visitor?.device === "mobile" ? "📱 Mobile Client" : "💻 Desktop Client"}
+                                        </span>
                                     </div>
 
                                     {/* Khóa học đã xem */}

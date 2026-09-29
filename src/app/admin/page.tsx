@@ -232,7 +232,7 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                         <h4 className="font-heading font-bold text-sm text-[var(--color-text)]">
-                            Bộ Đếm Lượt Xem & Lưu Vết Khách Hàng Tiềm Năng
+                            Thống Kê Truy Cập & Hành Trình Học Viên
                         </h4>
                         <p className="text-xs text-[var(--color-text-secondary)]">
                             {stats.topCity ? (

@@ -111,7 +111,7 @@ export default function AdminLayout({
 
     const menuItems = [
         { label: "Tổng quan", href: "/admin", icon: LayoutDashboard },
-        { label: "Thống kê & Vết khách", href: "/admin/analytics", icon: TrendingUp },
+        { label: "Thống kê truy cập", href: "/admin/analytics", icon: TrendingUp },
         { label: "Khóa học (CMS)", href: "/admin/khoa-hoc", icon: BookOpen },
         { label: "Lịch khai giảng (CMS)", href: "/admin/lich-khai-giang", icon: Calendar },
         { label: "Bài viết (CMS)", href: "/admin/tin-tuc", icon: FileText },

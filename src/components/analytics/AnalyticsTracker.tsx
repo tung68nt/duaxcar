@@ -43,36 +43,7 @@ function parsePageContext(pathname: string): {
     return { pageType: "other" };
 }
 
-/**
- * Đoán thiết bị client
- */
-function detectDeviceType(): "mobile" | "desktop" | "tablet" {
-    if (typeof window === "undefined") return "desktop";
-    const ua = navigator.userAgent.toLowerCase();
-    if (/tablet|ipad|playbook|silk/i.test(ua)) {
-        return "tablet";
-    }
-    if (/mobile|iphone|android|ipod|blackberry|opera mini|iemobile/i.test(ua)) {
-        return "mobile";
-    }
-    return "desktop";
-}
-
-/**
- * Đoán trình duyệt client
- */
-function detectBrowser(): string {
-    if (typeof window === "undefined") return "Unknown";
-    const ua = navigator.userAgent;
-    if (ua.includes("Zalo")) return "Zalo App";
-    if (ua.includes("FBAN") || ua.includes("FBAV")) return "Facebook App";
-    if (ua.includes("TikTok")) return "TikTok App";
-    if (ua.includes("Chrome") && !ua.includes("Edg")) return "Chrome";
-    if (ua.includes("Safari") && !ua.includes("Chrome")) return "Safari";
-    if (ua.includes("Edg")) return "Edge";
-    if (ua.includes("Firefox")) return "Firefox";
-    return "Other";
-}
+import { getDetailedDeviceInfo } from "@/lib/device-detector";
 
 export default function AnalyticsTracker() {
     const pathname = usePathname();
@@ -114,7 +85,10 @@ export default function AnalyticsTracker() {
             timestamp: new Date().toISOString()
         });
 
-        // 5. Gửi sự kiện tracking lên Server
+        // 5. Thu thập thông tin chi tiết phần cứng & hệ điều hành (Mobile iOS/Android Model, PC/Mac)
+        const deviceInfo = getDetailedDeviceInfo();
+
+        // 6. Gửi sự kiện tracking lên Server
         const trackPayload = {
             visitorId,
             sessionId,
@@ -126,8 +100,12 @@ export default function AnalyticsTracker() {
             utmSource: utmParams.source,
             utmMedium: utmParams.medium,
             utmCampaign: utmParams.campaign,
-            device: detectDeviceType(),
-            browser: detectBrowser()
+            device: deviceInfo.deviceType,
+            deviceModel: deviceInfo.deviceModel,
+            os: deviceInfo.os,
+            browser: deviceInfo.browser,
+            screenResolution: deviceInfo.screenResolution,
+            hardwareSummary: deviceInfo.hardwareSummary
         };
 
         // Dùng non-blocking fetch không làm chậm giao diện

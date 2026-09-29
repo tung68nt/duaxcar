@@ -29,7 +29,11 @@ export async function POST(request: Request) {
             utmMedium: body.utmMedium,
             utmCampaign: body.utmCampaign,
             device: body.device || "desktop",
+            deviceModel: body.deviceModel,
+            os: body.os,
             browser: body.browser || "Unknown",
+            screenResolution: body.screenResolution,
+            hardwareSummary: body.hardwareSummary,
             durationSeconds: 15
         });
 

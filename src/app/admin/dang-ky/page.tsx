@@ -200,10 +200,10 @@ export default function AdminRegistrations() {
                 <div>
                     <h1 className="heading-3 text-[var(--color-text)] flex items-center gap-2">
                         <Users className="w-6 h-6 text-[var(--color-primary)]" />
-                        <span>Quản Lý Đăng Ký Học & Lưu Vết Khách Hàng</span>
+                        <span>Quản Lý Đăng Ký Học & Hành Trình Học Viên</span>
                     </h1>
                     <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
-                        Theo dõi danh sách học viên, xem vết hành trình tiếp cận website và tỉnh thành để CSKH chốt đơn hiệu quả
+                        Theo dõi danh sách học viên, xem hành trình tìm hiểu website và tỉnh thành để CSKH hiệu quả
                     </p>
                 </div>
 
