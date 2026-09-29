@@ -348,14 +348,14 @@ export default function AdminAnalyticsPage() {
 
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
-                            <thead className="bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] uppercase tracking-wider font-semibold border-b border-[var(--color-border)]">
+                            <thead className="bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] font-semibold border-b border-[var(--color-border)]">
                                 <tr>
-                                    <th className="py-2.5 px-3">Tỉnh / Thành Phố</th>
-                                    <th className="py-2.5 px-3">Lượt Xem</th>
-                                    <th className="py-2.5 px-3">Số Khách</th>
-                                    <th className="py-2.5 px-3">Đăng Ký Học</th>
-                                    <th className="py-2.5 px-3">Tỷ Lệ Chốt (%)</th>
-                                    <th className="py-2.5 px-3 text-right">Tiềm Năng Quảng Cáo</th>
+                                    <th className="py-2.5 px-3">Tỉnh / thành phố</th>
+                                    <th className="py-2.5 px-3">Lượt xem</th>
+                                    <th className="py-2.5 px-3">Số khách</th>
+                                    <th className="py-2.5 px-3">Đăng ký học</th>
+                                    <th className="py-2.5 px-3">Tỷ lệ chốt (%)</th>
+                                    <th className="py-2.5 px-3 text-right">Tiềm năng quảng cáo</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--color-border)]">
@@ -703,14 +703,14 @@ export default function AdminAnalyticsPage() {
 
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
-                        <thead className="bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] uppercase tracking-wider font-semibold border-b border-[var(--color-border)]">
+                        <thead className="bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] font-semibold border-b border-[var(--color-border)]">
                             <tr>
-                                <th className="py-2.5 px-3">IP / Visitor</th>
-                                <th className="py-2.5 px-3">Tỉnh Thành</th>
-                                <th className="py-2.5 px-3">Thời Gian Đã Tiếp Cận</th>
-                                <th className="py-2.5 px-3">Khóa Học Đang Để Mắt</th>
-                                <th className="py-2.5 px-3">Trạng Thái</th>
-                                <th className="py-2.5 px-3 text-right">Hành Trình</th>
+                                <th className="py-2.5 px-3">IP / Khách truy cập</th>
+                                <th className="py-2.5 px-3">Tỉnh thành</th>
+                                <th className="py-2.5 px-3">Thời gian tiếp cận</th>
+                                <th className="py-2.5 px-3">Khóa học quan tâm</th>
+                                <th className="py-2.5 px-3">Trạng thái</th>
+                                <th className="py-2.5 px-3 text-right">Hành trình</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--color-border)]">
@@ -837,9 +837,9 @@ export default function AdminAnalyticsPage() {
 
                                     {/* Khóa học đã xem */}
                                     <div>
-                                        <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2.5 flex items-center gap-1.5">
+                                        <h4 className="text-xs font-bold text-[var(--color-text-secondary)] mb-2.5 flex items-center gap-1.5">
                                             <BookOpen className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                                            <span>Các Khóa Học Đã Xem ({visitorJourneyData.viewedCourses?.length || 0})</span>
+                                            <span>Các khóa học đã xem ({visitorJourneyData.viewedCourses?.length || 0})</span>
                                         </h4>
                                         {visitorJourneyData.viewedCourses && visitorJourneyData.viewedCourses.length > 0 ? (
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -860,9 +860,9 @@ export default function AdminAnalyticsPage() {
                                     {/* Bài viết đã đọc */}
                                     {visitorJourneyData.viewedBlogs && visitorJourneyData.viewedBlogs.length > 0 && (
                                         <div>
-                                            <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2.5 flex items-center gap-1.5">
+                                            <h4 className="text-xs font-bold text-[var(--color-text-secondary)] mb-2.5 flex items-center gap-1.5">
                                                 <FileText className="w-3.5 h-3.5 text-blue-500" />
-                                                <span>Bài Viết Tin Tức Đã Đọc</span>
+                                                <span>Bài viết tin tức đã đọc</span>
                                             </h4>
                                             <div className="space-y-1.5">
                                                 {visitorJourneyData.viewedBlogs.map((b: any, i: number) => (
@@ -877,9 +877,9 @@ export default function AdminAnalyticsPage() {
 
                                     {/* Timeline Chi Tiết Từng Lượt Xem */}
                                     <div>
-                                        <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-3 flex items-center gap-1.5">
+                                        <h4 className="text-xs font-bold text-[var(--color-text-secondary)] mb-3 flex items-center gap-1.5">
                                             <Clock className="w-3.5 h-3.5 text-emerald-500" />
-                                            <span>Timeline Chuỗi Hành Động Chi Tiết</span>
+                                            <span>Chuỗi hành động chi tiết (Timeline)</span>
                                         </h4>
                                         <div className="relative pl-6 space-y-4 before:content-[''] before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[var(--color-border)]">
                                             {visitorJourneyData.pageviews && visitorJourneyData.pageviews.length > 0 ? (

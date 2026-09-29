@@ -469,9 +469,9 @@ export default function AdminRegistrations() {
 
                             {/* Các Khóa Học Khách Đã Tìm Hiểu Trước Khi Mua */}
                             <div>
-                                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2.5 flex items-center gap-1.5">
+                                <h4 className="text-xs font-bold text-[var(--color-text-secondary)] mb-2.5 flex items-center gap-1.5">
                                     <BookOpen className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-                                    <span>Các Khóa Học Đã Xem ({selectedLead.viewedCourses?.length || 0})</span>
+                                    <span>Các khóa học đã xem ({selectedLead.viewedCourses?.length || 0})</span>
                                 </h4>
                                 {selectedLead.viewedCourses && selectedLead.viewedCourses.length > 0 ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -491,9 +491,9 @@ export default function AdminRegistrations() {
 
                             {/* Timeline Lịch Sử Duyệt Trang */}
                             <div>
-                                <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-3 flex items-center gap-1.5">
+                                <h4 className="text-xs font-bold text-[var(--color-text-secondary)] mb-3 flex items-center gap-1.5">
                                     <Clock className="w-3.5 h-3.5 text-blue-500" />
-                                    <span>Lịch Sử Chuỗi Trang Đã Xem (Timeline)</span>
+                                    <span>Chuỗi hành động chi tiết (Timeline)</span>
                                 </h4>
                                 {isLoadingJourney ? (
                                     <div className="py-6 flex items-center justify-center gap-2 text-xs text-[var(--color-text-muted)]">
