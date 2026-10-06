@@ -37,8 +37,10 @@ function getWebGlRenderer(): string {
 
 /**
  * Phân tích model iPhone / iPad dựa trên Screen Dimensions + Pixel Ratio + GPU
+/**
+ * Phân tích model iPhone / iPad dựa trên Screen Dimensions + Pixel Ratio + GPU + iOS Version
  */
-function detectAppleDeviceModel(gpu: string): { model: string; type: "mobile" | "tablet" } {
+function detectAppleDeviceModel(gpu: string, os: string = ""): { model: string; type: "mobile" | "tablet" } {
     if (typeof window === "undefined") return { model: "Apple Device", type: "mobile" };
 
     const w = Math.min(window.screen.width, window.screen.height);
@@ -58,45 +60,75 @@ function detectAppleDeviceModel(gpu: string): { model: string; type: "mobile" | 
         return { model: "Apple iPad", type: "tablet" };
     }
 
+    // Đọc phiên bản iOS lớn nhất
+    const iosMatch = os.match(/iOS\s*(\d+)/i) || navigator.userAgent.match(/OS\s*(\d+)/i);
+    const iosMajor = iosMatch ? parseInt(iosMatch[1], 10) : 0;
+
     // iPhone Generations
-    // iPhone 16 Series
-    if (sw === 1320 && sh === 2868) return { model: "iPhone 16 Pro Max", type: "mobile" };
-    if (sw === 1206 && sh === 2622) return { model: "iPhone 16 Pro", type: "mobile" };
+    // 1. iPhone 16 Series (Màn hình 6.3" và 6.9" viền siêu mỏng mới)
+    if ((sw === 1320 && sh === 2868) || (w === 440 && h === 956)) return { model: "iPhone 16 Pro Max", type: "mobile" };
+    if ((sw === 1206 && sh === 2622) || (w === 402 && h === 874)) return { model: "iPhone 16 Pro", type: "mobile" };
 
-    // iPhone 15 / 14 Series
-    if (sw === 1290 && sh === 2796) {
+    // 2. iPhone 15 / 14 Pro Series (Màn hình Dynamic Island)
+    if ((sw === 1290 && sh === 2796) || (w === 430 && h === 932)) {
         if (/A17|A18/i.test(gpu)) return { model: "iPhone 15 Pro Max", type: "mobile" };
-        return { model: "iPhone 14 Pro Max / 15 Plus", type: "mobile" };
+        return { model: "iPhone 15 Pro Max / 14 Pro Max", type: "mobile" };
     }
-    if (sw === 1179 && sh === 2556) {
+    if ((sw === 1179 && sh === 2556) || (w === 393 && h === 852)) {
         if (/A17|A18/i.test(gpu)) return { model: "iPhone 15 Pro", type: "mobile" };
-        return { model: "iPhone 14 Pro / 15", type: "mobile" };
+        return { model: "iPhone 15 / 14 Pro", type: "mobile" };
     }
 
-    // iPhone 13 / 12 Series
-    if (sw === 1284 && sh === 2778) return { model: "iPhone 14 Plus / 13 Pro Max", type: "mobile" };
-    if (sw === 1170 && sh === 2532) {
+    // 3. iPhone 14 Plus / 13 Pro Max (428 x 926 pt)
+    if ((sw === 1284 && sh === 2778) || (w === 428 && h === 926)) {
+        return { model: "iPhone 14 Plus / 13 Pro Max", type: "mobile" };
+    }
+
+    // 4. iPhone 14 / 13 / 12 Series (390 x 844 pt)
+    if ((sw === 1170 && sh === 2532) || (w === 390 && h === 844)) {
         if (/A15/i.test(gpu)) return { model: "iPhone 14 / 13", type: "mobile" };
-        return { model: "iPhone 12 / 12 Pro / 13", type: "mobile" };
+        if (/A14/i.test(gpu)) return { model: "iPhone 12", type: "mobile" };
+        return { model: "iPhone 14 / 13 / 12", type: "mobile" };
     }
-    if (sw === 1080 && sh === 2340) return { model: "iPhone 13 mini / 12 mini", type: "mobile" };
+    if ((sw === 1080 && sh === 2340) || (w === 360 && h === 780)) {
+        return { model: "iPhone 13 mini / 12 mini", type: "mobile" };
+    }
 
-    // iPhone 11 / X Series
-    if (sw === 828 && sh === 1792) return { model: "iPhone 11 / XR", type: "mobile" };
-    if (sw === 1242 && sh === 2688) return { model: "iPhone 11 Pro Max / XS Max", type: "mobile" };
-    if (sw === 1125 && sh === 2436) return { model: "iPhone 11 Pro / XS / X", type: "mobile" };
+    // 5. iPhone 11 Pro Max / XS Max (414 x 896 pt, DPR 3x)
+    if ((sw === 1242 && sh === 2688) || (w === 414 && h === 896 && pr >= 2.5)) {
+        if (/A13/i.test(gpu) || iosMajor >= 18) return { model: "iPhone 11 Pro Max (hoặc XS Max)", type: "mobile" };
+        return { model: "iPhone 11 Pro Max / XS Max", type: "mobile" };
+    }
 
-    // Older / SE
-    if (sw === 750 && sh === 1334) return { model: "iPhone SE (2nd/3rd gen) / 8", type: "mobile" };
-    if (sw === 1080 && sh === 1920) return { model: "iPhone 8 Plus / 7 Plus", type: "mobile" };
+    // 6. iPhone 11 / XR (414 x 896 pt, DPR 2x LCD)
+    if ((sw === 828 && sh === 1792) || (w === 414 && h === 896 && pr < 2.5)) {
+        return { model: "iPhone 11 (hoặc XR)", type: "mobile" };
+    }
 
-    return { model: `iPhone (${w}x${h})`, type: "mobile" };
+    // 7. iPhone 11 Pro / XS / X (375 x 812 pt, DPR 3x)
+    if ((sw === 1125 && sh === 2436) || (w === 375 && h === 812)) {
+        // iPhone X không thể cập nhật lên iOS 17 trở lên (bị dừng ở iOS 16)
+        if (iosMajor >= 17) {
+            return { model: "iPhone 11 Pro (hoặc XS)", type: "mobile" };
+        }
+        return { model: "iPhone 11 Pro / XS / X", type: "mobile" };
+    }
+
+    // 8. iPhone SE (2nd/3rd gen) / 8 / 7
+    if ((sw === 750 && sh === 1334) || (w === 375 && h === 667)) {
+        return { model: "iPhone SE / 8", type: "mobile" };
+    }
+    if ((sw === 1080 && sh === 1920) || (w === 414 && h === 736)) {
+        return { model: "iPhone 8 Plus / 7 Plus", type: "mobile" };
+    }
+
+    return { model: `iPhone (Màn hình ${w}×${h})`, type: "mobile" };
 }
 
 /**
  * Nhận diện model máy Android từ User Agent string
  */
-function detectAndroidDeviceModel(ua: string): string {
+function detectAndroidDeviceModel(ua: string, gpu: string = ""): string {
     // Regex trích xuất Model trước Build/...
     const buildMatch = ua.match(/;\s*([^;]+?)\s*Build/i);
     let rawModel = buildMatch ? buildMatch[1].trim() : "";
@@ -106,7 +138,16 @@ function detectAndroidDeviceModel(ua: string): string {
         if (androidMatch) rawModel = androidMatch[1].trim();
     }
 
-    if (!rawModel) return "Thiết bị Android";
+    // Xử lý trường hợp "K" (User-Agent Reduction của Chrome trên Android)
+    if (!rawModel || rawModel.toUpperCase() === "K" || rawModel.toLowerCase() === "linux") {
+        if (gpu) {
+            if (/Adreno\s*(7\d\d|8\d\d)/i.test(gpu)) return "Android Flagship (Snapdragon)";
+            if (/Adreno/i.test(gpu)) return "Thiết bị Android (Snapdragon)";
+            if (/Mali-G(7\d|8\d|9\d|7\d\d)/i.test(gpu)) return "Android (MediaTek Dimensity)";
+            if (/Mali/i.test(gpu)) return "Thiết bị Android (Mali)";
+        }
+        return "Thiết bị Android";
+    }
 
     // Danh mục mapping model Samsung
     if (/SM-S928/i.test(rawModel)) return "Samsung Galaxy S24 Ultra";
@@ -124,8 +165,9 @@ function detectAndroidDeviceModel(ua: string): string {
     if (/SM-A556/i.test(rawModel)) return "Samsung Galaxy A55 5G";
     if (/SM-A546/i.test(rawModel)) return "Samsung Galaxy A54 5G";
     if (/SM-A346/i.test(rawModel)) return "Samsung Galaxy A34 5G";
-    if (/SM-A156/i.test(rawModel)) return "Samsung Galaxy A15";
-    if (/SM-A146/i.test(rawModel)) return "Samsung Galaxy A14";
+    if (/SM-A156|SM-A155/i.test(rawModel)) return "Samsung Galaxy A15";
+    if (/SM-A146|SM-A145/i.test(rawModel)) return "Samsung Galaxy A14";
+    if (/SM-A055/i.test(rawModel)) return "Samsung Galaxy A05";
     if (/SM-F946/i.test(rawModel)) return "Samsung Galaxy Z Fold 5";
     if (/SM-F731/i.test(rawModel)) return "Samsung Galaxy Z Flip 5";
     if (/SM-F956/i.test(rawModel)) return "Samsung Galaxy Z Fold 6";
@@ -138,15 +180,39 @@ function detectAndroidDeviceModel(ua: string): string {
     }
 
     // Xiaomi / Redmi / POCO
+    if (/2312DRA50G/i.test(rawModel)) return "Xiaomi Redmi Note 13 Pro";
+    if (/23124RA7EO/i.test(rawModel)) return "Xiaomi Redmi Note 13";
+    if (/2201117P/i.test(rawModel)) return "Xiaomi Redmi Note 11";
+    if (/22071212AG/i.test(rawModel)) return "Xiaomi 12T Pro";
     if (/Redmi/i.test(rawModel)) return `Xiaomi ${rawModel}`;
     if (/POCO/i.test(rawModel)) return `Xiaomi ${rawModel}`;
     if (/Xiaomi|Mi\s+/i.test(rawModel)) return rawModel;
     if (/^(22|23|24)[0-9]{2}/i.test(rawModel)) return `Xiaomi (${rawModel})`;
 
-    // Oppo / Vivo / Realme
+    // Realme
+    if (/RMX3709/i.test(rawModel)) return "Realme 11 Pro 5G (RMX3709)";
+    if (/RMX3710/i.test(rawModel)) return "Realme 11 Pro+ 5G";
+    if (/RMX3760|RMX3761|RMX3762/i.test(rawModel)) return "Realme C53";
+    if (/RMX3834/i.test(rawModel)) return "Realme C67";
+    if (/RMX3830/i.test(rawModel)) return "Realme C51";
+    if (/RMX3771/i.test(rawModel)) return "Realme 11 5G";
+    if (/RMX3630/i.test(rawModel)) return "Realme 10";
+    if (/RMX3363/i.test(rawModel)) return "Realme GT Master Edition";
+    if (/RMX[0-9]+/i.test(rawModel)) return `Realme (${rawModel})`;
+
+    // Oppo
+    if (/CPH2579/i.test(rawModel)) return "Oppo Reno 11 5G";
+    if (/CPH2607/i.test(rawModel)) return "Oppo Reno 12 5G";
+    if (/CPH2477/i.test(rawModel)) return "Oppo A78";
+    if (/CPH2527/i.test(rawModel)) return "Oppo A58";
+    if (/CPH2387/i.test(rawModel)) return "Oppo A57";
     if (/CPH|PG/i.test(rawModel)) return `Oppo (${rawModel})`;
+
+    // Vivo
+    if (/V2246/i.test(rawModel)) return "Vivo V27e";
+    if (/V2310/i.test(rawModel)) return "Vivo Y36";
+    if (/V2204/i.test(rawModel)) return "Vivo V25 Pro";
     if (/V2[0-9]{3}/i.test(rawModel)) return `Vivo (${rawModel})`;
-    if (/RMX/i.test(rawModel)) return `Realme (${rawModel})`;
 
     return rawModel;
 }
@@ -307,18 +373,18 @@ export function getDetailedDeviceInfo(): DetailedDeviceInfo {
 
     // 1. Kiểm tra iOS
     if (/iPhone|iPod/i.test(ua)) {
-        const apple = detectAppleDeviceModel(gpu);
+        const apple = detectAppleDeviceModel(gpu, os);
         deviceType = "mobile";
         deviceModel = apple.model;
     } else if (/iPad/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
-        const apple = detectAppleDeviceModel(gpu);
+        const apple = detectAppleDeviceModel(gpu, os);
         deviceType = "tablet";
         deviceModel = apple.model;
     }
     // 2. Kiểm tra Android
     else if (/Android/i.test(ua)) {
         deviceType = /tablet|playbook|silk/i.test(ua) ? "tablet" : "mobile";
-        deviceModel = detectAndroidDeviceModel(ua);
+        deviceModel = detectAndroidDeviceModel(ua, gpu);
     }
     // 3. Desktop / Laptop (Mac, Windows, Linux)
     else {
@@ -336,4 +402,49 @@ export function getDetailedDeviceInfo(): DetailedDeviceInfo {
         screenResolution,
         hardwareSummary
     };
+}
+
+/**
+ * Chuẩn hóa tên thiết bị để hiển thị thân thiện trên bảng Admin Analytics
+ * (Khắc phục model "K", phân giải rớt fallback, hoặc dòng iPhone trùng thông số)
+ */
+export function cleanDeviceModelName(deviceModel?: string | null, os?: string | null): string {
+    if (!deviceModel) return "Không xác định";
+    const d = String(deviceModel).trim();
+
+    // 1. Khắc phục placeholder "K" từ Chrome Android (UA Reduction)
+    if (d.toUpperCase() === "K" || d.toLowerCase() === "linux") {
+        return "Thiết bị Android";
+    }
+
+    // 2. Sửa fallback iPhone bị ghi thô dạng (375x812)
+    if (/iPhone\s*\(\s*375\s*x\s*812\s*\)/i.test(d)) {
+        return "iPhone 11 Pro (hoặc XS)";
+    }
+    if (/iPhone\s*\(\s*414\s*x\s*896\s*\)/i.test(d)) {
+        return "iPhone 11 / XR / XS Max";
+    }
+    if (/iPhone\s*\(\s*390\s*x\s*844\s*\)/i.test(d)) {
+        return "iPhone 14 / 13 / 12";
+    }
+    if (/iPhone\s*\(\s*428\s*x\s*926\s*\)/i.test(d)) {
+        return "iPhone 14 Plus / 13 Pro Max";
+    }
+
+    // 3. Phân biệt theo phiên bản iOS nếu là dòng iPhone X / XS / 11 Pro
+    if (d.includes("iPhone 11 Pro / XS / X")) {
+        // iPhone X không chạy được iOS 17 trở lên (dừng tại iOS 16)
+        if (os && /iOS\s*(17|18|19|2\d)/i.test(os)) {
+            return "iPhone 11 Pro (hoặc XS)";
+        }
+        return "iPhone 11 Pro / XS / X";
+    }
+
+    // 4. Realme mapping
+    if (/RMX3709/i.test(d)) return "Realme 11 Pro 5G (RMX3709)";
+    if (/RMX3710/i.test(d)) return "Realme 11 Pro+ 5G";
+    if (/RMX3760|RMX3761/i.test(d)) return "Realme C53";
+    if (/RMX3834/i.test(d)) return "Realme C67";
+
+    return d;
 }

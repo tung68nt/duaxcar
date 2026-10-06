@@ -86,37 +86,52 @@ export default function AnalyticsTracker() {
         });
 
         // 5. Thu thập thông tin chi tiết phần cứng & hệ điều hành (Mobile iOS/Android Model, PC/Mac)
-        const deviceInfo = getDetailedDeviceInfo();
+        const sendTrack = async () => {
+            const deviceInfo = getDetailedDeviceInfo();
 
-        // 6. Gửi sự kiện tracking lên Server
-        const trackPayload = {
-            visitorId,
-            sessionId,
-            path: pathname,
-            title: pageTitle,
-            pageType,
-            targetSlug,
-            referrer,
-            utmSource: utmParams.source,
-            utmMedium: utmParams.medium,
-            utmCampaign: utmParams.campaign,
-            device: deviceInfo.deviceType,
-            deviceModel: deviceInfo.deviceModel,
-            os: deviceInfo.os,
-            browser: deviceInfo.browser,
-            screenResolution: deviceInfo.screenResolution,
-            hardwareSummary: deviceInfo.hardwareSummary
+            // Nếu trình duyệt hỗ trợ Client Hints (Android Chrome), lấy model thực tế thay vì bị giảm lược "K"
+            if (typeof navigator !== "undefined" && (navigator as any).userAgentData?.getHighEntropyValues) {
+                try {
+                    const uach = await (navigator as any).userAgentData.getHighEntropyValues(["model"]);
+                    if (uach?.model && uach.model !== "K" && uach.model.trim() !== "") {
+                        deviceInfo.deviceModel = uach.model;
+                        deviceInfo.hardwareSummary = `${uach.model} • ${deviceInfo.os}`;
+                    }
+                } catch {}
+            }
+
+            // 6. Gửi sự kiện tracking lên Server
+            const trackPayload = {
+                visitorId,
+                sessionId,
+                path: pathname,
+                title: pageTitle,
+                pageType,
+                targetSlug,
+                referrer,
+                utmSource: utmParams.source,
+                utmMedium: utmParams.medium,
+                utmCampaign: utmParams.campaign,
+                device: deviceInfo.deviceType,
+                deviceModel: deviceInfo.deviceModel,
+                os: deviceInfo.os,
+                browser: deviceInfo.browser,
+                screenResolution: deviceInfo.screenResolution,
+                hardwareSummary: deviceInfo.hardwareSummary
+            };
+
+            // Dùng non-blocking fetch không làm chậm giao diện
+            try {
+                fetch("/api/analytics/track", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(trackPayload),
+                    keepalive: true
+                }).catch(() => {});
+            } catch {}
         };
 
-        // Dùng non-blocking fetch không làm chậm giao diện
-        try {
-            fetch("/api/analytics/track", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(trackPayload),
-                keepalive: true
-            }).catch(() => {});
-        } catch {}
+        sendTrack();
 
         // Ghi nhận thời gian người dùng đọc trang khi chuyển trang hoặc rời website
         return () => {

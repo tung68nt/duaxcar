@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { supabase } from "@/lib/supabase";
+import { normalizeCityName, safeDecodeURIComponent } from "@/lib/geo-ip";
 
 export interface PageviewItem {
     id: string;
@@ -241,12 +242,14 @@ export async function recordPageview(payload: {
     const nowIso = new Date().toISOString();
     const pvId = `pv-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
+    const normalizedCity = normalizeCityName(payload.city);
+
     const pageviewItem: PageviewItem = {
         id: pvId,
         visitorId: payload.visitorId,
         sessionId: payload.sessionId,
         ip: payload.ip,
-        city: payload.city,
+        city: normalizedCity,
         country: payload.country,
         path: payload.path,
         title: payload.title,
@@ -278,7 +281,7 @@ export async function recordPageview(payload: {
             visitors[payload.visitorId] = {
                 visitorId: payload.visitorId,
                 ip: payload.ip,
-                city: payload.city,
+                city: normalizedCity,
                 country: payload.country,
                 firstSeenAt: nowIso,
                 lastSeenAt: nowIso,
@@ -323,8 +326,8 @@ export async function recordPageview(payload: {
             if (payload.hardwareSummary) existingVisitor.hardwareSummary = payload.hardwareSummary;
 
             // Nếu có IP/City mới cập nhật thêm
-            if (payload.city && payload.city !== "Không xác định") {
-                existingVisitor.city = payload.city;
+            if (normalizedCity && normalizedCity !== "Không xác định") {
+                existingVisitor.city = normalizedCity;
             }
             if (payload.ip && payload.ip !== "127.0.0.1") {
                 existingVisitor.ip = payload.ip;
@@ -491,7 +494,7 @@ export function getVisitorJourney(visitorId?: string, ip?: string, storeParam?: 
         viewedCourses: visitor.viewedCourses || [],
         viewedBlogs: visitor.viewedBlogs || [],
         utmSummary,
-        city: visitor.city
+        city: normalizeCityName(visitor.city)
     };
 }
 
@@ -632,7 +635,7 @@ export function getAnalyticsDashboard(range: "today" | "7d" | "30d" | "all" = "7
     // --- 1. THỐNG KÊ THEO TỈNH THÀNH (GEO STATS CHO QUẢNG CÁO) ---
     const geoMap: Record<string, { pageviews: number; visitors: Set<string>; leads: number }> = {};
     for (const pv of filteredPvs) {
-        const city = pv.city || "Không xác định";
+        const city = normalizeCityName(pv.city);
         if (!geoMap[city]) {
             geoMap[city] = { pageviews: 0, visitors: new Set(), leads: 0 };
         }
@@ -641,7 +644,7 @@ export function getAnalyticsDashboard(range: "today" | "7d" | "30d" | "all" = "7
     }
 
     for (const v of convertedVisitors) {
-        const city = v.city || "Không xác định";
+        const city = normalizeCityName(v.city);
         if (geoMap[city]) {
             geoMap[city].leads += 1;
         }
@@ -901,7 +904,7 @@ export function getAnalyticsDashboard(range: "today" | "7d" | "30d" | "all" = "7
             return {
                 visitorId: v.visitorId,
                 ip: v.ip,
-                city: v.city,
+                city: normalizeCityName(v.city),
                 device: v.device,
                 deviceModel: v.deviceModel || (v.device === "mobile" ? "Điện thoại" : "Máy tính"),
                 os: v.os || (v.device === "mobile" ? "iOS / Android" : "Windows / macOS"),

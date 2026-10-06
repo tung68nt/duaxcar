@@ -23,6 +23,7 @@ import {
     RefreshCw
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { safeDecodeURIComponent } from "@/lib/geo-ip";
 
 interface ViewedItem {
     slug: string;
@@ -316,7 +317,7 @@ export default function AdminRegistrations() {
                                         <td className="px-4 py-2.5">
                                             <div className="flex items-center gap-1.5 font-semibold text-[var(--color-text)]">
                                                 <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                                                <span>{reg.city || "Hà Nội"}</span>
+                                                <span>{safeDecodeURIComponent(reg.city) || "Hà Nội"}</span>
                                             </div>
                                             <div className="text-[10px] text-amber-600 font-medium mt-0.5">
                                                 {reg.timeToConvertFormatted || "Đăng ký ngay"}
@@ -432,7 +433,7 @@ export default function AdminRegistrations() {
                                     <span className="text-[var(--color-text-muted)] block">Tỉnh Thành</span>
                                     <span className="font-bold text-[var(--color-text)] text-sm flex items-center gap-1">
                                         <MapPin className="w-3.5 h-3.5 text-rose-500" />
-                                        <span>{selectedLead.city || "Hà Nội"}</span>
+                                        <span>{safeDecodeURIComponent(selectedLead.city) || "Hà Nội"}</span>
                                     </span>
                                 </div>
                                 <div>
@@ -458,7 +459,7 @@ export default function AdminRegistrations() {
                                     <span>Gợi Ý Cho Chuyên Viên Tư Vấn CSKH:</span>
                                 </div>
                                 <p className="text-[var(--color-text)] leading-relaxed">
-                                    Học viên ở <strong>{selectedLead.city || "khu vực này"}</strong>, đã tiếp cận website <strong>{selectedLead.timeToConvertFormatted || "hôm nay"}</strong>.
+                                    Học viên ở <strong>{safeDecodeURIComponent(selectedLead.city) || "khu vực này"}</strong>, đã tiếp cận website <strong>{selectedLead.timeToConvertFormatted || "hôm nay"}</strong>.
                                     {selectedLead.viewedCourses && selectedLead.viewedCourses.length > 0 ? (
                                         <span> Học viên quan tâm sâu tới khóa <strong>{selectedLead.viewedCourses.map(c => c.name).join(", ")}</strong>. Khi tư vấn hãy xoáy sâu vào công thức nước dùng kinh doanh và tính cost lãi của các món này để tăng tỷ lệ chốt học viên!</span>
                                     ) : (

@@ -27,6 +27,8 @@ import {
     Layers
 } from "lucide-react";
 import { AnalyticsDashboardStats, GeoStatItem, CourseStatItem, PageviewItem } from "@/lib/analytics";
+import { safeDecodeURIComponent } from "@/lib/geo-ip";
+import { cleanDeviceModelName } from "@/lib/device-detector";
 
 export default function AdminAnalyticsPage() {
     const [timeRange, setTimeRange] = useState<"today" | "7d" | "30d" | "all">("7d");
@@ -350,12 +352,12 @@ export default function AdminAnalyticsPage() {
                         <table className="w-full text-left text-xs">
                             <thead className="bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] font-semibold border-b border-[var(--color-border)]">
                                 <tr>
-                                    <th className="py-2.5 px-3">Tỉnh / thành phố</th>
-                                    <th className="py-2.5 px-3">Lượt xem</th>
-                                    <th className="py-2.5 px-3">Số khách</th>
-                                    <th className="py-2.5 px-3">Đăng ký học</th>
-                                    <th className="py-2.5 px-3">Tỷ lệ chốt (%)</th>
-                                    <th className="py-2.5 px-3 text-right">Tiềm năng quảng cáo</th>
+                                    <th className="py-2.5 px-3 whitespace-nowrap">Tỉnh / thành phố</th>
+                                    <th className="py-2.5 px-3 whitespace-nowrap">Lượt xem</th>
+                                    <th className="py-2.5 px-3 whitespace-nowrap">Số khách</th>
+                                    <th className="py-2.5 px-3 whitespace-nowrap">Đăng ký học</th>
+                                    <th className="py-2.5 px-3 whitespace-nowrap">Tỷ lệ chốt (%)</th>
+                                    <th className="py-2.5 px-3 text-right whitespace-nowrap min-w-[140px]">Tiềm năng quảng cáo</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--color-border)]">
@@ -369,21 +371,23 @@ export default function AdminAnalyticsPage() {
                                     filteredGeo.map((item, idx) => {
                                         return (
                                             <tr key={idx} className="hover:bg-[var(--color-surface-light)]/50 transition-colors">
-                                                <td className="py-3 px-3 font-semibold text-[var(--color-text)] flex items-center gap-2">
-                                                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                                                        idx === 0 ? "bg-amber-500 text-white" :
-                                                        idx === 1 ? "bg-slate-300 text-slate-800" :
-                                                        idx === 2 ? "bg-orange-300 text-orange-950" :
-                                                        "bg-gray-100 text-gray-600"
-                                                    }`}>
-                                                        {idx + 1}
-                                                    </span>
-                                                    <span>{item.city}</span>
+                                                <td className="py-3 px-3 font-semibold text-[var(--color-text)] whitespace-nowrap">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                                                            idx === 0 ? "bg-amber-500 text-white" :
+                                                            idx === 1 ? "bg-slate-300 text-slate-800" :
+                                                            idx === 2 ? "bg-orange-300 text-orange-950" :
+                                                            "bg-gray-100 text-gray-600"
+                                                        }`}>
+                                                            {idx + 1}
+                                                        </span>
+                                                        <span>{safeDecodeURIComponent(item.city)}</span>
+                                                    </div>
                                                 </td>
-                                                <td className="py-3 px-3 text-[var(--color-text)]">
+                                                <td className="py-3 px-3 text-[var(--color-text)] whitespace-nowrap">
                                                     <div className="flex items-center gap-2">
                                                         <span>{item.pageviews}</span>
-                                                        <div className="w-16 h-1.5 rounded-full bg-[var(--color-border)] overflow-hidden">
+                                                        <div className="w-16 h-1.5 rounded-full bg-[var(--color-border)] overflow-hidden shrink-0">
                                                             <div 
                                                                 style={{ width: `${Math.min(100, item.percentage * 2.5)}%` }}
                                                                 className="h-full bg-[var(--color-primary)] rounded-full"
@@ -392,23 +396,23 @@ export default function AdminAnalyticsPage() {
                                                         <span className="text-[10px] text-[var(--color-text-muted)]">{item.percentage}%</span>
                                                     </div>
                                                 </td>
-                                                <td className="py-3 px-3 text-[var(--color-text-secondary)]">
+                                                <td className="py-3 px-3 text-[var(--color-text-secondary)] whitespace-nowrap">
                                                     {item.visitors}
                                                 </td>
-                                                <td className="py-3 px-3 font-bold text-emerald-600">
+                                                <td className="py-3 px-3 font-bold text-emerald-600 whitespace-nowrap">
                                                     {item.leads > 0 ? (
-                                                        <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20">
+                                                        <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 whitespace-nowrap">
                                                             {item.leads} học viên
                                                         </span>
                                                     ) : (
                                                         <span className="text-[var(--color-text-muted)] font-normal">0</span>
                                                     )}
                                                 </td>
-                                                <td className="py-3 px-3 text-[var(--color-text)] font-semibold">
+                                                <td className="py-3 px-3 text-[var(--color-text)] font-semibold whitespace-nowrap">
                                                     {item.conversionRate}%
                                                 </td>
-                                                <td className="py-3 px-3 text-right">
-                                                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-semibold text-[11px] ${
+                                                <td className="py-3 px-3 text-right whitespace-nowrap">
+                                                    <span className={`inline-flex items-center justify-center whitespace-nowrap px-2.5 py-1 rounded-full font-semibold text-[11px] shrink-0 ${
                                                         item.advertisingPotential === "Rất cao"
                                                             ? "bg-rose-500/10 text-rose-600 border border-rose-500/20"
                                                             : item.advertisingPotential === "Cao"
@@ -449,8 +453,8 @@ export default function AdminAnalyticsPage() {
                                     {/* Insight 1: Top City */}
                                     <div className="p-3 rounded-xl bg-[var(--color-background)] border border-[var(--color-border)] text-xs">
                                         <div className="font-semibold text-rose-600 mb-1 flex items-center gap-1.5">
-                                            <Target className="w-3.5 h-3.5" />
-                                            <span>Khu Vực Dẫn Đầu: {data.geoStats[0]?.city} {data.geoStats[1] ? `& ${data.geoStats[1]?.city}` : ""}</span>
+                                            <Target className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Khu Vực Dẫn Đầu: {safeDecodeURIComponent(data.geoStats[0]?.city)} {data.geoStats[1] ? `& ${safeDecodeURIComponent(data.geoStats[1]?.city)}` : ""}</span>
                                         </div>
                                         <p className="text-[var(--color-text-secondary)] text-[11px]">
                                             Chiếm {data.geoStats[0]?.percentage}% lượng quan tâm website. Khuyến nghị ưu tiên tối đa ngân sách chiến dịch Facebook / Google Ads cho khu vực này.
@@ -461,8 +465,8 @@ export default function AdminAnalyticsPage() {
                                     {data.geoStats[1] && (
                                         <div className="p-3 rounded-xl bg-[var(--color-background)] border border-[var(--color-border)] text-xs">
                                             <div className="font-semibold text-amber-600 mb-1 flex items-center gap-1.5">
-                                                <Compass className="w-3.5 h-3.5" />
-                                                <span>Địa Bàn Mở Rộng: {data.geoStats[1]?.city} {data.geoStats[2] ? `& ${data.geoStats[2]?.city}` : ""}</span>
+                                                <Compass className="w-3.5 h-3.5 shrink-0" />
+                                                <span>Địa Bàn Mở Rộng: {safeDecodeURIComponent(data.geoStats[1]?.city)} {data.geoStats[2] ? `& ${safeDecodeURIComponent(data.geoStats[2]?.city)}` : ""}</span>
                                             </div>
                                             <p className="text-[var(--color-text-secondary)] text-[11px]">
                                                 Đạt tỷ lệ chuyển đổi {data.geoStats[1]?.conversionRate}%. Thích hợp mở rộng quảng cáo các khóa học E-Learning và tài liệu kinh doanh ẩm thực.
@@ -739,15 +743,15 @@ export default function AdminAnalyticsPage() {
                 </div>
 
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
+                    <table className="w-full text-left text-xs min-w-[960px]">
                         <thead className="bg-[var(--color-surface-light)] text-[var(--color-text-secondary)] font-semibold border-b border-[var(--color-border)]">
                             <tr>
-                                <th className="py-2.5 px-3">Thiết bị & IP truy cập</th>
-                                <th className="py-2.5 px-3">Tỉnh thành</th>
-                                <th className="py-2.5 px-3">Thời gian tiếp cận</th>
-                                <th className="py-2.5 px-3">Khóa học quan tâm</th>
-                                <th className="py-2.5 px-3">Trạng thái</th>
-                                <th className="py-2.5 px-3 text-right">Hành trình</th>
+                                <th className="py-2.5 px-3 whitespace-nowrap min-w-[240px]">Thiết bị & IP truy cập</th>
+                                <th className="py-2.5 px-3 whitespace-nowrap min-w-[120px]">Tỉnh thành</th>
+                                <th className="py-2.5 px-3 whitespace-nowrap min-w-[150px]">Thời gian tiếp cận</th>
+                                <th className="py-2.5 px-3 whitespace-nowrap min-w-[200px]">Khóa học quan tâm</th>
+                                <th className="py-2.5 px-3 whitespace-nowrap min-w-[130px]">Trạng thái</th>
+                                <th className="py-2.5 px-3 text-right whitespace-nowrap min-w-[120px]">Hành trình</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--color-border)]">
@@ -755,61 +759,63 @@ export default function AdminAnalyticsPage() {
                                 data.recentVisitors.map((v, idx) => (
                                     <tr key={idx} className="hover:bg-[var(--color-surface-light)]/50 transition-colors">
                                         <td className="py-3 px-3">
-                                            <div className="font-semibold text-xs text-[var(--color-text)] flex items-center gap-1.5">
+                                            <div className="font-semibold text-xs text-[var(--color-text)] flex items-center gap-1.5 whitespace-nowrap">
                                                 {v.device === "mobile" ? (
                                                     <Smartphone className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                                                 ) : (
                                                     <Monitor className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                                                 )}
-                                                <span className="truncate max-w-[200px]" title={v.deviceModel || v.device}>
-                                                    {v.deviceModel || (v.device === "mobile" ? "Điện thoại" : "Máy tính")}
+                                                <span className="truncate max-w-[220px]" title={cleanDeviceModelName(v.deviceModel, v.os)}>
+                                                    {cleanDeviceModelName(v.deviceModel, v.os)}
                                                 </span>
                                             </div>
                                             <div className="text-[10px] text-[var(--color-text-secondary)] flex items-center gap-1.5 flex-wrap mt-0.5">
-                                                <span className="font-mono bg-[var(--color-surface-light)] px-1 py-0.5 rounded">{v.ip}</span>
-                                                {v.os && <span className="text-emerald-700 font-medium">• {v.os}</span>}
-                                                {v.browser && <span>• {v.browser}</span>}
-                                                {v.screenResolution && <span className="opacity-70">({v.screenResolution})</span>}
+                                                <span className="font-mono bg-[var(--color-surface-light)] px-1 py-0.5 rounded shrink-0">{v.ip}</span>
+                                                {v.os && <span className="text-emerald-700 font-medium shrink-0">• {v.os}</span>}
+                                                {v.browser && <span className="shrink-0">• {v.browser}</span>}
+                                                {v.screenResolution && <span className="opacity-70 shrink-0">({v.screenResolution})</span>}
                                             </div>
                                         </td>
-                                        <td className="py-3 px-3">
-                                            <span className="px-2 py-0.5 rounded-md bg-[var(--color-surface-light)] border border-[var(--color-border)] font-medium text-[var(--color-text)]">
-                                                {v.city}
+                                        <td className="py-3 px-3 whitespace-nowrap">
+                                            <span className="px-2 py-0.5 rounded-md bg-[var(--color-surface-light)] border border-[var(--color-border)] font-medium text-[var(--color-text)] whitespace-nowrap">
+                                                {safeDecodeURIComponent(v.city)}
                                             </span>
                                         </td>
-                                        <td className="py-3 px-3 text-[var(--color-text-secondary)]">
-                                            {v.daysSinceFirstVisit > 0 ? (
-                                                <span className="font-semibold text-amber-600">
-                                                    Đã tìm hiểu {v.daysSinceFirstVisit} ngày
-                                                </span>
-                                            ) : (
-                                                <span className="text-blue-600">Mới vào hôm nay</span>
-                                            )}
-                                            <div className="text-[10px] text-[var(--color-text-muted)]">
+                                        <td className="py-3 px-3 text-[var(--color-text-secondary)] whitespace-nowrap">
+                                            <div className="whitespace-nowrap">
+                                                {v.daysSinceFirstVisit > 0 ? (
+                                                    <span className="font-semibold text-amber-600">
+                                                        Đã tìm hiểu {v.daysSinceFirstVisit} ngày
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-blue-600 font-medium">Mới vào hôm nay</span>
+                                                )}
+                                            </div>
+                                            <div className="text-[10px] text-[var(--color-text-muted)] mt-0.5 whitespace-nowrap">
                                                 Tổng {v.totalVisits} lượt xem trang
                                             </div>
                                         </td>
                                         <td className="py-3 px-3 max-w-xs truncate text-[var(--color-text)]" title={v.viewedCoursesSummary}>
                                             {v.viewedCoursesSummary}
                                         </td>
-                                        <td className="py-3 px-3">
+                                        <td className="py-3 px-3 whitespace-nowrap">
                                             {v.isConverted ? (
-                                                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 inline-flex items-center gap-1">
-                                                    <CheckCircle2 className="w-3 h-3" /> Đã đăng ký học
+                                                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 inline-flex items-center gap-1 whitespace-nowrap shrink-0">
+                                                    <CheckCircle2 className="w-3 h-3 shrink-0" /> Đã đăng ký học
                                                 </span>
                                             ) : (
-                                                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                                                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-600 border border-amber-500/20 inline-flex items-center whitespace-nowrap shrink-0">
                                                     Khách tiềm năng
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="py-3 px-3 text-right">
+                                        <td className="py-3 px-3 text-right whitespace-nowrap">
                                             <button
                                                 onClick={() => handleViewJourney(v.visitorId, v.ip)}
-                                                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-surface-light)] hover:bg-[var(--color-primary)] hover:text-white border border-[var(--color-border)] transition-all inline-flex items-center gap-1"
+                                                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-surface-light)] hover:bg-[var(--color-primary)] hover:text-white border border-[var(--color-border)] transition-all inline-flex items-center gap-1 whitespace-nowrap shrink-0"
                                             >
-                                                <span>Xem chi tiết</span>
-                                                <ChevronRight className="w-3.5 h-3.5" />
+                                                <span className="whitespace-nowrap">Xem chi tiết</span>
+                                                <ChevronRight className="w-3.5 h-3.5 shrink-0" />
                                             </button>
                                         </td>
                                     </tr>
@@ -862,7 +868,7 @@ export default function AdminAnalyticsPage() {
                                     <div className="p-4 rounded-xl bg-[var(--color-surface-light)] border border-[var(--color-border)] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                                         <div>
                                             <span className="text-[var(--color-text-muted)] block">Tỉnh Thành</span>
-                                            <span className="font-bold text-[var(--color-text)] text-sm">{visitorJourneyData.city || "Không xác định"}</span>
+                                            <span className="font-bold text-[var(--color-text)] text-sm">{safeDecodeURIComponent(visitorJourneyData.city) || "Không xác định"}</span>
                                         </div>
                                         <div>
                                             <span className="text-[var(--color-text-muted)] block">IP Khách Hàng</span>
@@ -890,7 +896,7 @@ export default function AdminAnalyticsPage() {
                                             </div>
                                             <div>
                                                 <div className="font-bold text-[var(--color-text)]">
-                                                    {visitorJourneyData.visitor?.deviceModel || (visitorJourneyData.visitor?.device === "mobile" ? "Điện thoại thông minh" : "Máy tính để bàn")}
+                                                    {cleanDeviceModelName(visitorJourneyData.visitor?.deviceModel, visitorJourneyData.visitor?.os) || (visitorJourneyData.visitor?.device === "mobile" ? "Điện thoại thông minh" : "Máy tính để bàn")}
                                                 </div>
                                                 <div className="text-[11px] text-[var(--color-text-secondary)] mt-0.5 flex items-center gap-2 flex-wrap">
                                                     <span>Hệ điều hành: <strong>{visitorJourneyData.visitor?.os || "N/A"}</strong></span>
